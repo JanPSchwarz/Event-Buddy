@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: eventbuddy-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: event-buddy
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  app:
+    image: janpschwarz/eventbuddy:latest
+    container_name: eventbuddy-app
+    depends_on:
+      - mongo
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password@mongo:27017/team-project?authSource=admin
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

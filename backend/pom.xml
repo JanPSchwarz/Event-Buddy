@@ -82,6 +82,7 @@
     </dependencies>
 
     <build>
+        <finalName>Event-Buddy</finalName>
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
