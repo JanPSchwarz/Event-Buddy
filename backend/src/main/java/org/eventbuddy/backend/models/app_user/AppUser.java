@@ -1,11 +1,11 @@
-package org.eventbuddy.backend.models.appUser;
+package org.eventbuddy.backend.models.app_user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.models.baseModel.MongoBaseModel;
+import org.eventbuddy.backend.models.base_model.MongoBaseModel;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;

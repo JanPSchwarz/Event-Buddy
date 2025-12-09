@@ -1,4 +1,4 @@
-package org.eventbuddy.backend.models.appUser;
+package org.eventbuddy.backend.models.app_user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
-import org.eventbuddy.backend.models.appUser.AppUser;
+import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.services.UserService;
 import org.springframework.http.MediaType;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Get current authenticated user information")
 @Validated
 public class AuthController {

@@ -2,8 +2,8 @@ package org.eventbuddy.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.models.appUser.AppUser;
-import org.eventbuddy.backend.models.appUser.UserSettings;
+import org.eventbuddy.backend.models.app_user.AppUser;
+import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -22,7 +22,8 @@ public class UserService extends DefaultOAuth2UserService {
 
         String uniqueProviderId = getProviderId( userRequest, oAuthUser );
 
-        userRepo.findByProviderId( uniqueProviderId ).orElseGet( () ->
+        // create user if not exists
+        AppUser user = userRepo.findByProviderId( uniqueProviderId ).orElseGet( () ->
                 createAndSaveUser( oAuthUser, userRequest )
         );
 

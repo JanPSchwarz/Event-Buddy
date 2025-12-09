@@ -1,4 +1,4 @@
-package org.eventbuddy.backend.models.baseModel;
+package org.eventbuddy.backend.models.base_model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -7,12 +7,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
 @Setter
-public abstract class MongoBaseModel implements Serializable {
+public abstract class MongoBaseModel {
 
     @Schema(
             description = "Unique identifier of the mongoDb entity",
@@ -25,6 +24,7 @@ public abstract class MongoBaseModel implements Serializable {
 
     @Schema(
             description = "The timestamp when this entity was created.",
+            example = "2024-01-01T12:00:00Z",
             requiredMode = Schema.RequiredMode.REQUIRED,
             nullable = false
     )
@@ -33,6 +33,7 @@ public abstract class MongoBaseModel implements Serializable {
 
     @Schema(
             description = "The timestamp of the last modification of this entity.",
+            example = "2024-01-01T12:00:00Z",
             requiredMode = Schema.RequiredMode.REQUIRED,
             nullable = false
     )

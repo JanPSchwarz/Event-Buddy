@@ -15,6 +15,11 @@ export default defineConfig( {
             target: "src/api/generated",
             client: "react-query",
             baseUrl: baseURL,
+            override: {
+                query: {
+                    version: 5
+                }
+            }
         },
     },
 } );
