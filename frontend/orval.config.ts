@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const baseURL = isDev
     ? "http://localhost:8080"
-    : "https://teamproject-wrms.onrender.com/";
+    : "";
 export default defineConfig( {
     eventBuddyApi: {
         input: {

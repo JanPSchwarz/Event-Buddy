@@ -19,7 +19,7 @@ type UserMenuProps = {
 export default function UserMenu( { avatarUrl, userSettings }: Readonly<UserMenuProps> ) {
 
     const navigate = useNavigate();
-    const pathname = useLocation();
+    const { pathname } = useLocation();
     const params = useParams();
 
     console.log( ( pathname ) )
@@ -68,8 +68,11 @@ export default function UserMenu( { avatarUrl, userSettings }: Readonly<UserMenu
             <DropdownMenuContent align={ "end" } className={ "flex flex-col" }>
                 { userMenuButtons.map( ( { label, action } ) => (
                     <DropdownMenuItem key={ label } onClick={ action }
-                                      className={ `${ label === "Logout" && "bg-destructive/40 mt-2 text-xs hover:ring-destructive/40 hover:ring" }` }>
+                                      className={ `flex justify-between ${ label === "Logout" && "bg-destructive/40 mt-2 text-xs hover:ring-destructive/40 hover:ring" }` }>
                         { label }
+                        { pathname === `/${ label.toLowerCase() }` &&
+                            <div className={ "rounded-full size-2 bg-green-400/60" }/>
+                        }
                     </DropdownMenuItem>
                 ) ) }
 
