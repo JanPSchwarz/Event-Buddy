@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const baseURL = isDev
     ? "http://localhost:8080"
-    : "https://teamproject-wrms.onrender.com/";
+    : "";
 export default defineConfig( {
     eventBuddyApi: {
         input: {
@@ -15,6 +15,11 @@ export default defineConfig( {
             target: "src/api/generated",
             client: "react-query",
             baseUrl: baseURL,
+            override: {
+                query: {
+                    version: 5
+                }
+            }
         },
     },
 } );

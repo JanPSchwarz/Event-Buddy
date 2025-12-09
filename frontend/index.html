@@ -5,7 +5,18 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <link href="./src/index.css" rel="stylesheet">
     <title>Event-Buddy</title>
-    <link href="/vite.svg" rel="icon" type="image/svg+xml"/>
+    <link href="/ticket.svg" rel="icon" type="image/svg+xml"/>
+    <script>
+        // loading theme ahead of React rendering to prevent flash
+        try {
+            const theme = localStorage.getItem( 'vite-ui-theme' ) || 'dark';
+            if ( theme === 'dark' || ( theme === 'system' && globalThis.matchMedia( '(prefers-color-scheme: dark)' ).matches ) ) {
+                document.documentElement.classList.add( 'dark' );
+            }
+        } catch ( e ) {
+            console.error( e );
+        }
+    </script>
 </head>
 <body>
 <div id="root"></div>
