@@ -1,16 +1,20 @@
 package org.eventbuddy.backend.models.base_model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class MongoBaseModel {
 
     @Schema(

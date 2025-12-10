@@ -3,7 +3,12 @@ package org.eventbuddy.backend.models.app_user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.models.base_model.MongoBaseModel;
 import org.hibernate.validator.constraints.URL;
@@ -13,7 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("users")
@@ -26,7 +31,7 @@ public class AppUser extends MongoBaseModel {
             requiredMode = Schema.RequiredMode.REQUIRED,
             nullable = false
     )
-    @NotBlank
+    @NotBlank(message = "Provider ID must not be empty")
     @Indexed(unique = true)
     private String providerId;
 
@@ -34,12 +39,10 @@ public class AppUser extends MongoBaseModel {
             description = "Email of the user",
             example = "john_doe@example.com",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED,
-            nullable = true,
-            minLength = 5,
-            maxLength = 50
+            nullable = true
     )
     @Indexed(unique = true)
-    @Email
+    @Email(message = "Email should be valid")
     private String email;
 
     @Schema(
@@ -68,6 +71,7 @@ public class AppUser extends MongoBaseModel {
             maxLength = 20
     )
     @Indexed
+    @Size(min = 3, max = 20, message = "Name must be between 3 and 20 characters")
     private String name;
 
     @Schema(
