@@ -7,23 +7,21 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 
 type UserMenuProps = {
     avatarUrl: string;
     userSettings: AppUser["userSettings"];
+    userId: string;
 }
 
 
-export default function UserMenu( { avatarUrl, userSettings }: Readonly<UserMenuProps> ) {
+export default function UserMenu( { avatarUrl, userSettings, userId }: Readonly<UserMenuProps> ) {
 
     const navigate = useNavigate();
     const { pathname } = useLocation();
-    const params = useParams();
 
-    console.log( ( pathname ) )
-    console.log( params )
 
     const logout = () => {
         const host = globalThis.location.host === 'localhost:5173' ? 'http://localhost:8080' : globalThis.location.origin
@@ -41,7 +39,7 @@ export default function UserMenu( { avatarUrl, userSettings }: Readonly<UserMenu
         {
             label: "Settings",
             action: () => {
-                navigate( "/settings" );
+                navigate( `/settings/${ userId }` );
             },
         },
         {
@@ -67,10 +65,11 @@ export default function UserMenu( { avatarUrl, userSettings }: Readonly<UserMenu
             </DropdownMenuTrigger>
             <DropdownMenuContent align={ "end" } className={ "flex flex-col" }>
                 { userMenuButtons.map( ( { label, action } ) => (
-                    <DropdownMenuItem key={ label } onClick={ action }
+                    <DropdownMenuItem key={ label }
+                                      onClick={ action }
                                       className={ `flex justify-between ${ label === "Logout" && "bg-destructive/40 mt-2 text-xs hover:ring-destructive/40 hover:ring" }` }>
                         { label }
-                        { pathname === `/${ label.toLowerCase() }` &&
+                        { pathname.split( "/" ).includes( `${ label.toLowerCase() }` ) &&
                             <div className={ "rounded-full size-2 bg-green-400/60" }/>
                         }
                     </DropdownMenuItem>

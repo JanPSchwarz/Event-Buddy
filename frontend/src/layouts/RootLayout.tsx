@@ -14,6 +14,7 @@ export default function RootLayout() {
             <div className={ "flex-1 mt-4 flex items-center justify-center" }>
                 { isHomePage && <HomePage/> }
                 <Outlet/>
+                {/*<Toaster richColors={ true }/>*/ }
             </div>
         </>
     )
