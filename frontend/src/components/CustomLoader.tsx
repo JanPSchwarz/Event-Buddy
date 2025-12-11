@@ -8,7 +8,7 @@ export default function CustomLoader( { className, text, size }: Readonly<{
 }> ) {
 
     return (
-        <div className={ cn( "flex flex-col justify-center items-center gap-4", className ) }>
+        <div className={ cn( "w-full flex flex-col justify-center items-center gap-4", className ) }>
             <Spinner className={ size }/>
             <p className={ "" }>{ text ?? "Loading..." }</p>
         </div>

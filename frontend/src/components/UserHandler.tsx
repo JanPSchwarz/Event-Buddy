@@ -1,21 +1,20 @@
 import { Spinner } from "@/components/ui/spinner.tsx";
 import LoginDialog from "@/components/LoginDialog.tsx";
 import UserMenu from "@/components/UserMenu.tsx";
-import { useContextUser } from "@/components/UserProvider.tsx";
+import { useContextUser } from "@/context/UserProvider.tsx";
 
 
 export default function UserHandler() {
 
-    const { user, isLoading } = useContextUser();
+    const { user, isLoading, isLoggedIn } = useContextUser();
 
     if ( isLoading ) return <Spinner className={ "size-4 text-muted-foreground" }/>;
 
 
     return (
         <div className={ "flex justify-center items-center" }>
-            { user ?
+            { isLoggedIn ?
                 <UserMenu
-                    userSettings={ user.userSettings }
                     userId={ user.id }
                     avatarUrl={ user.avatarUrl || "" }/>
                 :

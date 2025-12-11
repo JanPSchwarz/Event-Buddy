@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
-import type { AppUser } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { UserRound } from 'lucide-react';
 import {
     DropdownMenu,
@@ -12,12 +11,11 @@ import { useLocation, useNavigate } from "react-router";
 
 type UserMenuProps = {
     avatarUrl: string;
-    userSettings: AppUser["userSettings"];
     userId: string;
 }
 
 
-export default function UserMenu( { avatarUrl, userSettings, userId }: Readonly<UserMenuProps> ) {
+export default function UserMenu( { avatarUrl, userId }: Readonly<UserMenuProps> ) {
 
     const navigate = useNavigate();
     const { pathname } = useLocation();
@@ -53,14 +51,11 @@ export default function UserMenu( { avatarUrl, userSettings, userId }: Readonly<
     return (
         <DropdownMenu>
             <DropdownMenuTrigger>
-                <Avatar className={ `${ userSettings.showAvatar ? "" : "ring" }` }>
-                    { userSettings.showAvatar ?
-                        <AvatarImage src={ avatarUrl } alt={ "test" }/>
-                        :
-                        <AvatarFallback>
-                            <UserRound className={ "" }/>
-                        </AvatarFallback>
-                    }
+                <Avatar className={ `${ avatarUrl ? "" : "ring" }` }>
+                    <AvatarImage src={ avatarUrl } alt={ "test" }/>
+                    <AvatarFallback>
+                        <UserRound className={ "" }/>
+                    </AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={ "end" } className={ "flex flex-col" }>

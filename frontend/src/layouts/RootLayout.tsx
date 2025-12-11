@@ -6,15 +6,13 @@ export default function RootLayout() {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
 
-
     return (
 
         <>
             <Header/>
-            <div className={ "flex-1 mt-4 flex items-center justify-center" }>
+            <div className={ "mt-8 flex-1 flex items-stretch justify-stretch w-full" }>
                 { isHomePage && <HomePage/> }
                 <Outlet/>
-                {/*<Toaster richColors={ true }/>*/ }
             </div>
         </>
     )

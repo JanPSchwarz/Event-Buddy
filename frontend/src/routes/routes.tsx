@@ -15,4 +15,5 @@ export const routes = createBrowserRouter( [
             { path: "settings/:userId", element: <SettingsPage/> },
             { path: "*", element: <PageNotFound/> }
         ],
-    } ] );
+    }
+] );

@@ -7,15 +7,15 @@ type UserProviderProps = {
 }
 
 type UserProviderState = {
-    user: AppUser | null
+    user: AppUser
     isLoading: boolean
-    loggedIn: boolean
+    isLoggedIn: boolean
 }
 
 const initialState: UserProviderState = {
-    user: null,
+    user: {} as AppUser,
     isLoading: true,
-    loggedIn: false
+    isLoggedIn: false
 }
 
 const UserProviderContext = createContext<UserProviderState>( initialState )
@@ -32,9 +32,9 @@ export function UserProvider( {
     } );
 
     const value = useMemo( () => ( {
-        user: currentUser?.data || null,
+        user: currentUser?.data || {} as AppUser,
         isLoading,
-        loggedIn: !isLoading && !!currentUser?.data
+        isLoggedIn: !isLoading && !!currentUser?.data
     } ), [ currentUser, isLoading ] );
 
     return (

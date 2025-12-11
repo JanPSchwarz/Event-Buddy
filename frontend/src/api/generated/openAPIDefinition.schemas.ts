@@ -16,6 +16,36 @@ export interface ErrorMessage {
 }
 
 /**
+ * Data Transfer Object for updating user profile
+ */
+export interface AppUserUpdateDto {
+  /** Email of the user */
+  email?: string;
+  /**
+   * Name of the user
+   * @minLength 3
+   * @maxLength 20
+   */
+  name?: string;
+  /** User settings */
+  userSettings: UserSettings;
+}
+
+/**
+ * User settings
+ */
+export interface UserSettings {
+  /** Whether the user is visible to others */
+  userVisible: boolean;
+  /** Whether to show the user's avatar */
+  showAvatar: boolean;
+  /** Whether to show the user's organizations */
+  showOrgas: boolean;
+  /** Whether to show the user's email */
+  showEmail: boolean;
+}
+
+/**
  * Role of the user
  */
 export type AppUserRole = typeof AppUserRole[keyof typeof AppUserRole];
@@ -40,11 +70,7 @@ export interface AppUser {
   lastModifiedDate: string;
   /** ID of the authentication provider */
   providerId: string;
-  /**
-   * Email of the user
-   * @minLength 5
-   * @maxLength 50
-   */
+  /** Email of the user */
   email?: string;
   /** Role of the user */
   role: AppUserRole;
@@ -60,15 +86,12 @@ export interface AppUser {
   avatarUrl?: string;
 }
 
-/**
- * User settings
- */
-export interface UserSettings {
-  /** Whether the user is visible to others */
-  userVisible: boolean;
-  /** Whether to show the user's avatar */
-  showAvatar: boolean;
-  /** Whether to show the user's organizations */
-  showOrgas: boolean;
+export interface AppUserDto {
+  /** Email of the user */
+  readonly email?: string;
+  /** Name of the user */
+  readonly name?: string;
+  /** Avatar URL of the user */
+  readonly avatarUrl?: string;
 }
 
