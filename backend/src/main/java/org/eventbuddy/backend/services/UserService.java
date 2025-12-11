@@ -2,12 +2,15 @@ package org.eventbuddy.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.models.app_user.AppUser;
+import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.AppUserUpdateDto;
-import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,18 +32,65 @@ public class UserService {
         return userRepo.save( updatedUser );
     }
 
-    public AppUser updateUserSettings( UserSettings newUserSettings, String userId ) {
-        AppUser existingUser = getUserOrThrow( userId );
+    public void deleteUserById( String userId ) {
+        userRepo.deleteById( userId );
+    }
 
-        AppUser updatedUser = existingUser.toBuilder()
-                .userSettings( newUserSettings )
+    public AppUser makeUserAdmin( String userId ) {
+        AppUser user = getUserOrThrow( userId );
+
+        AppUser updatedUser = user.toBuilder()
+                .role( Role.ADMIN )
                 .build();
 
         return userRepo.save( updatedUser );
     }
 
-    public void deleteUserById( String userId ) {
-        userRepo.deleteById( userId );
+    public AppUser makeUserSuperAdmin( String userId ) {
+        AppUser user = getUserOrThrow( userId );
+
+        AppUser updatedUser = user.toBuilder()
+                .role( Role.SUPER_ADMIN )
+                .build();
+
+        return userRepo.save( updatedUser );
+    }
+
+    public AppUserDto getUserById( String userId ) {
+        AppUser user = getUserOrThrow( userId );
+
+        if ( !user.getUserSettings().userVisible() ) {
+            throw new ResourceNotFoundException( "User not found with id: " + userId );
+        }
+
+        return AppUserDto.builder()
+                .name( user.getName() )
+                .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
+                .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
+                .build();
+    }
+
+    public List<AppUserDto> getAllUsers() {
+
+        List<AppUser> users = userRepo.findAll();
+
+        return users.stream()
+                .filter(
+                        user -> !user.getUserSettings().userVisible() )
+                .map( user -> AppUserDto.builder()
+                        .name( user.getName() )
+                        .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
+                        .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
+                        .build() )
+                .toList();
+    }
+
+    public List<AppUser> getAllRawUsers() {
+        return userRepo.findAll();
+    }
+
+    public AppUser getRawUserById( String userId ) {
+        return getUserOrThrow( userId );
     }
 
     private AppUser getUserOrThrow( String userId ) {

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
+import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.AppUserUpdateDto;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.services.AuthService;
@@ -18,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -33,9 +36,35 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/all")
+    @Operation(
+            summary = "Get an array of all users (dto's)",
+            description = "Returns an array of all user dto's accounts currently stored in the system."
+    )
+    public List<AppUserDto> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{userId}")
+    @Operation(
+            summary = "Get user dto by ID",
+            description = "Returns user dto for the user with the specified ID."
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    public AppUserDto getUserById( @PathVariable String userId ) {
+        return userService.getUserById( userId );
+    }
+
     @PutMapping("/{userId}")
     @Operation(
-            summary = "Update User Account",
+            summary = "Update User Account (Requesting User / Super Admin only)",
             description = "Returns the updated user account after applying the changes."
     )
     @ApiResponse(
@@ -70,7 +99,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     @Operation(
-            summary = "Delete user account",
+            summary = "Delete user account (Requesting User / Super Admin only)",
             description = "Deletes the user account."
     )
     @ApiResponse(

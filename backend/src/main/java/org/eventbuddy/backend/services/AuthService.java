@@ -7,11 +7,15 @@ import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.repos.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,17 +28,13 @@ public class AuthService extends DefaultOAuth2UserService {
     public OAuth2User loadUser( OAuth2UserRequest userRequest ) {
         OAuth2User oAuthUser = super.loadUser( userRequest );
 
-
         String uniqueProviderId = getProviderIdByRequestAndUser( userRequest, oAuthUser );
 
-        System.out.println( "is admin: " + adminConfig.isAdmin( uniqueProviderId ) );
-
-        // create user if not exists
         AppUser user = userRepo.findByProviderId( uniqueProviderId ).orElseGet( () ->
                 createAndSaveUser( oAuthUser, userRequest )
         );
 
-        return oAuthUser;
+        return new DefaultOAuth2User( List.of( new SimpleGrantedAuthority( user.getRole().toString() ) ), oAuthUser.getAttributes(), "id" );
     }
 
     public boolean userExistsById( String userId ) {

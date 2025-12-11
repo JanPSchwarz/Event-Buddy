@@ -29,6 +29,13 @@ public record UserSettings(
                 requiredMode = Schema.RequiredMode.REQUIRED,
                 nullable = false
         )
-        boolean showOrgas
+        boolean showOrgas,
+        @Schema(
+                description = "Whether to show the user's email",
+                example = "true",
+                requiredMode = Schema.RequiredMode.REQUIRED,
+                nullable = false
+        )
+        boolean showEmail
 ) {
 }
