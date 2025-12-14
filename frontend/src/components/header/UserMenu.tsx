@@ -31,7 +31,7 @@ export default function UserMenu( { avatarUrl, userId }: Readonly<UserMenuProps>
         {
             label: "Profile",
             action: () => {
-                navigate( "/profile" );
+                navigate( `/profile/${ userId }` );
             },
         },
         {
@@ -64,7 +64,7 @@ export default function UserMenu( { avatarUrl, userId }: Readonly<UserMenuProps>
                                       onClick={ action }
                                       className={ `flex justify-between ${ label === "Logout" && "bg-destructive/40 mt-2 text-xs hover:ring-destructive/40 hover:ring" }` }>
                         { label }
-                        { pathname.split( "/" ).includes( `${ label.toLowerCase() }` ) &&
+                        { pathname === `/${ label.toLowerCase() }/${ userId }` &&
                             <div className={ "rounded-full size-2 bg-green-400/60" }/>
                         }
                     </DropdownMenuItem>

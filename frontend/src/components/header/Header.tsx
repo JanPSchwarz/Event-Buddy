@@ -1,8 +1,8 @@
-import Navigation from "@/components/Navigation.tsx";
+import Navigation from "@/components/header/Navigation.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Ticket } from 'lucide-react';
-import UserHandler from "@/components/UserHandler.tsx";
-import { ThemeToggle } from "@/components/ThemeToggle.tsx";
+import UserHandler from "@/components/header/UserHandler.tsx";
+import { ThemeToggle } from "@/components/header/ThemeToggle.tsx";
 
 
 export default function Header() {

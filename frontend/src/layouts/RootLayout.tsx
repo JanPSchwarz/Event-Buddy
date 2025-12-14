@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router";
 import HomePage from "@/pages/HomePage.tsx";
-import Header from "@/components/Header.tsx";
+import Header from "@/components/header/Header.tsx";
 
 export default function RootLayout() {
     const location = useLocation();

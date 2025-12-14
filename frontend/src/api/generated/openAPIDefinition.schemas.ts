@@ -81,7 +81,7 @@ export interface AppUser {
    * @minLength 3
    * @maxLength 20
    */
-  name?: string;
+  name: string;
   /** Avatar URL of the user */
   avatarUrl?: string;
 }
@@ -90,7 +90,7 @@ export interface AppUserDto {
   /** Email of the user */
   readonly email?: string;
   /** Name of the user */
-  readonly name?: string;
+  readonly name: string;
   /** Avatar URL of the user */
   readonly avatarUrl?: string;
 }

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { loginProvider } from "@/lib/loginProvider.tsx";
-import LoginButton from "@/components/LoginButton.tsx";
+import LoginButton from "@/components/header/LoginButton.tsx";
 
 export default function LoginDialog() {
 

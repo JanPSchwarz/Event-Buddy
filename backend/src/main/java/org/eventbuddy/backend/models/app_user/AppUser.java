@@ -65,12 +65,13 @@ public class AppUser extends MongoBaseModel {
     @Schema(
             description = "Name of the user",
             example = "John Doe",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
-            nullable = true,
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            nullable = false,
             minLength = 3,
             maxLength = 20
     )
     @Indexed
+    @NotBlank(message = "Name must not be empty")
     @Size(min = 3, max = 20, message = "Name must be between 3 and 20 characters")
     private String name;
 

@@ -11,6 +11,8 @@ import { useUpdateUser } from "@/api/generated/user/user.ts";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey } from "@/api/generated/authentication/authentication.ts";
+import Text from "@/components/typography/Text.tsx";
+import { useNavigate, useSearchParams } from "react-router";
 
 type SettingKey = keyof UserSettings;
 
@@ -65,6 +67,12 @@ export default function SettingsForm() {
 
     const { user } = useContextUser();
 
+    const [ searchParams ] = useSearchParams()
+
+    const navigate = useNavigate();
+
+    const fromProfilePage = searchParams.get( "fromProfilePage" ) == "true";
+
     const updateUser = useUpdateUser( {
         axios: {
             withCredentials: true
@@ -114,6 +122,8 @@ export default function SettingsForm() {
                     console.log( "User settings updated successfully." );
                     toast.success( "User settings updated successfully." );
                     queryClient.invalidateQueries( { queryKey: getGetMeQueryKey() } );
+
+                    if ( fromProfilePage ) navigate( `/profile/${ user.id }` );
                 },
                 onError: ( error ) => {
                     console.error( "Failed to update item:" );
@@ -132,16 +142,19 @@ export default function SettingsForm() {
 
     return (
         <form onSubmit={ handleSubmit }
-              className={ "w-11/12 max-w-[600px] flex flex-col items-center justify-center md:my-8 my-4 gap-8" }>
-
+              className={ "w-11/12 max-w-[600px] flex flex-col items-center justify-center mb-12 gap-8" }>
             { settingCategories.map( ( { title, tag, description } ) => (
                     <>
-                        <div className={ "w-full space-y-2 pb-1 mb-2" }>
-                            <h3 key={ title }
-                                className={ "text-left font-semibold border-b text-2xl border-primary/60 " }>
+                        <div key={ title } className={ "w-full space-y-2 pb-1 mb-2" }>
+                            <Text asTag={ "h3" }
+                                  styleVariant={ "h3" }
+                                  className={ "border-b border-primary/60" }>
                                 { title }
-                            </h3>
-                            <span className={ "text-sm text-muted-foreground" }>{ description }</span>
+                            </Text>
+                            <Text asTag={ "span" }
+                                  styleVariant={ "smallMuted" }>
+                                { description }
+                            </Text>
                         </div>
                         { settings
                             .filter( ( setting ) => setting.category === tag )
@@ -154,6 +167,7 @@ export default function SettingsForm() {
                                             <Button variant={ "ghost" }
                                                     size={ "icon" }
                                                     className={ "hover:bg-primary" }
+                                                    type={ "button" }
                                                     onClick={ () => handleShowDescription( setting.key ) }>
                                                 <Info
                                                     className={ `size-4 stroke-accent-foreground ${ showDescription[ setting.key ] && "stroke-primary/80" }` }/>
@@ -187,7 +201,8 @@ export default function SettingsForm() {
             ) }
             <div className={ "w-full p-2 flex justify-between" }>
                 <Button variant={ "secondary" } onClick={ handleCancel }>Cancel</Button>
-                <Button disabled={ formIsDirty } type={ "submit" }>Submit</Button>
+                <Button disabled={ formIsDirty || updateUser.isPending } type={ "submit" }
+                        className={ "disabled:cursor-not-allowed disabled:pointer-events-auto" }>Submit</Button>
             </div>
         </form>
     )

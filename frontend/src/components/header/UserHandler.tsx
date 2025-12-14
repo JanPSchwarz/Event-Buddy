@@ -1,6 +1,6 @@
 import { Spinner } from "@/components/ui/spinner.tsx";
-import LoginDialog from "@/components/LoginDialog.tsx";
-import UserMenu from "@/components/UserMenu.tsx";
+import LoginDialog from "@/components/header/LoginDialog.tsx";
+import UserMenu from "@/components/header/UserMenu.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 
 
