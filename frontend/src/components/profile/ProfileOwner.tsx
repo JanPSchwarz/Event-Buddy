@@ -47,7 +47,7 @@ export default function ProfileOwner() {
                 </Text>
             </div>
             <div className={ "w-full flex gap-2 justify-between" }>
-                <div className={ "space-x-4" }>
+                <div className={ "space-x-4 space-y-4" }>
                     <Button variant={ "outline" } onClick={ toggleWatchMode }>
                         { showOwnerView ? "Foreigner" : "Manager" } View
                     </Button>
@@ -69,10 +69,13 @@ export default function ProfileOwner() {
                 ( !showOwnerView && !userVisible ) &&
                 <Alert>
                     <Info className={ "stroke-blue-400" }/>
-                    <AlertDescription className={ "flex" }>
-                        Your profile is currently hidden from other users. To make it visible, please update your
+                    <AlertDescription className={ "block" }>
+                        Your profile is currently hidden from other users. To make it visible, please update
+                        your { " " }
                         <NavLink to={ `/settings/${ loggedInUser.id }?fromProfilePage=true` }
-                                 className={ "text-primary underline underline-offset-2" }>settings</NavLink>
+                                 className={ "text-primary underline inline underline-offset-2" }>
+                            settings
+                        </NavLink>
                     </AlertDescription>
                 </Alert>
             }

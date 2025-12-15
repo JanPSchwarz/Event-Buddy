@@ -15,7 +15,7 @@ export default function ProfilePage() {
         return <CustomLoader size={ "size-6" } text={ "Profile loading..." }/>
     }
 
-    const isOwner = loggedInUser.id === profileUserId;
+    const isOwner = loggedInUser?.id === profileUserId;
 
     return (
         <PageWrapper>

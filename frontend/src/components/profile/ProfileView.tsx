@@ -25,10 +25,10 @@ export default function ProfileView( { userData }: Readonly<ProfileViewProps> ) 
         <Card className={ "w-11/12 max-w-[600px] mx-auto mt-12" }>
             <CardContent className={ "flex flex-col gap-4" }>
                 <div className={ "flex justify-between" }>
-                    <Text asTag={ "h2" } styleVariant={ "h2" }>
+                    <Text asTag={ "h3" } styleVariant={ "h3" }>
                         { userData.name }
                     </Text>
-                    <Avatar className={ "size-24" }>
+                    <Avatar className={ "md:size-24 size-12" }>
                         <AvatarImage src={ userData.avatarUrl } alt={ userData.name }/>
                         <AvatarFallback>
                             <User className={ "size-12" }/>
@@ -37,11 +37,11 @@ export default function ProfileView( { userData }: Readonly<ProfileViewProps> ) 
                 </div>
                 <Separator/>
                 { listData.map( ( { label, value } ) => (
-                    <div key={ label } className={ "grid grid-cols-2" }>
-                        <Text asTag={ "p" }>
+                    <div key={ label } className={ "grid grid-cols-2 gap-2 items-end" }>
+                        <Text asTag={ "p" } className={ "break-words" }>
                             { label }:
                         </Text>
-                        <Text className={ "italic" }>
+                        <Text className={ "italic break-words" }>
                             { value }
                         </Text>
                     </div>

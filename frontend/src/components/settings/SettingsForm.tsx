@@ -80,7 +80,7 @@ export default function SettingsForm() {
     } );
     const queryClient = useQueryClient();
 
-    const initialSettings = { ...user?.userSettings as UserSettings };
+    const initialSettings = { ...user?.userSettings };
 
     const [ showDescription, setShowDescription ] = useState<Record<string, boolean>>( () =>
         Object.fromEntries( settings.map( setting => [ setting.key, false ] ) )

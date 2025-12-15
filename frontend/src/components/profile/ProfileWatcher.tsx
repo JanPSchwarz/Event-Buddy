@@ -16,8 +16,8 @@ export default function ProfileWatcher() {
         return <CustomLoader size={ "size-6" } text={ "Profile loading..." }/>
     }
 
-    if ( error?.response?.status !== 404 ) {
-        toast.error( error?.response?.data.error || error?.message || "Failed to load profile." );
+    if ( error && error.response?.status !== 404 ) {
+        toast.error( error.response?.data.error || error.message || "Failed to load profile." );
         return <Navigate to={ "/" }/>
     }
 

@@ -16,23 +16,23 @@ type TextProps = {
 const StyleVariantClasses = [
     {
         variant: "h1",
-        className: "text-4xl font-bold tracking-tight"
+        className: "text-3xl md:text-4xl font-bold tracking-tight"
     },
     {
         variant: "h2",
-        className: "text-3xl font-bold tracking-tight"
+        className: "text-2xl md:text-3xl font-bold tracking-tight"
     },
     {
         variant: "h3",
-        className: "text-2xl font-semibold tracking-tight"
+        className: "text-xl md:text-2xl font-semibold tracking-tight"
     },
     {
         variant: "h4",
-        className: "text-xl font-semibold tracking-tight"
+        className: "text-lg md:text-xl font-semibold tracking-tight"
     },
     {
         variant: "h5",
-        className: "text-lg font-medium tracking-tight"
+        className: "text-base md:text-lg font-medium tracking-tight"
     },
     {
         variant: "h6",
@@ -40,11 +40,11 @@ const StyleVariantClasses = [
     },
     {
         variant: "default",
-        className: "text-base leading-7"
+        className: "text-sm md:text-base leading-7"
     },
     {
         variant: "muted",
-        className: "text-base text-muted-foreground leading-7"
+        className: "text-sm md:text-base text-muted-foreground leading-7"
     },
     {
         variant: "smallMuted",
@@ -53,7 +53,7 @@ const StyleVariantClasses = [
 ]
 
 
-export default function Text( { asTag, children, styleVariant, className, ...props }: TextProps ) {
+export default function Text( { asTag, children, styleVariant, className, ...props }: Readonly<TextProps> ) {
 
     const Tag = asTag || "p"
 
