@@ -13,7 +13,6 @@ export default function Navigation() {
 
     const { pathname } = useLocation();
 
-    console.log( pathname )
     return (
         <NavigationMenu>
             <NavigationMenuList className={ "gap-4" }>
