@@ -76,12 +76,16 @@ public class AuthService extends DefaultOAuth2UserService {
                 .showAvatar( true )
                 .build();
 
+        String login = oAuthUser.getAttribute( "login" );
+        String email = oAuthUser.getAttribute( "email" );
+        String avatarUrl = oAuthUser.getAttribute( "avatar_url" );
+
         AppUser newUser = AppUser.builder()
                 .providerId( uniqueProviderId )
-                .name( oAuthUser.getAttribute( "login" ) )
+                .name( login )
                 .role( adminConfig.isAdmin( uniqueProviderId ) ? Role.SUPER_ADMIN : Role.USER )
-                .email( oAuthUser.getAttribute( "email" ) )
-                .avatarUrl( oAuthUser.getAttribute( "avatar_url" ) )
+                .email( email )
+                .avatarUrl( avatarUrl )
                 .userSettings( settings )
                 .build();
 

@@ -22,13 +22,13 @@ export default function ProfileView( { userData }: Readonly<ProfileViewProps> ) 
     ]
 
     return (
-        <Card className={ "w-11/12 max-w-[600px] mx-auto mt-12" }>
+        <Card className={ "w-full max-w-[600px] mx-auto" }>
             <CardContent className={ "flex flex-col gap-4" }>
                 <div className={ "flex justify-between" }>
                     <Text asTag={ "h3" } styleVariant={ "h3" }>
                         { userData.name }
                     </Text>
-                    <Avatar className={ "md:size-24 size-12" }>
+                    <Avatar className={ "md:size-24 size-12 border" }>
                         <AvatarImage src={ userData.avatarUrl } alt={ userData.name }/>
                         <AvatarFallback>
                             <User className={ "size-12" }/>
