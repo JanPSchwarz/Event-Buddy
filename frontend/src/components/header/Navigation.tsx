@@ -14,7 +14,7 @@ export default function Navigation() {
     const { pathname } = useLocation();
 
     return (
-        <NavigationMenu>
+        <NavigationMenu className={ "hidden md:block" }>
             <NavigationMenuList className={ "gap-4" }>
                 { navigations.map( ( { title, href }: NavigationItem ) => (
                         <NavigationMenuItem key={ title }

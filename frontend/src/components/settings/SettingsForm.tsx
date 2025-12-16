@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey } from "@/api/generated/authentication/authentication.ts";
 import Text from "@/components/typography/Text.tsx";
 import { useNavigate, useSearchParams } from "react-router";
+import { Spinner } from "@/components/ui/spinner.tsx";
 
 type SettingKey = keyof UserSettings;
 
@@ -110,6 +111,8 @@ export default function SettingsForm() {
 
         if ( formIsDirty ) return;
 
+        console.log( currentSettings );
+
         updateUser.mutate(
             {
                 userId: user.id,
@@ -127,7 +130,6 @@ export default function SettingsForm() {
                 },
                 onError: ( error ) => {
                     console.error( "Failed to update item:" );
-                    console.log( error );
                     toast.error( error.response?.data.error || error.message || "Failed to update." );
                 }
             }
@@ -135,9 +137,9 @@ export default function SettingsForm() {
     }
 
     const handleCancel = () => {
-        if ( formIsDirty ) return;
-
         setCurrentSettings( initialSettings );
+
+        if ( fromProfilePage ) navigate( `/profile/${ user.id }` );
     }
 
     return (
@@ -202,7 +204,14 @@ export default function SettingsForm() {
             <div className={ "w-full p-2 flex justify-between" }>
                 <Button variant={ "secondary" } onClick={ handleCancel }>Cancel</Button>
                 <Button disabled={ formIsDirty || updateUser.isPending } type={ "submit" }
-                        className={ "disabled:cursor-not-allowed disabled:pointer-events-auto" }>Submit</Button>
+                        className={ "min-w-[80px]" }>
+                    {
+                        updateUser.isPending ?
+                            <Spinner/>
+                            :
+                            "Submit"
+                    }
+                </Button>
             </div>
         </form>
     )

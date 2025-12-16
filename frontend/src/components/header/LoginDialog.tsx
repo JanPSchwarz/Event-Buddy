@@ -31,7 +31,7 @@ export default function LoginDialog() {
                                 key={ provider }
                                 callbackUrl={ callbackUrl }
                                 variant={ "secondary" }
-                                className={ "flex w-76 gap-4 hover:bg-foreground/80 bg-foreground text-background" }>
+                                className={ "flex w-76 gap-4 bg-slate-50 text-stone-800 hover:border border-foreground border hover:border-primary hover:bg-slate/80" }>
                                 { provider }
                                 <img src={ logoSrc } alt={ "logo" } className={ "size-6" }/>
                             </LoginButton>

@@ -29,7 +29,7 @@ export default function SettingsPage() {
 
     return (
         <PageWrapper>
-            <div className={ "flex w-11/12 gap-4 flex-col items-center" }>
+            <div className={ "flex w-full gap-4 flex-col items-center" }>
                 <div
                     className={ "p-2 gap-2 md:flex-row w-full md:gap-0 border-b border-primary/60 flex tracking-tight text-balance flex-col justify-between" }>
                     <Text asTag={ "h1" } styleVariant={ "h1" }>

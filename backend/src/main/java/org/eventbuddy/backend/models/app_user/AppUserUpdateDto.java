@@ -28,8 +28,8 @@ public record AppUserUpdateDto(
 
         @Schema(
                 description = "User settings",
-                requiredMode = Schema.RequiredMode.REQUIRED,
-                nullable = false,
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+                nullable = true,
                 implementation = UserSettings.class
         )
         UserSettings userSettings
