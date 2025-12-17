@@ -3,6 +3,7 @@ package org.eventbuddy.backend.services;
 import lombok.RequiredArgsConstructor;
 import org.eventbuddy.backend.configs.AdminConfig;
 import org.eventbuddy.backend.enums.Role;
+import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.UserSettings;
@@ -37,10 +38,6 @@ public class AuthService extends DefaultOAuth2UserService {
         return new DefaultOAuth2User( List.of( new SimpleGrantedAuthority( user.getRole().toString() ) ), oAuthUser.getAttributes(), "id" );
     }
 
-    public boolean userExistsById( String userId ) {
-        return userRepo.existsById( userId );
-    }
-
     public AppUser getAppUserByAuthToken( OAuth2AuthenticationToken authToken ) {
         String providerId = getProviderIdByAuthToken( authToken );
         return getAppUserByProviderId( providerId );
@@ -49,7 +46,6 @@ public class AuthService extends DefaultOAuth2UserService {
     public boolean isNotAuthenticated( OAuth2AuthenticationToken authToken ) {
         return authToken == null || !authToken.isAuthenticated();
     }
-
 
     public boolean isRequestUserOrSuperAdmin( OAuth2AuthenticationToken authToken, String userId ) {
         if ( isNotAuthenticated( authToken ) ) {
@@ -61,9 +57,19 @@ public class AuthService extends DefaultOAuth2UserService {
         return user.getId().equals( userId ) || user.getRole() == Role.SUPER_ADMIN;
     }
 
+    public boolean isSuperAdmin( OAuth2AuthenticationToken authToken ) {
+        if ( isNotAuthenticated( authToken ) ) {
+            throw new UnauthorizedException( "You are not logged in." );
+        }
+
+        AppUser user = getAppUserByAuthToken( authToken );
+
+        return user.getRole() == Role.SUPER_ADMIN;
+    }
+
     private AppUser getAppUserByProviderId( String providerId ) {
         return userRepo.findByProviderId( providerId )
-                .orElseThrow( () -> new RuntimeException( "User not found with providerId: " + providerId ) );
+                .orElseThrow( () -> new ResourceNotFoundException( "User not found with providerId: " + providerId ) );
     }
 
     private AppUser createAndSaveUser( OAuth2User oAuthUser, OAuth2UserRequest userRequest ) {
@@ -99,6 +105,11 @@ public class AuthService extends DefaultOAuth2UserService {
     }
 
     private String getProviderIdByAuthToken( OAuth2AuthenticationToken authToken ) {
+
+        if ( authToken == null ) {
+            throw new UnauthorizedException( "User is not logged in." );
+        }
+
         OAuth2User user = authToken.getPrincipal();
         String providerId = user.getName();
         String provider = authToken.getAuthorizedClientRegistrationId();

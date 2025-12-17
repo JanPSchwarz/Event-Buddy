@@ -92,6 +92,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<ErrorMessage> handleIllegalStateException( IllegalStateException ex ) {
+        return ResponseEntity.status( HttpStatus.CONFLICT ).body(
+                createErrorMessage( ex.getMessage(), HttpStatus.CONFLICT.value() )
+        );
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorMessage> handleRuntimeException( RuntimeException ex ) {

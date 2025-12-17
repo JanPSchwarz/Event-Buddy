@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record AppUserDto(
         @Schema(
@@ -20,6 +22,12 @@ public record AppUserDto(
                 description = "Avatar URL of the user",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
-        String avatarUrl
+        String avatarUrl,
+        @Schema(
+                description = "List of organizations the user is associated with",
+                example = "[\"EventBuddyGmbh\", \"ExampleBand\"]",
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
+        List<String> organizationNames
 ) {
 }
