@@ -1,7 +1,6 @@
 package org.eventbuddy.backend.models.organization;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -31,7 +30,6 @@ public record OrganizationResponseDto(
                 description = "List of admin user IDs",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
-        @Valid
         Set<AppUserDto> owners,
 
         @Schema(

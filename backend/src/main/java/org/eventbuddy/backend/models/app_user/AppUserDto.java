@@ -3,6 +3,7 @@ package org.eventbuddy.backend.models.app_user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
+import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 
 import java.util.List;
 
@@ -25,9 +26,9 @@ public record AppUserDto(
         String avatarUrl,
         @Schema(
                 description = "List of organizations the user is associated with",
-                example = "[\"EventBuddyGmbh\", \"ExampleBand\"]",
+                example = "[\"{OrganizationResponseDto Object}\"]",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
-        List<String> organizationNames
+        List<OrganizationResponseDto> organizations
 ) {
 }

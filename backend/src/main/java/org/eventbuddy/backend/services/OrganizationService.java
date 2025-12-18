@@ -1,5 +1,6 @@
 package org.eventbuddy.backend.services;
 
+import lombok.AllArgsConstructor;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
@@ -8,24 +9,21 @@ import org.eventbuddy.backend.models.organization.OrganizationCreateDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 import org.eventbuddy.backend.models.organization.OrganizationUpdateDto;
 import org.eventbuddy.backend.repos.OrganizationRepository;
-import org.springframework.context.annotation.Lazy;
+import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepo;
 
-    private final UserService userService;
-
-    public OrganizationService( OrganizationRepository organizationRepo, @Lazy UserService userService ) {
-        this.organizationRepo = organizationRepo;
-        this.userService = userService;
-    }
+    private final UserRepository userRepo;
 
     // === Public Organization Methods (DTO) ===
 
@@ -64,7 +62,7 @@ public class OrganizationService {
     public Organization addOwnerToOrganization( String organizationId, String userId ) {
         Organization organization = getOrganizationByIdOrThrow( organizationId );
 
-        Set<String> updatedOwners = organization.getOwners();
+        Set<String> updatedOwners = new HashSet<>( organization.getOwners() );
         updatedOwners.add( userId );
 
         Organization buildOrganization = organization.toBuilder()
@@ -73,7 +71,7 @@ public class OrganizationService {
 
         Organization savedOrganization = organizationRepo.save( buildOrganization );
 
-        userService.addOrganizationToUser( userId, organizationId );
+        addOrganizationToUser( organizationId, userId );
 
         return savedOrganization;
     }
@@ -94,7 +92,11 @@ public class OrganizationService {
             throw new IllegalStateException( "Organization must have at least one owner." );
         }
 
-        return organizationRepo.save( updatedOrganization );
+        Organization savedOrganization = organizationRepo.save( updatedOrganization );
+
+        removeOrganizationFromUser( organizationId, ownerId );
+
+        return savedOrganization;
     }
 
 
@@ -110,7 +112,7 @@ public class OrganizationService {
 
         Organization savedOrganization = organizationRepo.save( newOrganization );
 
-        userService.addOrganizationToUser( user, savedOrganization.getId() );
+        addOrganizationToUser( savedOrganization.getId(), user.getId() );
 
         return savedOrganization;
     }
@@ -124,7 +126,7 @@ public class OrganizationService {
         organizationRepo.deleteById( organizationId );
 
         for ( String ownerId : ownerIds ) {
-            userService.removeOrganizationFromUser( ownerId, organizationId );
+            removeOrganizationFromUser( ownerId, organizationId );
         }
     }
 
@@ -141,14 +143,61 @@ public class OrganizationService {
     }
 
     private OrganizationResponseDto organizationToDtoMapper( Organization organization ) {
-        Set<AppUserDto> owners = userService.getAllUserDtosById( organization.getOwners() );
+        List<AppUser> owners = userRepo.findAllById( organization.getOwners() ).orElseThrow(
+                () -> new ResourceNotFoundException( "One or more organization owners not found." )
+        );
+
+        Set<AppUserDto> ownersDtos = owners.stream()
+                .map( this::userToDtoMapper )
+                .collect( Collectors.toSet() );
 
         return OrganizationResponseDto.builder()
                 .name( organization.getName() )
-                .owners( owners )
+                .owners( ownersDtos )
                 .slug( organization.getSlug() )
                 .description( organization.getDescription() )
                 .website( organization.getWebsite() )
+                .build();
+    }
+
+    private AppUser addOrganizationToUser( String organizationId, String userId ) {
+
+        AppUser user = userRepo.findById( userId ).orElseThrow(
+                () -> new ResourceNotFoundException( "User not found with id: " + userId )
+        );
+
+        Set<String> updatedOrganizations = new HashSet<>( user.getOrganizations() != null ? user.getOrganizations() : Set.of() );
+
+        updatedOrganizations.add( organizationId );
+
+        AppUser updatedUser = user.toBuilder()
+                .organizations( updatedOrganizations )
+                .build();
+
+        return userRepo.save( updatedUser );
+    }
+
+    private AppUser removeOrganizationFromUser( String organizationId, String userId ) {
+        AppUser user = userRepo.findById( userId ).orElseThrow(
+                () -> new ResourceNotFoundException( "User not found with id: " + userId )
+        );
+
+        Set<String> updatedOrganizations = user.getOrganizations().stream()
+                .filter( orgId -> !orgId.equals( organizationId ) )
+                .collect( Collectors.toSet() );
+
+        AppUser updatedUser = user.toBuilder()
+                .organizations( updatedOrganizations )
+                .build();
+
+        return userRepo.save( updatedUser );
+    }
+
+    private AppUserDto userToDtoMapper( AppUser user ) {
+        return AppUserDto.builder()
+                .name( user.getName() )
+                .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
+                .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                 .build();
     }
 
