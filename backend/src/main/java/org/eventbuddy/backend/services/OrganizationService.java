@@ -115,11 +115,17 @@ public class OrganizationService {
         return savedOrganization;
     }
 
-
     // === Delete Methods ===
 
     public void deleteOrganizationById( String organizationId ) {
+
+        Set<String> ownerIds = getOrganizationByIdOrThrow( organizationId ).getOwners();
+
         organizationRepo.deleteById( organizationId );
+
+        for ( String ownerId : ownerIds ) {
+            userService.removeOrganizationFromUser( ownerId, organizationId );
+        }
     }
 
     // === Private Helper Methods ===

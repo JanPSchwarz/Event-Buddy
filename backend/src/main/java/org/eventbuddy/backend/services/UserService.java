@@ -20,8 +20,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepo;
-
-
+    
     private final OrganizationService organizationService;
 
     public UserService( UserRepository userRepo, @Lazy OrganizationService organizationService ) {
@@ -107,6 +106,28 @@ public class UserService {
     public AppUser addOrganizationToUser( String userId, String organizationId ) {
         AppUser user = getUserOrThrow( userId );
         return addOrganizationToUser( user, organizationId );
+    }
+
+    public AppUser removeOrganizationFromUser( AppUser user, String organizationId ) {
+
+        if ( user.getOrganizations() == null || !user.getOrganizations().contains( organizationId ) ) {
+            return user;
+        }
+
+        Set<String> updatedOrganizations = user.getOrganizations().stream()
+                .filter( orgId -> !orgId.equals( organizationId ) )
+                .collect( Collectors.toSet() );
+
+        AppUser updatedUser = user.toBuilder()
+                .organizations( updatedOrganizations )
+                .build();
+
+        return userRepo.save( updatedUser );
+    }
+
+    public AppUser removeOrganizationFromUser( String userId, String organizationId ) {
+        AppUser user = getUserOrThrow( userId );
+        return removeOrganizationFromUser( user, organizationId );
     }
 
     // === Role Management ===
