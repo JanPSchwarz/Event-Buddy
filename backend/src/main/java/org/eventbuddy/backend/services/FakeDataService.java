@@ -25,17 +25,39 @@ public class FakeDataService {
     private final Faker faker = new Faker();
 
     private final List<String> currentUserIds = new ArrayList<>();
+    private final List<String> currentOrgaIds = new ArrayList<>();
 
     public void createFakeData( int numberOfUsers ) {
-        createFakeUser( numberOfUsers );
+        List<AppUser> createdFakeUsers = createFakeUser( numberOfUsers );
+
         createFakeOrganizations( 5 );
+
+        List<AppUser> updatedFakeUsers = new ArrayList<>();
+        for ( AppUser user : createdFakeUsers ) {
+
+            int orgaCount = faker.number().numberBetween( 0, 3 );
+
+            Set<String> orgaIds = currentOrgaIds.stream()
+                    .skip( faker.number().numberBetween( 0, currentOrgaIds.size() - orgaCount ) )
+                    .limit( orgaCount )
+                    .collect( java.util.stream.Collectors.toSet() );
+
+            AppUser updatedUser = !orgaIds.isEmpty() ? user.toBuilder()
+                    .organizations( orgaIds )
+                    .build() : user;
+
+            updatedFakeUsers.add( updatedUser );
+        }
+
+        userRepo.saveAll( updatedFakeUsers );
     }
 
     public void deleteAllFakeData() {
         deleteFakeUsers();
     }
 
-    private void createFakeUser( int numberOfUsers ) {
+    private List<AppUser> createFakeUser( int numberOfUsers ) {
+        List<AppUser> appUsersList = new ArrayList<>();
         for ( int i = 0; i < numberOfUsers; i++ ) {
 
             UserSettings fakeSettings = UserSettings.builder()
@@ -56,8 +78,11 @@ public class FakeDataService {
 
             AppUser createdUser = userRepo.save( newUser );
 
+            appUsersList.add( createdUser );
             currentUserIds.add( createdUser.getId() );
         }
+
+        return appUsersList;
     }
 
     private void createFakeOrganizations( int numberOfOrgas ) {
@@ -69,7 +94,9 @@ public class FakeDataService {
                     .owners( Set.of( currentUserIds.get( faker.number().numberBetween( 0, currentUserIds.size() ) ) ) )
                     .build();
 
-            organizationRepo.save( newOrganization );
+            Organization createdOrganization = organizationRepo.save( newOrganization );
+            
+            currentOrgaIds.add( createdOrganization.getId() );
         }
 
     }
