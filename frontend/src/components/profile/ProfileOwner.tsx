@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { toast } from "sonner";
-import { Navigate, NavLink } from "react-router";
+import { Navigate, NavLink, useNavigate } from "react-router";
 import ProfileView from "@/components/profile/ProfileView.tsx";
 import Text from "@/components/typography/Text.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
 import { Info } from "lucide-react";
+import EditProfile from "@/components/profile/EditProfile.tsx";
 
 
 export default function ProfileOwner() {
 
     const [ showOwnerView, setShowOwnerView ] = useState( true );
+
+    const [ isEditing, setIsEditing ] = useState( false );
+
+    const navigate = useNavigate();
 
     const { user: loggedInUser, isLoggedIn } = useContextUser();
 
@@ -21,7 +26,15 @@ export default function ProfileOwner() {
     }
 
     const toggleWatchMode = () => {
+        if ( isEditing ) return;
+
         setShowOwnerView( !showOwnerView );
+    }
+
+    const toggleIsEdditing = () => {
+        setIsEditing( !isEditing );
+
+        if ( !showOwnerView ) setShowOwnerView( true );
     }
 
     const { showAvatar, showEmail, userVisible } = loggedInUser.userSettings;
@@ -35,9 +48,14 @@ export default function ProfileOwner() {
             email: showEmail ? loggedInUser.email : undefined,
         }
 
+    const handleGoToSettings = () => {
+        if ( isEditing ) return;
+        navigate( `/settings/${ loggedInUser.id }?fromProfilePage=true` );
+    }
+
 
     return (
-        <div className={ "w-11/12 space-y-8" }>
+        <div className={ "w-full space-y-8" }>
             <div className={ "w-full flex justify-between border-b border-primary" }>
                 <Text asTag={ "h1" } styleVariant={ "h1" }>
                     Your Profile
@@ -48,16 +66,18 @@ export default function ProfileOwner() {
             </div>
             <div className={ "w-full flex gap-2 justify-between" }>
                 <div className={ "space-x-4 space-y-4" }>
-                    <Button variant={ "outline" } onClick={ toggleWatchMode }>
+                    <Button variant={ "outline" } disabled={ isEditing } onClick={ toggleWatchMode }>
                         { showOwnerView ? "Foreigner" : "Manager" } View
                     </Button>
-                    <Button variant={ "outline" } asChild onClick={ toggleWatchMode }>
-                        <NavLink to={ `/settings/${ loggedInUser.id }?fromProfilePage=true` }>
-                            Go to Settings
-                        </NavLink>
+                    <Button variant={ "outline" } disabled={ isEditing }
+                            onClick={ handleGoToSettings }
+                    >
+                        Go to Settings
                     </Button>
                 </div>
-                <Button variant={ "outline" }>Edit Profile</Button>
+                <Button variant={ "outline" } onClick={ toggleIsEdditing }>
+                    { isEditing ? "Cancel" : "Edit Profile" }
+                </Button>
             </div>
             {
                 !showOwnerView &&
@@ -79,7 +99,13 @@ export default function ProfileOwner() {
                     </AlertDescription>
                 </Alert>
             }
-            <ProfileView userData={ displayData }/>
+            {
+                isEditing ?
+                    <EditProfile userData={ loggedInUser } onSubmit={ toggleIsEdditing }/>
+                    :
+                    <ProfileView userData={ displayData }/>
+            }
+
         </div>
     )
 }

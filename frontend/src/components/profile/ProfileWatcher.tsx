@@ -25,7 +25,7 @@ export default function ProfileWatcher() {
         <>
             {
                 fetchedProfileData?.data ?
-                    <div className={ "w-11/12 space-y-12" }>
+                    <div className={ "w-full space-y-12" }>
                         <div className={ "border-b flex justify-between border-primary" }>
                             <Text asTag={ "h1" } styleVariant={ "h1" }>
                                 Profile Page

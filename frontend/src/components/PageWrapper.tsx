@@ -9,7 +9,8 @@ type PageWrapperProps = {
 export default function PageWrapper( { children, className }: Readonly<PageWrapperProps> ) {
 
     return (
-        <div className={ cn( "flex flex-col w-full gap-8 mt-8 justify-start items-center", className ) }>
+        <div
+            className={ cn( "flex flex-col w-full gap-8 mt-4 md:mt-8 px-2 md:px-4 justify-start items-center", className ) }>
             { children }
         </div>
     )
