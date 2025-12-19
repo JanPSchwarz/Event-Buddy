@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
@@ -14,13 +15,16 @@ import org.eventbuddy.backend.models.organization.OrganizationCreateDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 import org.eventbuddy.backend.models.organization.OrganizationUpdateDto;
 import org.eventbuddy.backend.services.AuthService;
+import org.eventbuddy.backend.services.ImageService;
 import org.eventbuddy.backend.services.OrganizationService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -32,10 +36,12 @@ public class OrganizationController {
 
     private final OrganizationService organizationService;
     private final AuthService authService;
+    private final ImageService imageService;
 
-    public OrganizationController( OrganizationService organizationService, AuthService authService ) {
+    public OrganizationController( OrganizationService organizationService, AuthService authService, ImageService imageService ) {
         this.organizationService = organizationService;
         this.authService = authService;
+        this.imageService = imageService;
     }
 
     // == GET Endpoints ==
@@ -104,10 +110,20 @@ public class OrganizationController {
 
     // == POST Endpoints ==
 
-    @PostMapping
+    @PostMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @Operation(
             summary = "Create a new organization",
             description = "Creates a new organization with the provided details and returns the created organization."
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
     )
     @ApiResponse(
             responseCode = "401",
@@ -117,17 +133,32 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @ApiResponse(
+            responseCode = "413",
+            description = "Payload too large",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
     public ResponseEntity<Organization> createOrganization(
-            @Valid @RequestBody OrganizationCreateDto organization,
+            @Nullable @RequestPart("file") MultipartFile file,
+            @Valid @RequestPart("organization") OrganizationCreateDto organization,
             OAuth2AuthenticationToken authToken
-    ) {
+    ) throws IOException {
         AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
-        return ResponseEntity.ok( organizationService.createOrganization( organization, loggedInUser ) );
+
+        String imageId = file != null ? imageService.storeImage( file ) : null;
+
+        return ResponseEntity.ok( organizationService.createOrganization( organization, loggedInUser, imageId ) );
     }
 
     // == PUT Endpoints ==
 
-    @PutMapping("/{organizationId}")
+    @PutMapping(
+            path = "/{organizationId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @Operation(
             summary = "Update an organization (Organization Owners / Super Admin only)",
             description = "Updates the organization with the specified ID and returns the updated organization."
@@ -148,13 +179,28 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @ApiResponse(
+            responseCode = "413",
+            description = "Payload too large",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
     public ResponseEntity<Organization> updateOrganization(
             OAuth2AuthenticationToken authToken,
+            @Nullable @RequestPart("file") MultipartFile file,
             @PathVariable String organizationId,
-            @Valid @RequestBody OrganizationUpdateDto updatedOrganization
-    ) {
+            @Valid @RequestPart("updateOrganization") OrganizationUpdateDto updatedOrganization
+    ) throws IOException {
         isOrgaOwnerOrSuperAdmin( authToken, organizationId );
+
+        if ( file != null ) {
+            imageService.updateImage( organizationId, file );
+        }
+
         Organization organization = organizationService.updateOrganization( organizationId, updatedOrganization );
+
         return ResponseEntity.ok( organization );
     }
 

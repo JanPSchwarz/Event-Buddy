@@ -74,6 +74,6 @@ public class Organization extends MongoBaseModel {
     @URL
     private String website;
 
-
+    private String imageId;
 }
 

@@ -6,6 +6,7 @@ import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.models.organization.Organization;
+import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.context.annotation.Profile;
@@ -22,6 +23,7 @@ public class FakeDataService {
 
     private final UserRepository userRepo;
     private final OrganizationRepository organizationRepo;
+    private final ImageRepository imageRepo;
     private final Faker faker = new Faker();
 
     private final List<String> currentUserIds = new ArrayList<>();
@@ -95,7 +97,7 @@ public class FakeDataService {
                     .build();
 
             Organization createdOrganization = organizationRepo.save( newOrganization );
-            
+
             currentOrgaIds.add( createdOrganization.getId() );
         }
 
@@ -104,5 +106,6 @@ public class FakeDataService {
     private void deleteFakeUsers() {
         userRepo.deleteAll();
         organizationRepo.deleteAll();
+        imageRepo.deleteAll();
     }
 }

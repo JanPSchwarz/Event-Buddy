@@ -73,6 +73,11 @@ public class UserService {
     public AppUser updateUser( AppUserUpdateDto updateData, String userId ) {
         AppUser existingUser = getUserOrThrow( userId );
 
+        // Prevent setting user as not visible while being part of organizations
+        if ( updateData.userSettings() != null && !updateData.userSettings().userVisible() && existingUser.getOrganizations() != null && !existingUser.getOrganizations().isEmpty() ) {
+            throw new IllegalStateException( "Cannot set user as not visible while being part of organizations. Please remove the user from all organizations first." );
+        }
+
         AppUser updatedUser = existingUser.toBuilder()
                 .name( updateData.name() != null ? updateData.name() : existingUser.getName() )
                 .email( updateData.email() != null ? updateData.email() : existingUser.getEmail() )

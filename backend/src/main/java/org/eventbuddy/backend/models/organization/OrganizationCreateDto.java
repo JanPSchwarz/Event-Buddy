@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
+import org.springframework.web.multipart.MultipartFile;
 
 public record OrganizationCreateDto(
 
@@ -35,7 +36,14 @@ public record OrganizationCreateDto(
                 nullable = true
         )
         @URL
-        String website
+        String website,
 
+        @Schema(
+                description = "Image file for the organization's logo",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+                nullable = true
+        )
+        
+        MultipartFile image
 ) {
 }

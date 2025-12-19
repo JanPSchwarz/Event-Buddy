@@ -1,9 +1,11 @@
 package org.eventbuddy.backend.services;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
+import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationCreateDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
@@ -12,11 +14,13 @@ import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class OrganizationService {
@@ -102,12 +106,14 @@ public class OrganizationService {
 
     // === Create Methods ===
 
-    public Organization createOrganization( OrganizationCreateDto organizationDto, AppUser user ) {
+    public Organization createOrganization( OrganizationCreateDto organizationDto, AppUser user, String imageId ) throws IOException {
+
         Organization newOrganization = Organization.builder()
                 .name( organizationDto.name() )
                 .owners( Set.of( user.getId() ) )
                 .description( organizationDto.description() )
                 .website( organizationDto.website() )
+                .imageId( imageId )
                 .build();
 
         Organization savedOrganization = organizationRepo.save( newOrganization );
@@ -126,7 +132,7 @@ public class OrganizationService {
         organizationRepo.deleteById( organizationId );
 
         for ( String ownerId : ownerIds ) {
-            removeOrganizationFromUser( ownerId, organizationId );
+            removeOrganizationFromUser( organizationId, ownerId );
         }
     }
 
@@ -170,8 +176,13 @@ public class OrganizationService {
 
         updatedOrganizations.add( organizationId );
 
+        UserSettings updatedSettings = user.getUserSettings().toBuilder()
+                .userVisible( true )
+                .build();
+
         AppUser updatedUser = user.toBuilder()
                 .organizations( updatedOrganizations )
+                .userSettings( updatedSettings )
                 .build();
 
         return userRepo.save( updatedUser );

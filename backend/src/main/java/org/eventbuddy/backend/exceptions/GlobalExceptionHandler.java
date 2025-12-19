@@ -2,6 +2,7 @@ package org.eventbuddy.backend.exceptions;
 
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.utils.IdService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +12,17 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Comparator;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Value("${upload.max-file-size}")
+    String maxFileSize;
 
     IdService idService = new IdService();
 
@@ -54,11 +60,35 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( errorMessage );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorMessage> handleIllegalArgumentException( IllegalArgumentException ex ) {
+        return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body(
+                createErrorMessage( ex.getMessage(), HttpStatus.BAD_REQUEST.value() )
+        );
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ErrorMessage> handleUnauthorizedException( UnauthorizedException ex ) {
         return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body(
                 createErrorMessage( ex.getMessage(), HttpStatus.UNAUTHORIZED.value() )
+        );
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ErrorMessage> handleIOException( IOException ex ) {
+        return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).body(
+                createErrorMessage( "An unexpected error occurred while processing the file", HttpStatus.INTERNAL_SERVER_ERROR.value() )
+        );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ResponseEntity<ErrorMessage> handleMaxUploadSizeExceededException( MaxUploadSizeExceededException ex ) {
+        return ResponseEntity.status( HttpStatus.PAYLOAD_TOO_LARGE ).body(
+                createErrorMessage( "Uploaded file exceeds the maximum allowed size: " + maxFileSize, HttpStatus.PAYLOAD_TOO_LARGE.value() )
         );
     }
 
