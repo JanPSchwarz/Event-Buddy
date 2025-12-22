@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.error.ErrorMessage;
@@ -305,7 +306,7 @@ public class OrganizationController {
         AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
         Set<String> organizationOwners = organizationService.getRawOrganizationById( organizationId ).getOwners();
 
-        if ( !organizationOwners.contains( loggedInUser.getId() ) ) {
+        if ( !organizationOwners.contains( loggedInUser.getId() ) && loggedInUser.getRole() != Role.SUPER_ADMIN ) {
             throw new UnauthorizedException( "You are not allowed to perform this action." );
         }
     }

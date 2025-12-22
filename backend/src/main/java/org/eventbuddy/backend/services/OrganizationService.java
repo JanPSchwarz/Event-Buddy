@@ -14,7 +14,6 @@ import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,7 +105,7 @@ public class OrganizationService {
 
     // === Create Methods ===
 
-    public Organization createOrganization( OrganizationCreateDto organizationDto, AppUser user, String imageId ) throws IOException {
+    public Organization createOrganization( OrganizationCreateDto organizationDto, AppUser user, String imageId ) {
 
         Organization newOrganization = Organization.builder()
                 .name( organizationDto.name() )
@@ -168,9 +167,12 @@ public class OrganizationService {
 
     private AppUser addOrganizationToUser( String organizationId, String userId ) {
 
-        AppUser user = userRepo.findById( userId ).orElseThrow(
-                () -> new ResourceNotFoundException( "User not found with id: " + userId )
-        );
+        AppUser user = userRepo.findById( userId ).orElse( null );
+
+        if ( user == null ) {
+            log.warn( "User with id {} not found while adding organization {} to the user", userId, organizationId );
+            return null;
+        }
 
         Set<String> updatedOrganizations = new HashSet<>( user.getOrganizations() != null ? user.getOrganizations() : Set.of() );
 
@@ -189,9 +191,12 @@ public class OrganizationService {
     }
 
     private AppUser removeOrganizationFromUser( String organizationId, String userId ) {
-        AppUser user = userRepo.findById( userId ).orElseThrow(
-                () -> new ResourceNotFoundException( "User not found with id: " + userId )
-        );
+        AppUser user = userRepo.findById( userId ).orElse( null );
+
+        if ( user == null ) {
+            log.warn( "User with id {} not found while removing organization {}", userId, organizationId );
+            return null;
+        }
 
         Set<String> updatedOrganizations = user.getOrganizations().stream()
                 .filter( orgId -> !orgId.equals( organizationId ) )

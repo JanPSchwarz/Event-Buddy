@@ -54,11 +54,11 @@ public class ImageService {
                 () -> new ResourceNotFoundException( "Organization not found with ID: " + organizationId )
         );
 
-        String imageId = organization.getImageId();
+        String existingImageId = organization.getImageId();
 
-        if ( imageId != null ) {
-            Image image = imageRepo.findById( imageId ).orElseThrow(
-                    () -> new ResourceNotFoundException( "Image not found with ID: " + imageId )
+        if ( existingImageId != null ) {
+            Image image = imageRepo.findById( existingImageId ).orElseThrow(
+                    () -> new ResourceNotFoundException( "Image not found with ID: " + existingImageId )
             );
 
             Binary imageBinary = new org.bson.types.Binary( BsonBinarySubType.BINARY, imageData.getBytes() );

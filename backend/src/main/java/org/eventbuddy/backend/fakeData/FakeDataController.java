@@ -1,8 +1,7 @@
-package org.eventbuddy.backend.controller;
+package org.eventbuddy.backend.fakeData;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.eventbuddy.backend.services.FakeDataService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;

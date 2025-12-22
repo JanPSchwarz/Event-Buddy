@@ -1,4 +1,4 @@
-package org.eventbuddy.backend.services;
+package org.eventbuddy.backend.fakeData;
 
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
