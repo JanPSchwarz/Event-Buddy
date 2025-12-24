@@ -74,6 +74,12 @@ public class Organization extends MongoBaseModel {
     @URL
     private String website;
 
+    @Schema(
+            description = "Image ID of the organization's logo",
+            example = "1234567890abcdef12345678",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            nullable = true
+    )
     private String imageId;
 }
 

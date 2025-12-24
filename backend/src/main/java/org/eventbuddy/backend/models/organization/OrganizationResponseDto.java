@@ -43,7 +43,12 @@ public record OrganizationResponseDto(
                 accessMode = Schema.AccessMode.READ_ONLY
         )
         @URL
-        String website
+        String website,
+        @Schema(
+                description = "Image ID of the organization",
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
+        String imageId
 
 ) {
 }

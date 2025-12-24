@@ -10,6 +10,7 @@ import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationCreateDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 import org.eventbuddy.backend.models.organization.OrganizationUpdateDto;
+import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class OrganizationService {
     private final OrganizationRepository organizationRepo;
 
     private final UserRepository userRepo;
+
+    private final ImageRepository imageRepo;
 
     // === Public Organization Methods (DTO) ===
 
@@ -126,13 +129,20 @@ public class OrganizationService {
 
     public void deleteOrganizationById( String organizationId ) {
 
-        Set<String> ownerIds = getOrganizationByIdOrThrow( organizationId ).getOwners();
+        Organization organization = getOrganizationByIdOrThrow( organizationId );
 
-        organizationRepo.deleteById( organizationId );
+        if ( organization.getImageId() != null ) {
+            imageRepo.deleteById( organization.getImageId() );
+        }
+
+        Set<String> ownerIds = organization.getOwners();
+
 
         for ( String ownerId : ownerIds ) {
             removeOrganizationFromUser( organizationId, ownerId );
         }
+
+        organizationRepo.deleteById( organizationId );
     }
 
     // === Private Helper Methods ===
@@ -162,6 +172,7 @@ public class OrganizationService {
                 .slug( organization.getSlug() )
                 .description( organization.getDescription() )
                 .website( organization.getWebsite() )
+                .imageId( organization.getImageId() )
                 .build();
     }
 
@@ -195,6 +206,11 @@ public class OrganizationService {
 
         if ( user == null ) {
             log.warn( "User with id {} not found while removing organization {}", userId, organizationId );
+            return null;
+        }
+
+        if ( user.getOrganizations() == null ) {
+            log.warn( "User with id {} has no organizations while trying removing this organizationId {}", userId, organizationId );
             return null;
         }
 

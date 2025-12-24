@@ -236,7 +236,7 @@ public class OrganizationController {
         return ResponseEntity.ok( organization );
     }
 
-    @PutMapping("removerOwner/{organizationId}/{userId}")
+    @PutMapping("removeOwner/{organizationId}/{userId}")
     @Operation(
             summary = "Remove an owner from an organization (Organization Owners / Super Admin only)",
             description = "Removes an owner to the organization with the specified ID and returns the updated organization."
