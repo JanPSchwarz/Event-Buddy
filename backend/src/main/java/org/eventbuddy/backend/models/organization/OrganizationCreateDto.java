@@ -43,7 +43,22 @@ public record OrganizationCreateDto(
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
                 nullable = true
         )
-        
-        MultipartFile image
+
+        MultipartFile image,
+
+        @Schema(
+                description = "Location of the organization",
+                requiredMode = Schema.RequiredMode.REQUIRED,
+                nullable = false
+        )
+        @NotNull
+        Location location,
+
+        @Schema(
+                description = "Contact information of the organization",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+                nullable = true
+        )
+        Contact contact
 ) {
 }

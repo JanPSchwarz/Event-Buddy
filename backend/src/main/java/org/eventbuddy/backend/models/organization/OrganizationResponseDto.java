@@ -48,7 +48,19 @@ public record OrganizationResponseDto(
                 description = "Image ID of the organization",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
-        String imageId
+        String imageId,
+
+        @Schema(
+                description = "Location of the organization",
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
+        Location location,
+
+        @Schema(
+                description = "Contact information of the organization",
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
+        Contact contact
 
 ) {
 }

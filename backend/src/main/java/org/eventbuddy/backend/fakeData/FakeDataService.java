@@ -5,6 +5,8 @@ import net.datafaker.Faker;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.UserSettings;
+import org.eventbuddy.backend.models.organization.Contact;
+import org.eventbuddy.backend.models.organization.Location;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
@@ -89,11 +91,28 @@ public class FakeDataService {
 
     private void createFakeOrganizations( int numberOfOrgas ) {
         for ( int i = 0; i < numberOfOrgas; i++ ) {
+
+            Location fakeLocation = Location.builder()
+                    .address( faker.address().streetAddress() )
+                    .city( faker.address().city() )
+                    .zipCode( faker.number().digits( 6 ) )
+                    .country( faker.address().country() )
+                    .latitude( Double.parseDouble( faker.address().latitude() ) )
+                    .longitude( Double.parseDouble( faker.address().longitude() ) )
+                    .build();
+
+            Contact fakeContact = Contact.builder()
+                    .email( faker.internet().emailAddress() )
+                    .phoneNumber( faker.phoneNumber().cellPhoneInternational() )
+                    .build();
+
             Organization newOrganization = Organization.builder()
                     .name( faker.company().name() )
                     .description( faker.lorem().sentence( 10 ) )
                     .website( faker.internet().url() )
                     .owners( Set.of( currentUserIds.get( faker.number().numberBetween( 0, currentUserIds.size() ) ) ) )
+                    .contact( fakeContact )
+                    .location( fakeLocation )
                     .build();
 
             Organization createdOrganization = organizationRepo.save( newOrganization );

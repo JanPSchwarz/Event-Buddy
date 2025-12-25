@@ -32,7 +32,21 @@ public record OrganizationUpdateDto(
                 nullable = true
         )
         @URL
-        String website
+        String website,
+
+        @Schema(
+                description = "Location of the organization",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+                nullable = true
+        )
+        Location location,
+
+        @Schema(
+                description = "Contact information of the organization",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+                nullable = true
+        )
+        Contact contact
 
 ) {
 }

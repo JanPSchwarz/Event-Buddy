@@ -27,6 +27,13 @@ import java.util.Set;
 public class Organization extends MongoBaseModel {
 
     @Schema(
+            description = "Contact information of the organization",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            nullable = true
+    )
+    Contact contact;
+
+    @Schema(
             description = "Name of the organization",
             example = "EventBuddy GmbH",
             requiredMode = Schema.RequiredMode.REQUIRED,
@@ -36,7 +43,6 @@ public class Organization extends MongoBaseModel {
     @NotEmpty
     @Indexed(unique = true)
     private String name;
-
     @Schema(
             description = "Slug of the organization",
             example = "event-buddy-gmbh",
@@ -47,10 +53,9 @@ public class Organization extends MongoBaseModel {
     @NotEmpty
     @Indexed(unique = true)
     private String slug;
-
     @Schema(
-            description = "List of admin user IDs",
-            example = "[\"admin1\", \"admin2\"]",
+            description = "List of admin user IDs (mongo object ids)",
+            example = "[\"694ceebb43db708d04241ac9\", \"694ceebb43db708d04241ac8\"]",
             requiredMode = Schema.RequiredMode.REQUIRED,
             nullable = false
     )
@@ -73,7 +78,6 @@ public class Organization extends MongoBaseModel {
     )
     @URL
     private String website;
-
     @Schema(
             description = "Image ID of the organization's logo",
             example = "1234567890abcdef12345678",
@@ -81,5 +85,13 @@ public class Organization extends MongoBaseModel {
             nullable = true
     )
     private String imageId;
+    @Schema(
+            description = "Location of the organization",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            nullable = false
+    )
+    @NotNull
+    @NotEmpty
+    private Location location;
 }
 

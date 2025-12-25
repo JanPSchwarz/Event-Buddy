@@ -116,6 +116,8 @@ public class OrganizationService {
                 .description( organizationDto.description() )
                 .website( organizationDto.website() )
                 .imageId( imageId )
+                .location( organizationDto.location() )
+                .contact( organizationDto.contact() )
                 .build();
 
         Organization savedOrganization = organizationRepo.save( newOrganization );
@@ -157,24 +159,6 @@ public class OrganizationService {
                 .orElseThrow( () -> new ResourceNotFoundException( "Organization not found with slug: " + organizationSlug ) );
     }
 
-    private OrganizationResponseDto organizationToDtoMapper( Organization organization ) {
-        List<AppUser> owners = userRepo.findAllById( organization.getOwners() ).orElseThrow(
-                () -> new ResourceNotFoundException( "One or more organization owners not found." )
-        );
-
-        Set<AppUserDto> ownersDtos = owners.stream()
-                .map( this::userToDtoMapper )
-                .collect( Collectors.toSet() );
-
-        return OrganizationResponseDto.builder()
-                .name( organization.getName() )
-                .owners( ownersDtos )
-                .slug( organization.getSlug() )
-                .description( organization.getDescription() )
-                .website( organization.getWebsite() )
-                .imageId( organization.getImageId() )
-                .build();
-    }
 
     private AppUser addOrganizationToUser( String organizationId, String userId ) {
 
@@ -239,6 +223,30 @@ public class OrganizationService {
                 .name( updatedOrganization.name() != null ? updatedOrganization.name() : existingOrganization.getName() )
                 .description( updatedOrganization.description() != null ? updatedOrganization.description() : existingOrganization.getDescription() )
                 .website( updatedOrganization.website() != null ? updatedOrganization.website() : existingOrganization.getWebsite() )
+                .location( updatedOrganization.location() != null ? updatedOrganization.location() : existingOrganization.getLocation() )
+                .contact( updatedOrganization.contact() != null ? updatedOrganization.contact() : existingOrganization.getContact() )
+                .build();
+    }
+
+
+    private OrganizationResponseDto organizationToDtoMapper( Organization organization ) {
+        List<AppUser> owners = userRepo.findAllById( organization.getOwners() ).orElseThrow(
+                () -> new ResourceNotFoundException( "One or more organization owners not found." )
+        );
+
+        Set<AppUserDto> ownersDtos = owners.stream()
+                .map( this::userToDtoMapper )
+                .collect( Collectors.toSet() );
+
+        return OrganizationResponseDto.builder()
+                .name( organization.getName() )
+                .owners( ownersDtos )
+                .slug( organization.getSlug() )
+                .description( organization.getDescription() )
+                .website( organization.getWebsite() )
+                .imageId( organization.getImageId() )
+                .location( organization.getLocation() )
+                .contact( organization.getContact() )
                 .build();
     }
 }
