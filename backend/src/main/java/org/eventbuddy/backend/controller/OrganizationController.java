@@ -106,7 +106,7 @@ public class OrganizationController {
             )
     )
     public ResponseEntity<OrganizationResponseDto> getOrganizationBySlug( @PathVariable String organizationSlug ) {
-        return ResponseEntity.ok( organizationService.getOrganizationDtoByName( organizationSlug ) );
+        return ResponseEntity.ok( organizationService.getOrganizationDtoBySlug( organizationSlug ) );
     }
 
     // == POST Endpoints ==

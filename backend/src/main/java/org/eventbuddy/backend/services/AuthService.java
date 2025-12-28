@@ -40,7 +40,9 @@ public class AuthService extends DefaultOAuth2UserService {
 
     public AppUser getAppUserByAuthToken( OAuth2AuthenticationToken authToken ) {
         String providerId = getProviderIdByAuthToken( authToken );
-        return getAppUserByProviderId( providerId );
+
+        return userRepo.findByProviderId( providerId )
+                .orElseThrow( () -> new ResourceNotFoundException( "User not found with providerId: " + providerId ) );
     }
 
     public boolean isNotAuthenticated( OAuth2AuthenticationToken authToken ) {
@@ -65,11 +67,6 @@ public class AuthService extends DefaultOAuth2UserService {
         AppUser user = getAppUserByAuthToken( authToken );
 
         return user.getRole() == Role.SUPER_ADMIN;
-    }
-
-    private AppUser getAppUserByProviderId( String providerId ) {
-        return userRepo.findByProviderId( providerId )
-                .orElseThrow( () -> new ResourceNotFoundException( "User not found with providerId: " + providerId ) );
     }
 
     private AppUser createAndSaveUser( OAuth2User oAuthUser, OAuth2UserRequest userRequest ) {

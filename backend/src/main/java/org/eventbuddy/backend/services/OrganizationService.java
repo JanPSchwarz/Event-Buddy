@@ -44,7 +44,7 @@ public class OrganizationService {
         return organizationToDtoMapper( organization );
     }
 
-    public OrganizationResponseDto getOrganizationDtoByName( String organizationName ) {
+    public OrganizationResponseDto getOrganizationDtoBySlug( String organizationName ) {
         Organization organization = getOrganizationBySlugOrThrow( organizationName );
         return organizationToDtoMapper( organization );
     }
@@ -210,6 +210,7 @@ public class OrganizationService {
     }
 
     private AppUserDto userToDtoMapper( AppUser user ) {
+
         return AppUserDto.builder()
                 .name( user.getName() )
                 .email( user.getUserSettings().showEmail() ? user.getEmail() : null )

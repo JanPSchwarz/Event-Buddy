@@ -127,6 +127,9 @@ public class UserController {
     }
 
     private void validateRequest( OAuth2AuthenticationToken authToken, String userId ) {
+
+        System.out.println( authToken );
+        
         if ( !userService.userExistsById( userId ) ) {
             throw new ResourceNotFoundException( "User does not exist." );
         }

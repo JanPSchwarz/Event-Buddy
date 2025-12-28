@@ -9,7 +9,7 @@ import org.hibernate.validator.constraints.URL;
 
 import java.util.Set;
 
-@Builder
+@Builder(toBuilder = true)
 public record OrganizationResponseDto(
 
         @Schema(

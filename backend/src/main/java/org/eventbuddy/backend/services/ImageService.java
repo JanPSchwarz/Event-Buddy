@@ -36,7 +36,7 @@ public class ImageService {
             throw new IllegalArgumentException( "Unsupported image type: " + imageData.getContentType() + " Allowed types are: " + String.join( ", ", ImageType.getAllFileTypes() ) );
         }
 
-        Binary imageBinary = new org.bson.types.Binary( BsonBinarySubType.BINARY, imageData.getBytes() );
+        Binary imageBinary = new Binary( BsonBinarySubType.BINARY, imageData.getBytes() );
 
         Image buildImage = Image.builder()
                 .imageData( imageBinary )
@@ -48,7 +48,7 @@ public class ImageService {
         return savedImage.getImageId();
     }
 
-    public void updateImage( String organizationId, MultipartFile imageData ) throws IOException {
+    public String updateImage( String organizationId, MultipartFile imageData ) throws IOException {
 
         Organization organization = organizationRepo.findById( organizationId ).orElseThrow(
                 () -> new ResourceNotFoundException( "Organization not found with ID: " + organizationId )
@@ -68,7 +68,9 @@ public class ImageService {
                     .contentType( imageData.getContentType() )
                     .build();
 
-            imageRepo.save( updatedImage );
+            Image savedImage = imageRepo.save( updatedImage );
+
+            return savedImage.getImageId();
         } else {
             String newImageId = storeImage( imageData );
 
@@ -76,7 +78,9 @@ public class ImageService {
                     .imageId( newImageId )
                     .build();
 
-            organizationRepo.save( updatedOrganization );
+            Organization savedOrganization = organizationRepo.save( updatedOrganization );
+
+            return savedOrganization.getImageId();
         }
     }
 }

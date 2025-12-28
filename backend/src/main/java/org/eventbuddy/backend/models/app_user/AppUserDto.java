@@ -7,7 +7,7 @@ import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 
 import java.util.List;
 
-@Builder
+@Builder(toBuilder = true)
 public record AppUserDto(
         @Schema(
                 description = "Email of the user",
