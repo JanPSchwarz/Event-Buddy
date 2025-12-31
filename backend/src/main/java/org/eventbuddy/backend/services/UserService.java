@@ -197,6 +197,8 @@ public class UserService {
                 .description( organization.getDescription() )
                 .website( organization.getWebsite() )
                 .slug( organization.getSlug() )
+                .location( organization.getLocation() )
+                .contact( organization.getContact() )
                 .owners( ownersDtos )
                 .build();
     }

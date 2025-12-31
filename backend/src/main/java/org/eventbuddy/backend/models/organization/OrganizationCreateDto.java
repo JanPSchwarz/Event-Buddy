@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import org.hibernate.validator.constraints.URL;
-import org.springframework.web.multipart.MultipartFile;
 
+@Builder
 public record OrganizationCreateDto(
 
         @Schema(
@@ -37,14 +38,6 @@ public record OrganizationCreateDto(
         )
         @URL
         String website,
-
-        @Schema(
-                description = "Image file for the organization's logo",
-                requiredMode = Schema.RequiredMode.NOT_REQUIRED,
-                nullable = true
-        )
-
-        MultipartFile image,
 
         @Schema(
                 description = "Location of the organization",

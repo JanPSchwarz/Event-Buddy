@@ -68,8 +68,11 @@ public class OrganizationService {
     public Organization addOwnerToOrganization( String organizationId, String userId ) {
         Organization organization = getOrganizationByIdOrThrow( organizationId );
 
+        AppUser user = userRepo.findById( userId )
+                .orElseThrow( () -> new ResourceNotFoundException( "User not found with id: " + userId ) );
+
         Set<String> updatedOwners = new HashSet<>( organization.getOwners() );
-        updatedOwners.add( userId );
+        updatedOwners.add( user.getId() );
 
         Organization buildOrganization = organization.toBuilder()
                 .owners( updatedOwners )
@@ -98,9 +101,9 @@ public class OrganizationService {
             throw new IllegalStateException( "Organization must have at least one owner." );
         }
 
-        Organization savedOrganization = organizationRepo.save( updatedOrganization );
-
         removeOrganizationFromUser( organizationId, ownerId );
+
+        Organization savedOrganization = organizationRepo.save( updatedOrganization );
 
         return savedOrganization;
     }
@@ -162,12 +165,7 @@ public class OrganizationService {
 
     private AppUser addOrganizationToUser( String organizationId, String userId ) {
 
-        AppUser user = userRepo.findById( userId ).orElse( null );
-
-        if ( user == null ) {
-            log.warn( "User with id {} not found while adding organization {} to the user", userId, organizationId );
-            return null;
-        }
+        AppUser user = userRepo.findById( userId ).orElseThrow( () -> new ResourceNotFoundException( "User not found with id: " + userId ) );
 
         Set<String> updatedOrganizations = new HashSet<>( user.getOrganizations() != null ? user.getOrganizations() : Set.of() );
 
@@ -186,16 +184,11 @@ public class OrganizationService {
     }
 
     private AppUser removeOrganizationFromUser( String organizationId, String userId ) {
-        AppUser user = userRepo.findById( userId ).orElse( null );
+        AppUser user = userRepo.findById( userId ).orElseThrow( () ->
+                new ResourceNotFoundException( "User not found with id: " + userId ) );
 
-        if ( user == null ) {
-            log.warn( "User with id {} not found while removing organization {}", userId, organizationId );
-            return null;
-        }
-
-        if ( user.getOrganizations() == null ) {
-            log.warn( "User with id {} has no organizations while trying removing this organizationId {}", userId, organizationId );
-            return null;
+        if ( user.getOrganizations() == null || user.getOrganizations().isEmpty() ) {
+            throw new IllegalStateException( "User with id " + userId + " is not part of any organizations." );
         }
 
         Set<String> updatedOrganizations = user.getOrganizations().stream()
