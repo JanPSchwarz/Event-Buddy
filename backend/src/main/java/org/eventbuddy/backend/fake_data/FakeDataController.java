@@ -1,8 +1,7 @@
-package org.eventbuddy.backend.controller;
+package org.eventbuddy.backend.fake_data;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.eventbuddy.backend.services.FakeDataService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,21 +20,21 @@ public class FakeDataController {
         this.fakeDataService = fakeDataService;
     }
 
-    @PostMapping("/create-fake-users")
+    @PostMapping("/create-fake-data")
     @Operation(
-            summary = "Create fake users",
-            description = "Creates custom number fake users for testing purposes."
+            summary = "Create fake data",
+            description = "Creates custom number fake data for testing purposes."
     )
-    public void createFakeUsers() {
-        fakeDataService.createFakeUsers( 10 );
+    public void createFakeData() {
+        fakeDataService.createFakeData( 10 );
     }
 
-    @DeleteMapping("/delete-all-users")
+    @DeleteMapping("/delete-all-data")
     @Operation(
             summary = "Delete all fake users",
             description = "Deletes all users from the system."
     )
-    public void deleteAllFakeUsers() {
-        fakeDataService.deleteAllFakeUsers();
+    public void deleteAllFakeData() {
+        fakeDataService.deleteAllFakeData();
     }
 }

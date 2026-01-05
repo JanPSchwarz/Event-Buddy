@@ -3,7 +3,9 @@ package org.eventbuddy.backend.models.app_user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
+@Builder
 @Schema(description = "Data Transfer Object for updating user profile")
 public record AppUserUpdateDto(
         @Schema(

@@ -42,7 +42,7 @@ public class UserController {
             description = "Returns an array of all user dto's accounts currently stored in the system."
     )
     public List<AppUserDto> getAllUsers() {
-        return userService.getAllUsers();
+        return userService.getAllUsersDtos();
     }
 
     @GetMapping("/{userId}")
@@ -59,7 +59,7 @@ public class UserController {
             )
     )
     public AppUserDto getUserById( @PathVariable String userId ) {
-        return userService.getUserById( userId );
+        return userService.getUserDtoById( userId );
     }
 
     @PutMapping("/{userId}")
@@ -118,14 +118,6 @@ public class UserController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    @ApiResponse(
-            responseCode = "409",
-            description = "Conflict - Duplicate unique considered data",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ErrorMessage.class)
-            )
-    )
     public ResponseEntity<Void> deleteUser( OAuth2AuthenticationToken authToken, @PathVariable String userId ) {
         validateRequest( authToken, userId );
 
@@ -135,7 +127,8 @@ public class UserController {
     }
 
     private void validateRequest( OAuth2AuthenticationToken authToken, String userId ) {
-        if ( !authService.userExistsById( userId ) ) {
+
+        if ( !userService.userExistsById( userId ) ) {
             throw new ResourceNotFoundException( "User does not exist." );
         }
 

@@ -15,6 +15,8 @@ import org.hibernate.validator.constraints.URL;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Set;
+
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -83,4 +85,12 @@ public class AppUser extends MongoBaseModel {
     )
     @URL
     private String avatarUrl;
+
+    @Schema(
+            description = "List of organizations the user is associated with",
+            example = "[\"exampleId-123\", \"exampleId-234\"]",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            nullable = true
+    )
+    private Set<String> organizations;
 }
