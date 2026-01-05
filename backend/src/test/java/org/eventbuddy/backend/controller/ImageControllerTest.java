@@ -2,6 +2,7 @@ package org.eventbuddy.backend.controller;
 
 import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
+import org.eventbuddy.backend.TestcontainersConfiguration;
 import org.eventbuddy.backend.models.image.Image;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

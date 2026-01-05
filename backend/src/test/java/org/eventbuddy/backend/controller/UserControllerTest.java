@@ -1,6 +1,7 @@
 package org.eventbuddy.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eventbuddy.backend.TestcontainersConfiguration;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.mockUser.WithCustomMockUser;
 import org.eventbuddy.backend.mockUser.WithCustomSuperAdmin;
@@ -22,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.List;
 
