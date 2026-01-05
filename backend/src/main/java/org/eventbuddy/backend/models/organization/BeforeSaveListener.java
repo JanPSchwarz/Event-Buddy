@@ -32,10 +32,10 @@ class BeforeSaveListener implements BeforeSaveCallback<Organization> {
                 .replaceAll( "ö", "oe" )
                 .replaceAll( "ü", "ue" )
                 .replaceAll( "ß", "ss" )
-                .replaceAll( "\\s+", "-" )
-                .replaceAll( "[^a-z0-9-]", "" )
-                .replaceAll( "-+", "-" )
-                .replaceAll( "^-|-$", "" );
+                .replaceAll( "(\\s)+", "-" )
+                .replaceAll( "([^a-z0-9-])", "" )
+                .replaceAll( "(-)+", "-" )
+                .replaceAll( "(^-)|(-$)", "" );
     }
 
 }
