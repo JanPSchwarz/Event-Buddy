@@ -1,4 +1,4 @@
-package org.eventbuddy.backend.fakeData;
+package org.eventbuddy.backend.fake_data;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

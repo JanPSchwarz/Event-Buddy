@@ -15,10 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -232,30 +228,6 @@ class AuthServiceTest {
         } )
                 .isInstanceOf( UnauthorizedException.class )
                 .hasMessage( "You are not logged in." );
-
-    }
-
-    private OAuth2UserRequest buildOAuth2UserRequest() {
-        ClientRegistration clientRegistration = ClientRegistration
-                .withRegistrationId( "github" )
-                .clientId( "client-id" )
-                .clientSecret( "client-secret" )
-                .redirectUri( "redirect" )
-                .authorizationUri( "https://github.com/login/oauth/authorize" )
-                .tokenUri( "https://github.com/login/oauth/access_token" )
-                .userInfoUri( "https://api.github.com/user" )
-                .userNameAttributeName( "id" )
-                .authorizationGrantType( AuthorizationGrantType.AUTHORIZATION_CODE )
-                .build();
-
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(
-                OAuth2AccessToken.TokenType.BEARER,
-                "access-token",
-                null,
-                null
-        );
-
-        return new OAuth2UserRequest( clientRegistration, accessToken );
 
     }
 }

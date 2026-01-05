@@ -169,8 +169,6 @@ class UserControllerTest {
                 .name( "Updated Name" )
                 .build();
 
-        AppUser savedUser = userRepo.findById( savedUserId ).orElseThrow();
-
         String requestBody = objectMapper.writeValueAsString( updateData );
 
         mockMvc.perform( put( "/api/users/" + savedUserId )
