@@ -11,6 +11,7 @@ import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,9 +21,9 @@ import java.io.IOException;
 @AllArgsConstructor
 public class ImageService {
 
-    ImageRepository imageRepo;
+    private final ImageRepository imageRepo;
 
-    OrganizationRepository organizationRepo;
+    private final OrganizationRepository organizationRepo;
 
     public Image getImageById( String imageUrl ) {
         return imageRepo.findById( imageUrl ).orElseThrow(
@@ -34,6 +35,15 @@ public class ImageService {
 
         if ( !ImageType.isSupported( imageData.getContentType() ) ) {
             throw new IllegalArgumentException( "Unsupported image type: " + imageData.getContentType() + " Allowed types are: " + String.join( ", ", ImageType.getAllFileTypes() ) );
+        }
+
+        byte[] bytes = imageData.getBytes();
+
+        // in MB, adjust as needed
+        int maxFileSize = 5;
+
+        if ( bytes.length > 1024 * 1024 * maxFileSize ) {
+            throw new MaxUploadSizeExceededException( maxFileSize );
         }
 
         Binary imageBinary = new Binary( BsonBinarySubType.BINARY, imageData.getBytes() );

@@ -24,7 +24,7 @@ public class WithMockCustomUserSecurityContextFactory
 
 
         DefaultOAuth2User principal = new DefaultOAuth2User(
-                List.of( new SimpleGrantedAuthority( "ROLE_USER" ) ),
+                List.of( new SimpleGrantedAuthority( customUser.role() ) ),
                 attributes,
                 "id"
         );

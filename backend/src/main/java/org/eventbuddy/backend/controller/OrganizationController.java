@@ -70,7 +70,11 @@ public class OrganizationController {
             )
     )
     public ResponseEntity<List<Organization>> getAllRawOrganizations( OAuth2AuthenticationToken authToken ) {
-        authService.isSuperAdmin( authToken );
+        boolean isSuperAdmin = authService.isSuperAdmin( authToken );
+
+        if ( !isSuperAdmin ) {
+            throw new UnauthorizedException( "You are not allowed to perform this action." );
+        }
 
         return ResponseEntity.ok( organizationService.getAllRawOrganizations() );
     }
@@ -143,7 +147,7 @@ public class OrganizationController {
             )
     )
     public ResponseEntity<Organization> createOrganization(
-            @Nullable @RequestPart("file") MultipartFile file,
+            @Nullable @RequestPart("image") MultipartFile file,
             @Valid @RequestPart("organization") OrganizationCreateDto organization,
             OAuth2AuthenticationToken authToken
     ) throws IOException {
@@ -190,7 +194,7 @@ public class OrganizationController {
     )
     public ResponseEntity<Organization> updateOrganization(
             OAuth2AuthenticationToken authToken,
-            @Nullable @RequestPart("file") MultipartFile file,
+            @Nullable @RequestPart("image") MultipartFile file,
             @PathVariable String organizationId,
             @Valid @RequestPart("updateOrganization") OrganizationUpdateDto updatedOrganization
     ) throws IOException {
@@ -205,7 +209,7 @@ public class OrganizationController {
         return ResponseEntity.ok( organization );
     }
 
-    @PutMapping("addOwner/{organizationId}/{userId}")
+    @PutMapping("/addOwner/{organizationId}/{userId}")
     @Operation(
             summary = "Add an owner to an organization (Organization Owners / Super Admin only)",
             description = "Adds a new owner to the organization with the specified ID and returns the updated organization."
@@ -236,7 +240,7 @@ public class OrganizationController {
         return ResponseEntity.ok( organization );
     }
 
-    @PutMapping("removeOwner/{organizationId}/{userId}")
+    @PutMapping("/removeOwner/{organizationId}/{userId}")
     @Operation(
             summary = "Remove an owner from an organization (Organization Owners / Super Admin only)",
             description = "Removes an owner to the organization with the specified ID and returns the updated organization."
@@ -251,6 +255,14 @@ public class OrganizationController {
     )
     @ApiResponse(
             responseCode = "401",
+            description = "User not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
             description = "User not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,

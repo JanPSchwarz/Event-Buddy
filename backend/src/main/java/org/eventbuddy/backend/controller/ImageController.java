@@ -31,16 +31,8 @@ public class ImageController {
             description = "Retrieve an image by its unique identifier."
     )
     @ApiResponse(
-            responseCode = "400",
-            description = "Invalid input data",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ErrorMessage.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "413",
-            description = "Payload too large",
+            responseCode = "404",
+            description = "No image found with url",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -117,6 +118,22 @@ class ImageServiceTest {
         assertThatThrownBy( () ->
                 mockImageService.storeImage( mockFile ) )
                 .isInstanceOf( IllegalArgumentException.class )
+                .hasMessage( expectedMessage );
+    }
+
+    @Test
+    @DisplayName("Should throw when image too large")
+    void storeImage_shouldThrowWhenImageTooLarge() {
+        int fileSizeInBytes = 6 * 1024 * 1024; // 6MB
+        byte[] largeImageContent = new byte[fileSizeInBytes];
+
+        MultipartFile mockFile = new MockMultipartFile( "file", null, "image/png", largeImageContent );
+
+        String expectedMessage = "Maximum upload size of 5 bytes exceeded";
+
+        assertThatThrownBy( () ->
+                mockImageService.storeImage( mockFile ) )
+                .isInstanceOf( MaxUploadSizeExceededException.class )
                 .hasMessage( expectedMessage );
     }
 

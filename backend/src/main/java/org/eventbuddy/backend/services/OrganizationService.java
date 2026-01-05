@@ -103,9 +103,7 @@ public class OrganizationService {
 
         removeOrganizationFromUser( organizationId, ownerId );
 
-        Organization savedOrganization = organizationRepo.save( updatedOrganization );
-
-        return savedOrganization;
+        return organizationRepo.save( updatedOrganization );
     }
 
 

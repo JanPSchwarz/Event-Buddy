@@ -12,4 +12,6 @@ public @interface WithCustomMockUser {
     String id() default "123";
 
     String registrationId() default "github";
+
+    String role() default "USER";
 }

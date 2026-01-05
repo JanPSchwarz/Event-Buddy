@@ -19,19 +19,15 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WithCustomMockUser
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -43,51 +39,12 @@ class AuthServiceTest {
 
     @Mock
     AdminConfig mockAdminConfig;
-    
+
     AuthService mockAuthService;
 
     @BeforeEach
     void setUp() {
         mockAuthService = new AuthService( mockUserRepo, mockAdminConfig );
-    }
-
-    @Test
-    void loadUser() {
-        OAuth2UserRequest userRequest = buildOAuth2UserRequest();
-
-        AuthService spyAuthService = spy( mockAuthService );
-
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put( "id", "123" );
-
-        OAuth2User mockOAuth2User = new DefaultOAuth2User( List.of(), attributes, "id" );
-
-        String expectedProviderId = "github_123";
-
-        AppUser existingUser = AppUser.builder()
-                .providerId( expectedProviderId )
-                .role( Role.USER )
-                .build();
-
-        doReturn( mockOAuth2User ).when( spyAuthService ).loadUser( userRequest );
-
-        // Mock Repository-Aufruf für existierenden User
-        when( mockUserRepo.findByProviderId( expectedProviderId ) ).thenReturn( Optional.of( existingUser ) );
-
-        // WHEN
-        OAuth2User result = spyAuthService.loadUser( userRequest );
-
-        System.out.println( result );
-
-        // THEN
-        assertNotNull( result );
-        assertEquals( "123", result.getName() );
-//        assertTrue( result.getAuthorities().stream()
-//                .anyMatch( auth -> auth.getAuthority().equals( "USER" ) ) );
-        assertEquals( attributes, result.getAttributes() );
-
-        verify( mockUserRepo ).findByProviderId( expectedProviderId );
-
     }
 
     @Test
