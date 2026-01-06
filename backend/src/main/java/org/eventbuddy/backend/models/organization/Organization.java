@@ -68,7 +68,7 @@ public class Organization extends MongoBaseModel {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED,
             nullable = true
     )
-    @Size(min = 4, max = 500, message = "Description must be between 4 and 500 characters")
+    @Size(min = 4, max = 1500, message = "Description must be between 4 and 500 characters")
     private String description;
     @Schema(
             description = "Website URL of the organization",

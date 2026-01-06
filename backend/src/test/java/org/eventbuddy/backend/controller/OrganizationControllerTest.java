@@ -488,6 +488,42 @@ class OrganizationControllerTest {
     }
 
     @Test
+    @DisplayName("Should return updated orga deleted image")
+    void updateOrganization_withImageDeleted() throws Exception {
+
+        Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
+
+        Organization orgaToUpdateWithImage = orgaToUpdate.toBuilder()
+                .imageId( "existingImageId" )
+                .build();
+
+        organizationRepo.save( orgaToUpdateWithImage );
+
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
+                .name( "Updated Organization Name" )
+                .build();
+
+        String updatedOrganizationJson = objectMapper.writeValueAsString( updateData );
+
+        MockPart organizationPart = new MockPart( "updateOrganization", "organization.json", updatedOrganizationJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/organization/" + orgaToUpdate.getId() )
+                        .part( organizationPart )
+                        .param( "deleteImage", "true" )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( orgaToUpdate.getId() ) )
+                .andExpect( jsonPath( "$.name" ).value( updateData.name() ) )
+                .andExpect( jsonPath( "$.imageId" ).isEmpty() );
+    }
+
+    @Test
     @DisplayName("Should throw 401 when not authenticated")
     void updateOrganization_throws401WhenNotAuthenticated() throws Exception {
         oAuth2Token.setAuthenticated( false );

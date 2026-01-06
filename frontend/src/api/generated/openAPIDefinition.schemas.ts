@@ -119,7 +119,7 @@ export interface OrganizationRequestDto {
   /**
    * Description of the organization
    * @minLength 4
-   * @maxLength 500
+   * @maxLength 1500
    */
   description?: string;
   /** Website URL of the organization */
@@ -151,7 +151,7 @@ export interface Organization {
   /**
    * Description of the organization
    * @minLength 4
-   * @maxLength 500
+   * @maxLength 1500
    */
   description?: string;
   /** Website URL of the organization */
@@ -196,6 +196,7 @@ export interface OrganizationResponseDto {
 
 export type UpdateOrganizationBody = {
   image?: Blob;
+  deleteImage?: boolean;
   updateOrganization: OrganizationRequestDto;
 };
 

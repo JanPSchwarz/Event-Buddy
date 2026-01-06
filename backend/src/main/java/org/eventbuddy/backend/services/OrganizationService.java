@@ -212,10 +212,10 @@ public class OrganizationService {
 
         return existingOrganization.toBuilder()
                 .name( updatedOrganization.name() )
-                .description( updatedOrganization.description() != null ? updatedOrganization.description() : existingOrganization.getDescription() )
-                .website( updatedOrganization.website() != null ? updatedOrganization.website() : existingOrganization.getWebsite() )
-                .location( updatedOrganization.location() != null ? updatedOrganization.location() : existingOrganization.getLocation() )
-                .contact( updatedOrganization.contact() != null ? updatedOrganization.contact() : existingOrganization.getContact() )
+                .description( updatedOrganization.description() )
+                .website( updatedOrganization.website() )
+                .location( updatedOrganization.location() )
+                .contact( updatedOrganization.contact() )
                 .build();
     }
 

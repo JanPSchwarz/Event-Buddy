@@ -11,7 +11,7 @@ export default function Header() {
 
     return (
         <>
-            <header className={ "bg-accent flex justify-between items-center p-2 px-3" }>
+            <header className={ "bg-accent flex justify-between items-center gap-4 p-2 px-3" }>
                 <Navigation/>
                 <MobileNavigation/>
                 <div className={ "flex gap-4 items-center" }>

@@ -25,8 +25,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ImageServiceTest {
@@ -260,5 +259,62 @@ class ImageServiceTest {
                 .hasMessage( "Organization not found with ID: " + organizationId );
 
         verify( mockOrganizationRepo ).findById( organizationId );
+    }
+
+    @Test
+    @DisplayName("Should return true when image deleted")
+    void deleteImage_shouldReturnTrueWhenImageDeleted() {
+        String organizationId = "org123";
+        String imageId = "img123";
+
+        Organization givenOrganization = Organization.builder()
+                .id( organizationId )
+                .imageId( imageId )
+                .build();
+
+        Organization updatedOrganization = givenOrganization.toBuilder()
+                .imageId( null )
+                .build();
+
+        when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.of( givenOrganization ) );
+        when( mockOrganizationRepo.save( updatedOrganization ) ).thenReturn( updatedOrganization );
+
+        mockImageService.deleteImage( organizationId );
+
+        verify( mockOrganizationRepo ).findById( organizationId );
+        verify( mockOrganizationRepo ).save( updatedOrganization );
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when organization not found")
+    void deleteImage_shouldThrowWhenOrganizationNotFound() {
+        String organizationId = "nonExistingOrgId";
+
+        when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                mockImageService.deleteImage( organizationId ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Organization not found with ID: " + organizationId );
+
+        verify( mockOrganizationRepo ).findById( organizationId );
+    }
+
+    @Test
+    @DisplayName("Should do nothing when organization has no image")
+    void deleteImage_shouldDoNothingWhenNoImageToDelete() {
+        String organizationId = "org123";
+
+        Organization givenOrganization = Organization.builder()
+                .id( organizationId )
+                .imageId( null )
+                .build();
+
+        when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.of( givenOrganization ) );
+
+        mockImageService.deleteImage( organizationId );
+
+        verify( mockOrganizationRepo ).findById( organizationId );
+        verifyNoInteractions( mockImageRepo );
     }
 }

@@ -146,6 +146,9 @@ export const updateOrganization = (
 if(updateOrganizationBody.image !== undefined) {
  formData.append(`image`, updateOrganizationBody.image)
  }
+if(updateOrganizationBody.deleteImage !== undefined) {
+ formData.append(`deleteImage`, updateOrganizationBody.deleteImage.toString())
+ }
 formData.append(`updateOrganization`, JSON.stringify(updateOrganizationBody.updateOrganization));
 
     return axios.default.put(

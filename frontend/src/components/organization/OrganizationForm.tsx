@@ -11,13 +11,14 @@ import {
     FieldSet
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import type { Organization, OrganizationRequestDto } from "@/api/generated/openAPIDefinition.schemas.ts";
+import type { OrganizationRequestDto, OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
 import { ImagePlusIcon } from 'lucide-react';
 import { type ChangeEvent, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
 
 type OrganizationFormData = {
     name: string;
@@ -42,7 +43,7 @@ const formSchema = z.object( {
     description: z
         .string()
         .min( 4, "Description must be at least 4 characters" )
-        .max( 500, "Description must be at most 500 characters" )
+        .max( 1500, "Description must be at most 500 characters" )
         .optional()
         .or( z.literal( "" ) ),
     website: z.url().optional().or( z.literal( `` ) ),
@@ -69,14 +70,23 @@ const formSchema = z.object( {
 } )
 
 type OrganizationFormProps = {
-    organizationData?: Organization,
-    onSubmit: ( organizationDto: OrganizationRequestDto, imageFile: File | null ) => void,
+    organizationData?: OrganizationResponseDto,
+    onSubmit: ( organizationDto: OrganizationRequestDto, imageFile: File | null, deleteImage: boolean | undefined ) => void,
 }
 
 
-export default function OrganizationForm( { organizationData, onSubmit }: Readonly<OrganizationFormProps> ) {
+export default function OrganizationForm( {
+                                              organizationData,
+                                              onSubmit
+                                          }: Readonly<OrganizationFormProps> ) {
 
-    const [ selectedImageData, setSelectedImageData ] = useState<string | null>( null );
+    const { data: imageData } = useGetImageAsDataUrl( organizationData?.imageId || "", {
+        query: {
+            enabled: organizationData?.imageId !== null
+        }
+    } )
+
+    const [ imageSource, setImageSource ] = useState<string | null>( imageData?.data || null );
     const [ imageFile, setImageFile ] = useState<File | null>( null );
     const fileInputRef = useRef<HTMLInputElement>( null );
 
@@ -97,8 +107,8 @@ export default function OrganizationForm( { organizationData, onSubmit }: Readon
         }
     } );
 
-    const suppressSubmit = !form.formState.isDirty || form.formState.isSubmitting;
-
+    const isImageDeletion = ( organizationData?.imageId != null || organizationData?.imageId !== "" ) && !imageSource && !imageFile
+    const suppressSubmit = ( !form.formState.isDirty && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: OrganizationFormData ) => {
         if ( suppressSubmit ) {
@@ -125,7 +135,7 @@ export default function OrganizationForm( { organizationData, onSubmit }: Readon
         };
 
 
-        onSubmit( organizationDto, imageFile );
+        onSubmit( organizationDto, imageFile, isImageDeletion );
     }
 
     const handleImageClick = () => {
@@ -153,7 +163,7 @@ export default function OrganizationForm( { organizationData, onSubmit }: Readon
 
         const reader = new FileReader();
         reader.onload = ( e ) => {
-            setSelectedImageData( e.target?.result as string );
+            setImageSource( e.target?.result as string );
         };
         reader.readAsDataURL( file );
 
@@ -173,7 +183,7 @@ export default function OrganizationForm( { organizationData, onSubmit }: Readon
 
     const handleRemoveImage = () => {
         setImageFile( null );
-        setSelectedImageData( "" );
+        setImageSource( "" );
     }
 
 
@@ -190,12 +200,12 @@ export default function OrganizationForm( { organizationData, onSubmit }: Readon
                         onClick={ handleImageClick }
                         className={ "mx-auto object-contain border cursor-pointer size-36 my-4" }
                     >
-                        <AvatarImage className={ "" } src={ selectedImageData || "" }/>
+                        <AvatarImage className={ "" } src={ imageSource || "" }/>
                         <AvatarFallback>
                             <ImagePlusIcon className={ "size-8" }/>
                         </AvatarFallback>
                     </Avatar>
-                    { imageFile &&
+                    { imageSource &&
                         <Button onClick={ handleRemoveImage }
                                 variant={ "outline" }
                                 type={ "button" }
@@ -267,7 +277,7 @@ export default function OrganizationForm( { organizationData, onSubmit }: Readon
                                         placeholder={ "Best Orga in town" }
                                     />
                                     <FieldDescription>
-                                        Max. 500 characters, not required
+                                        Max. 1500 characters, not required
                                     </FieldDescription>
                                 </Field>
                             )

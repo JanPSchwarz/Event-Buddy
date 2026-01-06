@@ -7,6 +7,7 @@ import { useGetOrganizationBySlug } from "@/api/generated/organization/organizat
 import { toast } from "sonner";
 import Text from "@/components/typography/Text.tsx";
 import PageNotFound from "@/pages/PageNotFound.tsx";
+import OrganizationOwnerView from "@/components/organization/OrganizationOwnerView.tsx";
 
 export default function OrganizationPage() {
     const { orgaSlug } = useParams();
@@ -37,7 +38,11 @@ export default function OrganizationPage() {
 
     return (
         <PageWrapper>
-            <OrganizationView orgaData={ organizationData.data }/>
+            { isOwner ?
+                <OrganizationOwnerView orgData={ organizationData?.data }/>
+                :
+                <OrganizationView orgaData={ organizationData.data }/>
+            }
         </PageWrapper>
     )
 }

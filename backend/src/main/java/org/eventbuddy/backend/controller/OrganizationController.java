@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -195,6 +196,7 @@ public class OrganizationController {
     public ResponseEntity<Organization> updateOrganization(
             OAuth2AuthenticationToken authToken,
             @Nullable @RequestPart(value = "image", required = false) MultipartFile file,
+            Optional<Boolean> deleteImage,
             @PathVariable String organizationId,
             @Valid @RequestPart("updateOrganization") OrganizationRequestDto updatedOrganization
     ) throws IOException {
@@ -202,6 +204,8 @@ public class OrganizationController {
 
         if ( file != null ) {
             imageService.updateImage( organizationId, file );
+        } else if ( deleteImage.orElse( false ) ) {
+            imageService.deleteImage( organizationId );
         }
 
         Organization organization = organizationService.updateOrganization( organizationId, updatedOrganization );

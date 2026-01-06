@@ -15,7 +15,9 @@ export default function LoginDialog() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button>Login</Button>
+                <Button className={ "h-8 px-3 md:h-9 md:px-6 text-sm md:text-base" }>
+                    Login
+                </Button>
             </DialogTrigger>
             <DialogContent className={ "space-y-4" }>
                 <DialogHeader>

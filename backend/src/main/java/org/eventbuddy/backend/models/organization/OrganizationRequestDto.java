@@ -1,6 +1,7 @@
 package org.eventbuddy.backend.models.organization;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,7 +27,7 @@ public record OrganizationRequestDto(
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
                 nullable = true
         )
-        @Size(min = 4, max = 500, message = "Description must be between 4 and 1500 characters")
+        @Size(min = 4, max = 1500, message = "Description must be between 4 and 1500 characters")
         String description,
 
 
@@ -44,6 +45,7 @@ public record OrganizationRequestDto(
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
                 nullable = false
         )
+        @Valid
         Location location,
 
         @Schema(
@@ -51,6 +53,7 @@ public record OrganizationRequestDto(
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
                 nullable = true
         )
+        @Valid
         Contact contact
 ) {
 }

@@ -93,4 +93,19 @@ public class ImageService {
             return savedOrganization.getImageId();
         }
     }
+
+    public void deleteImage( String organizationId ) {
+        Organization organization = organizationRepo.findById( organizationId ).orElseThrow(
+                () -> new ResourceNotFoundException( "Organization not found with ID: " + organizationId )
+        );
+
+        if ( organization.getImageId() != null ) {
+            Organization updatedOrganization = organization.toBuilder()
+                    .imageId( null )
+                    .build();
+
+            organizationRepo.save( updatedOrganization );
+            imageRepo.deleteById( organization.getImageId() );
+        }
+    }
 }

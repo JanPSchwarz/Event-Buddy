@@ -12,8 +12,6 @@ export default function CreateOrganizationForm() {
     } );
 
     const handleSubmit = ( organizationDto: OrganizationRequestDto, imageFile: File | null ) => {
-        console.log( "Action on submit from create organization form component" );
-
         createOrga.mutate(
             {
                 data:
@@ -28,7 +26,7 @@ export default function CreateOrganizationForm() {
                 },
                 onError: ( error ) => {
                     console.error( "Error creating organization:", error );
-                    toast.error( "Failed to create organization" );
+                    toast.error( error.response?.data.error || "Error creating orga" );
                 }
             }
         );

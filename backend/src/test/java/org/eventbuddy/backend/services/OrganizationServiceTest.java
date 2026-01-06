@@ -251,30 +251,6 @@ class OrganizationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return raw organization when updated (minimal update)")
-    void updateOrganization_shouldReturnWhenUpdatedMinimal() {
-
-        String orgaIdToUpdate = "exampleOrgaId";
-
-        OrganizationRequestDto updatedOrga = OrganizationRequestDto.builder()
-                .name( exampleOrga.getName() )
-                .build();
-
-        when( mockOrgaRepo.findById( orgaIdToUpdate ) ).thenReturn( Optional.of( exampleOrga ) );
-
-        Organization updatedOrganization = exampleOrga.toBuilder()
-                .build();
-
-        when( mockOrgaRepo.save( updatedOrganization ) ).thenReturn( updatedOrganization );
-
-        Organization actualUpdatedOrga = organizationService.updateOrganization( orgaIdToUpdate, updatedOrga );
-
-        assertEquals( actualUpdatedOrga, updatedOrganization );
-        verify( mockOrgaRepo ).findById( orgaIdToUpdate );
-        verify( mockOrgaRepo ).save( updatedOrganization );
-    }
-
-    @Test
     @DisplayName("Should return raw organization when updated (maximal update)")
     void updateOrganization_shouldReturnWhenUpdatedFully() {
 
