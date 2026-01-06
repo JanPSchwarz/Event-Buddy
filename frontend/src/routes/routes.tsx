@@ -4,6 +4,8 @@ import RootLayout from "@/layouts/RootLayout.tsx";
 import PageNotFound from "@/pages/PageNotFound.tsx";
 import SettingsPage from "@/pages/SettingsPage.tsx";
 import ProfilePage from "@/pages/ProfilePage.tsx";
+import CreateOrgaPage from "@/pages/CreateOrgaPage.tsx";
+import OrganizationPage from "@/pages/OrganizationPage.tsx";
 
 export const routes = createBrowserRouter( [
     {
@@ -14,6 +16,8 @@ export const routes = createBrowserRouter( [
             // Define child routes
             { path: "profile/:userId", element: <ProfilePage/> },
             { path: "settings/:userId", element: <SettingsPage/> },
+            { path: "createOrganization", element: <CreateOrgaPage/> },
+            { path: "organization/:orgaSlug", element: <OrganizationPage/> },
             { path: "*", element: <PageNotFound/> }
         ],
     }

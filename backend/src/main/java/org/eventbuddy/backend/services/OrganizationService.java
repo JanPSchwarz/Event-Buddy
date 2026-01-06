@@ -7,9 +7,8 @@ import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.models.organization.Organization;
-import org.eventbuddy.backend.models.organization.OrganizationCreateDto;
+import org.eventbuddy.backend.models.organization.OrganizationRequestDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
-import org.eventbuddy.backend.models.organization.OrganizationUpdateDto;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
@@ -59,7 +58,7 @@ public class OrganizationService {
         return getOrganizationByIdOrThrow( organizationId );
     }
 
-    public Organization updateOrganization( String organizationId, OrganizationUpdateDto updateData ) {
+    public Organization updateOrganization( String organizationId, OrganizationRequestDto updateData ) {
         Organization existingOrganization = getOrganizationByIdOrThrow( organizationId );
 
         return organizationRepo.save( organizationDtoToEntityMapper( existingOrganization, updateData ) );
@@ -109,7 +108,7 @@ public class OrganizationService {
 
     // === Create Methods ===
 
-    public Organization createOrganization( OrganizationCreateDto organizationDto, AppUser user, String imageId ) {
+    public Organization createOrganization( OrganizationRequestDto organizationDto, AppUser user, String imageId ) {
 
         Organization newOrganization = Organization.builder()
                 .name( organizationDto.name() )
@@ -209,10 +208,10 @@ public class OrganizationService {
                 .build();
     }
 
-    private Organization organizationDtoToEntityMapper( Organization existingOrganization, OrganizationUpdateDto updatedOrganization ) {
+    private Organization organizationDtoToEntityMapper( Organization existingOrganization, OrganizationRequestDto updatedOrganization ) {
 
         return existingOrganization.toBuilder()
-                .name( updatedOrganization.name() != null ? updatedOrganization.name() : existingOrganization.getName() )
+                .name( updatedOrganization.name() )
                 .description( updatedOrganization.description() != null ? updatedOrganization.description() : existingOrganization.getDescription() )
                 .website( updatedOrganization.website() != null ? updatedOrganization.website() : existingOrganization.getWebsite() )
                 .location( updatedOrganization.location() != null ? updatedOrganization.location() : existingOrganization.getLocation() )
@@ -232,6 +231,7 @@ public class OrganizationService {
 
         return OrganizationResponseDto.builder()
                 .name( organization.getName() )
+                .id( organization.getId() )
                 .owners( ownersDtos )
                 .slug( organization.getSlug() )
                 .description( organization.getDescription() )

@@ -98,6 +98,7 @@ class OrganizationServiceTest {
                 .slug( "exampleSlug" )
                 .description( "exampleDescription" )
                 .name( "exampleName" )
+                .id( "exampleOrgaId" )
                 .contact( exampleContact )
                 .location( exampleLocation )
                 .imageId( "exampleImageId" )
@@ -255,7 +256,8 @@ class OrganizationServiceTest {
 
         String orgaIdToUpdate = "exampleOrgaId";
 
-        OrganizationUpdateDto updatedOrga = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updatedOrga = OrganizationRequestDto.builder()
+                .name( exampleOrga.getName() )
                 .build();
 
         when( mockOrgaRepo.findById( orgaIdToUpdate ) ).thenReturn( Optional.of( exampleOrga ) );
@@ -292,7 +294,7 @@ class OrganizationServiceTest {
                 .phoneNumber( "9876543210" )
                 .build();
 
-        OrganizationUpdateDto updatedOrga = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updatedOrga = OrganizationRequestDto.builder()
                 .name( "updateName" )
                 .description( "updatedDescription" )
                 .website( "updatedWebsite" )
@@ -494,7 +496,7 @@ class OrganizationServiceTest {
     @Test
     @DisplayName("Should return true when organization created")
     void createOrganization_shouldReturnTrueWhenCreated() {
-        OrganizationCreateDto orgaToCreate = OrganizationCreateDto.builder()
+        OrganizationRequestDto orgaToCreate = OrganizationRequestDto.builder()
                 .name( "newOrgaName" )
                 .description( "newOrgaDescription" )
                 .website( "newOrgaWebsite" )

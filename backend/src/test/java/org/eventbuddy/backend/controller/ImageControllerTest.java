@@ -60,4 +60,40 @@ class ImageControllerTest {
                 .andExpect( jsonPath( "$.error" ).value( "Image not found with URL: " + nonExistingImageId ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
+
+    @Test
+    @DisplayName("Should return image as base64 data url")
+    void getImageAsDataUrl() throws Exception {
+        byte[] imageData = "imageData".getBytes();
+        String contentType = "image/jpeg";
+
+        Binary imageBinary = new Binary( BsonBinarySubType.BINARY, imageData );
+
+        Image newImage = Image.builder()
+                .imageData( imageBinary )
+                .contentType( contentType )
+                .build();
+
+        Image savedImage = imageRepo.save( newImage );
+
+        String expectedBase64Data = java.util.Base64.getEncoder().encodeToString( imageData );
+        String expectedDataUrl = "data:" + contentType + ";base64," + expectedBase64Data;
+
+        mockMvc.perform( get( "/api/images/data-url/" + savedImage.getImageId() ) )
+                .andExpect( status().isOk() )
+                .andExpect( content().contentType( MediaType.TEXT_PLAIN ) )
+                .andExpect( content().string( expectedDataUrl ) );
+    }
+
+    @Test
+    @DisplayName("Should throw 404 not found for data url")
+    void getImageAsDataUrl_throws404() throws Exception {
+        String nonExistingImageId = "nonExistingImageId";
+
+        mockMvc.perform( get( "/api/images/data-url/" + nonExistingImageId ) )
+                .andExpect( status().isNotFound() )
+                .andExpect( content().contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( jsonPath( "$.error" ).value( "Image not found with URL: " + nonExistingImageId ) )
+                .andExpect( jsonPath( "$.id" ).isNotEmpty() );
+    }
 }

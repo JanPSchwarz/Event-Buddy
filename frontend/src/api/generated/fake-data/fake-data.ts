@@ -30,26 +30,26 @@ import type {
 
 
 /**
- * Creates custom number fake users for testing purposes.
- * @summary Create fake users
+ * Creates custom number fake data for testing purposes.
+ * @summary Create fake data
  */
-export const createFakeUsers = (
+export const createFakeData = (
      options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     
     return axios.default.post(
-      `http://localhost:8080/api/fake-data/create-fake-users`,undefined,options
+      `http://localhost:8080/api/fake-data/create-fake-data`,undefined,options
     );
   }
 
 
 
-export const getCreateFakeUsersMutationOptions = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFakeUsers>>, TError,void, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof createFakeUsers>>, TError,void, TContext> => {
+export const getCreateFakeDataMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFakeData>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof createFakeData>>, TError,void, TContext> => {
 
-const mutationKey = ['createFakeUsers'];
+const mutationKey = ['createFakeData'];
 const {mutation: mutationOptions, axios: axiosOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -59,10 +59,10 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createFakeUsers>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createFakeData>>, void> = () => {
           
 
-          return  createFakeUsers(axiosOptions)
+          return  createFakeData(axiosOptions)
         }
 
         
@@ -70,23 +70,23 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type CreateFakeUsersMutationResult = NonNullable<Awaited<ReturnType<typeof createFakeUsers>>>
+    export type CreateFakeDataMutationResult = NonNullable<Awaited<ReturnType<typeof createFakeData>>>
     
-    export type CreateFakeUsersMutationError = AxiosError<ErrorMessage>
+    export type CreateFakeDataMutationError = AxiosError<ErrorMessage>
 
     /**
- * @summary Create fake users
+ * @summary Create fake data
  */
-export const useCreateFakeUsers = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFakeUsers>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+export const useCreateFakeData = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFakeData>>, TError,void, TContext>, axios?: AxiosRequestConfig}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof createFakeUsers>>,
+        Awaited<ReturnType<typeof createFakeData>>,
         TError,
         void,
         TContext
       > => {
 
-      const mutationOptions = getCreateFakeUsersMutationOptions(options);
+      const mutationOptions = getCreateFakeDataMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }
@@ -94,23 +94,23 @@ export const useCreateFakeUsers = <TError = AxiosError<ErrorMessage>,
  * Deletes all users from the system.
  * @summary Delete all fake users
  */
-export const deleteAllFakeUsers = (
+export const deleteAllFakeData = (
      options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     
     return axios.default.delete(
-      `http://localhost:8080/api/fake-data/delete-all-users`,options
+      `http://localhost:8080/api/fake-data/delete-all-data`,options
     );
   }
 
 
 
-export const getDeleteAllFakeUsersMutationOptions = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeUsers>>, TError,void, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeUsers>>, TError,void, TContext> => {
+export const getDeleteAllFakeDataMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeData>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeData>>, TError,void, TContext> => {
 
-const mutationKey = ['deleteAllFakeUsers'];
+const mutationKey = ['deleteAllFakeData'];
 const {mutation: mutationOptions, axios: axiosOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -120,10 +120,10 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllFakeUsers>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllFakeData>>, void> = () => {
           
 
-          return  deleteAllFakeUsers(axiosOptions)
+          return  deleteAllFakeData(axiosOptions)
         }
 
         
@@ -131,23 +131,23 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type DeleteAllFakeUsersMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAllFakeUsers>>>
+    export type DeleteAllFakeDataMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAllFakeData>>>
     
-    export type DeleteAllFakeUsersMutationError = AxiosError<ErrorMessage>
+    export type DeleteAllFakeDataMutationError = AxiosError<ErrorMessage>
 
     /**
  * @summary Delete all fake users
  */
-export const useDeleteAllFakeUsers = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeUsers>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+export const useDeleteAllFakeData = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeData>>, TError,void, TContext>, axios?: AxiosRequestConfig}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteAllFakeUsers>>,
+        Awaited<ReturnType<typeof deleteAllFakeData>>,
         TError,
         void,
         TContext
       > => {
 
-      const mutationOptions = getDeleteAllFakeUsersMutationOptions(options);
+      const mutationOptions = getDeleteAllFakeDataMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }
