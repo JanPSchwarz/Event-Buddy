@@ -28,7 +28,7 @@ export interface AppUserUpdateDto {
    */
   name?: string;
   /** User settings */
-  userSettings: UserSettings;
+  userSettings?: UserSettings;
 }
 
 /**
@@ -84,14 +84,126 @@ export interface AppUser {
   name: string;
   /** Avatar URL of the user */
   avatarUrl?: string;
+  /** List of organizations the user is associated with */
+  organizations?: string[];
+}
+
+export interface Contact {
+  /** Email address of the organization */
+  readonly email?: string;
+  /**
+   * Phone number of the organization
+   * @pattern ^\+?[1-9]\d{1,14}$|^\+?[0-9\s\-()]{7,20}$
+   */
+  readonly phoneNumber?: string;
+}
+
+export interface Location {
+  /** Street and house number of the location */
+  readonly address: string;
+  /** City of the location */
+  readonly city: string;
+  /** City zip code */
+  readonly zipCode: string;
+  /** Country of the location */
+  readonly country: string;
+  /** Latitude coordinate */
+  readonly latitude: number;
+  /** Longitude coordinate */
+  readonly longitude: number;
+}
+
+export interface OrganizationRequestDto {
+  /** Name of the organization */
+  name: string;
+  /**
+   * Description of the organization
+   * @minLength 4
+   * @maxLength 1500
+   */
+  description?: string;
+  /** Website URL of the organization */
+  website?: string;
+  /** Location of the organization */
+  location?: Location;
+  /** Contact information of the organization */
+  contact?: Contact;
+}
+
+/**
+ * Organization entity
+ */
+export interface Organization {
+  /** Unique identifier of the mongoDb entity */
+  id: string;
+  /** The timestamp when this entity was created. */
+  createdDate: string;
+  /** The timestamp of the last modification of this entity. */
+  lastModifiedDate: string;
+  /** Contact information of the organization */
+  contact?: Contact;
+  /** Name of the organization */
+  name: string;
+  /** Slug of the organization */
+  slug: string;
+  /** List of admin user IDs (mongo object ids) */
+  owners: string[];
+  /**
+   * Description of the organization
+   * @minLength 4
+   * @maxLength 1500
+   */
+  description?: string;
+  /** Website URL of the organization */
+  website?: string;
+  /** Image ID of the organization's logo */
+  imageId?: string;
+  /** Location of the organization */
+  location: Location;
 }
 
 export interface AppUserDto {
   /** Email of the user */
   readonly email?: string;
+  /** Unique identifier of the user */
+  readonly id?: string;
   /** Name of the user */
   readonly name: string;
   /** Avatar URL of the user */
   readonly avatarUrl?: string;
+  /** List of organizations the user is associated with */
+  readonly organizations?: readonly OrganizationResponseDto[];
 }
+
+export interface OrganizationResponseDto {
+  /** Name of the organization */
+  readonly name?: string;
+  /** ID of the organization */
+  readonly id?: string;
+  /** Slug of the organization */
+  readonly slug?: string;
+  /** List of admin user IDs */
+  readonly owners?: readonly AppUserDto[];
+  /** Description of the organization */
+  readonly description?: string;
+  /** Website URL of the organization */
+  readonly website?: string;
+  /** Image ID of the organization */
+  readonly imageId?: string;
+  /** Location of the organization */
+  readonly location?: Location;
+  /** Contact information of the organization */
+  readonly contact?: Contact;
+}
+
+export type UpdateOrganizationBody = {
+  image?: Blob;
+  deleteImage?: boolean;
+  updateOrganization: OrganizationRequestDto;
+};
+
+export type CreateOrganizationBody = {
+  image?: Blob;
+  organization: OrganizationRequestDto;
+};
 

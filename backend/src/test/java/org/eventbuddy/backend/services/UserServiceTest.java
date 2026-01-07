@@ -92,6 +92,7 @@ class UserServiceTest {
 
     AppUserDto exampleUserDto = AppUserDto.builder()
             .email( exampleUser.getEmail() )
+            .id( "exampleUserId" )
             .name( exampleUser.getName() )
             .avatarUrl( exampleUser.getAvatarUrl() )
             .build();
@@ -112,9 +113,9 @@ class UserServiceTest {
 
         when( mockUserRepo.findById( exampleUser.getId() ) ).thenReturn( Optional.of( exampleUser ) );
         when( mockUserRepo.findAllById( exampleOrganization.getOwners() ) )
-                .thenReturn( Optional.of( List.of( exampleUser ) ) );
+                .thenReturn( List.of( exampleUser ) );
         when( mockOrganizationRepo.findAllById( orgIds ) )
-                .thenReturn( Optional.of( List.of( exampleOrganization ) ) );
+                .thenReturn( List.of( exampleOrganization ) );
 
         AppUserDto actualUserDto = userService.getUserDtoById( exampleUser.getId() );
 
@@ -153,9 +154,9 @@ class UserServiceTest {
 
         when( mockUserRepo.findById( exampleUser.getId() ) ).thenReturn( Optional.of( exampleUser ) );
         when( mockUserRepo.findAllById( exampleOrganization.getOwners() ) )
-                .thenReturn( Optional.of( List.of( exampleUser ) ) );
+                .thenReturn( List.of( exampleUser ) );
         when( mockOrganizationRepo.findAllById( orgIds ) )
-                .thenReturn( Optional.of( List.of( exampleOrganization ) ) );
+                .thenReturn( List.of( exampleOrganization ) );
 
         AppUserDto actualUserDto = userService.getUserDtoById( exampleUser.getId() );
 
@@ -212,9 +213,9 @@ class UserServiceTest {
 
         when( mockUserRepo.findById( exampleUser.getId() ) ).thenReturn( Optional.of( exampleUser ) );
         when( mockUserRepo.findAllById( exampleOrganization.getOwners() ) )
-                .thenReturn( Optional.empty() );
+                .thenReturn( List.of() );
         when( mockOrganizationRepo.findAllById( orgIds ) )
-                .thenReturn( Optional.of( List.of( exampleOrganization ) ) );
+                .thenReturn( List.of( exampleOrganization ) );
 
         assertThatThrownBy( () -> userService.getUserDtoById( exampleUser.getId() ) )
                 .isInstanceOf( ResourceNotFoundException.class )
@@ -267,6 +268,7 @@ class UserServiceTest {
 
         AppUserDto expectedUserDto = AppUserDto.builder()
                 .name( exampleUserWithoutOrgas.getName() )
+                .id( exampleUserWithoutOrgas.getId() )
                 .build();
 
         when( mockUserRepo.findById( exampleUserWithoutOrgas.getId() ) ).thenReturn( Optional.of( exampleUserWithoutOrgas ) );
@@ -290,7 +292,7 @@ class UserServiceTest {
         Set<AppUserDto> expectedUserDtos = Set.of( exampleUserDto );
 
         when( mockUserRepo.findAllById( userIds ) ).thenReturn(
-                Optional.of( List.of( exampleUser ) ) );
+                List.of( exampleUser ) );
 
         Set<AppUserDto> actualUserDtos = userService.getAllUserDtosById( userIds );
 
@@ -303,7 +305,7 @@ class UserServiceTest {
         Set<String> userIds = Set.of( exampleUser.getId() );
 
         when( mockUserRepo.findAllById( userIds ) ).thenReturn(
-                Optional.empty() );
+                List.of() );
 
         assertThatThrownBy( () -> userService.getAllUserDtosById( userIds ) )
                 .isInstanceOf( ResourceNotFoundException.class )

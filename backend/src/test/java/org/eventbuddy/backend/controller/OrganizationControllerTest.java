@@ -9,7 +9,10 @@ import org.eventbuddy.backend.mockUser.WithCustomSuperAdmin;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.UserSettings;
-import org.eventbuddy.backend.models.organization.*;
+import org.eventbuddy.backend.models.organization.Location;
+import org.eventbuddy.backend.models.organization.Organization;
+import org.eventbuddy.backend.models.organization.OrganizationRequestDto;
+import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
 import org.hamcrest.Matchers;
@@ -96,6 +99,10 @@ class OrganizationControllerTest {
 
         AppUser savedUser = userRepo.save( testUser );
 
+        testUserDto = testUserDto.toBuilder()
+                .id( savedUser.getId() )
+                .build();
+
         savedAuthenticatedUserId = savedUser.getId();
 
 
@@ -111,6 +118,7 @@ class OrganizationControllerTest {
 
         Organization testOrganization = Organization.builder()
                 .name( "Test Organization" )
+                .id( "testId" )
                 .slug( "test-organization" )
                 .owners( Set.of( testUser.getId() ) )
                 .location( testLocation )
@@ -118,6 +126,7 @@ class OrganizationControllerTest {
 
         savedOrganizationDto = OrganizationResponseDto.builder()
                 .name( testOrganization.getName() )
+                .id( testOrganization.getId() )
                 .slug( testOrganization.getSlug() )
                 .location( testOrganization.getLocation() )
                 .owners( Set.of( testUserDto ) )
@@ -258,7 +267,7 @@ class OrganizationControllerTest {
     @DisplayName("Should return created organization without image")
     void createOrganization() throws Exception {
 
-        OrganizationCreateDto createOrgaData = OrganizationCreateDto.builder()
+        OrganizationRequestDto createOrgaData = OrganizationRequestDto.builder()
                 .name( "New Organization without image" )
                 .location( Location.builder()
                         .address( "newStreet 1" )
@@ -290,7 +299,7 @@ class OrganizationControllerTest {
 
         oAuth2Token.setAuthenticated( false );
 
-        OrganizationCreateDto createOrgaData = OrganizationCreateDto.builder()
+        OrganizationRequestDto createOrgaData = OrganizationRequestDto.builder()
                 .name( "New Organization without image" )
                 .location( Location.builder()
                         .address( "newStreet 1" )
@@ -319,7 +328,7 @@ class OrganizationControllerTest {
     @DisplayName("Should return created organization with image")
     void createOrganization_withImage( String imageType ) throws Exception {
 
-        OrganizationCreateDto createOrgaData = OrganizationCreateDto.builder()
+        OrganizationRequestDto createOrgaData = OrganizationRequestDto.builder()
                 .name( "New Organization with image" )
                 .location( Location.builder()
                         .address( "newStreet 1" )
@@ -354,7 +363,7 @@ class OrganizationControllerTest {
     @DisplayName("Should throw 400 when image type invalid")
     void createOrganization_Throws400WithInvalidImage() throws Exception {
 
-        OrganizationCreateDto createOrgaData = OrganizationCreateDto.builder()
+        OrganizationRequestDto createOrgaData = OrganizationRequestDto.builder()
                 .name( "New Organization with image" )
                 .location( Location.builder()
                         .address( "newStreet 1" )
@@ -388,7 +397,7 @@ class OrganizationControllerTest {
 
         String maxFileSize = "5MB";
 
-        OrganizationCreateDto createOrgaData = OrganizationCreateDto.builder()
+        OrganizationRequestDto createOrgaData = OrganizationRequestDto.builder()
                 .name( "New Organization with image" )
                 .location( Location.builder()
                         .address( "newStreet 1" )
@@ -426,7 +435,7 @@ class OrganizationControllerTest {
 
         Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
-        OrganizationUpdateDto updateData = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
                 .name( "Updated Organization Name" )
                 .build();
 
@@ -454,7 +463,7 @@ class OrganizationControllerTest {
 
         Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
-        OrganizationUpdateDto updateData = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
                 .name( "Updated Organization Name" )
                 .build();
 
@@ -483,12 +492,48 @@ class OrganizationControllerTest {
     }
 
     @Test
+    @DisplayName("Should return updated orga deleted image")
+    void updateOrganization_withImageDeleted() throws Exception {
+
+        Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
+
+        Organization orgaToUpdateWithImage = orgaToUpdate.toBuilder()
+                .imageId( "existingImageId" )
+                .build();
+
+        organizationRepo.save( orgaToUpdateWithImage );
+
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
+                .name( "Updated Organization Name" )
+                .build();
+
+        String updatedOrganizationJson = objectMapper.writeValueAsString( updateData );
+
+        MockPart organizationPart = new MockPart( "updateOrganization", "organization.json", updatedOrganizationJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/organization/" + orgaToUpdate.getId() )
+                        .part( organizationPart )
+                        .param( "deleteImage", "true" )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( orgaToUpdate.getId() ) )
+                .andExpect( jsonPath( "$.name" ).value( updateData.name() ) )
+                .andExpect( jsonPath( "$.imageId" ).isEmpty() );
+    }
+
+    @Test
     @DisplayName("Should throw 401 when not authenticated")
     void updateOrganization_throws401WhenNotAuthenticated() throws Exception {
         oAuth2Token.setAuthenticated( false );
         Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
-        OrganizationUpdateDto updateData = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
                 .name( "Updated Organization Name" )
                 .build();
 
@@ -521,7 +566,7 @@ class OrganizationControllerTest {
 
         organizationRepo.save( orgaToUpdateWithForeignOwner );
 
-        OrganizationUpdateDto updateData = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
                 .name( "Updated Organization Name" )
                 .build();
 
@@ -555,7 +600,7 @@ class OrganizationControllerTest {
 
         organizationRepo.save( orgaToUpdateWithForeignOwner );
 
-        OrganizationUpdateDto updateData = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updateData = OrganizationRequestDto.builder()
                 .name( "Updated Organization Name" )
                 .build();
 

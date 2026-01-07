@@ -12,9 +12,8 @@ import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.models.organization.Organization;
-import org.eventbuddy.backend.models.organization.OrganizationCreateDto;
+import org.eventbuddy.backend.models.organization.OrganizationRequestDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
-import org.eventbuddy.backend.models.organization.OrganizationUpdateDto;
 import org.eventbuddy.backend.services.AuthService;
 import org.eventbuddy.backend.services.ImageService;
 import org.eventbuddy.backend.services.OrganizationService;
@@ -27,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -147,8 +147,9 @@ public class OrganizationController {
             )
     )
     public ResponseEntity<Organization> createOrganization(
-            @Nullable @RequestPart("image") MultipartFile file,
-            @Valid @RequestPart("organization") OrganizationCreateDto organization,
+            @Nullable @RequestPart(value = "image", required = false) MultipartFile file,
+            @Valid @RequestPart("organization")
+            OrganizationRequestDto organization,
             OAuth2AuthenticationToken authToken
     ) throws IOException {
         AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
@@ -194,14 +195,17 @@ public class OrganizationController {
     )
     public ResponseEntity<Organization> updateOrganization(
             OAuth2AuthenticationToken authToken,
-            @Nullable @RequestPart("image") MultipartFile file,
+            @Nullable @RequestPart(value = "image", required = false) MultipartFile file,
+            Optional<Boolean> deleteImage,
             @PathVariable String organizationId,
-            @Valid @RequestPart("updateOrganization") OrganizationUpdateDto updatedOrganization
+            @Valid @RequestPart("updateOrganization") OrganizationRequestDto updatedOrganization
     ) throws IOException {
         isOrgaOwnerOrSuperAdmin( authToken, organizationId );
 
         if ( file != null ) {
             imageService.updateImage( organizationId, file );
+        } else if ( deleteImage.orElse( false ) ) {
+            imageService.deleteImage( organizationId );
         }
 
         Organization organization = organizationService.updateOrganization( organizationId, updatedOrganization );

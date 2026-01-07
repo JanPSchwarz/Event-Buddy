@@ -38,9 +38,13 @@ public class UserService {
     }
 
     public Set<AppUserDto> getAllUserDtosById( Set<String> userIds ) {
-        return userRepo.findAllById( userIds )
-                .orElseThrow( () -> new ResourceNotFoundException( "No users found for the provided IDs" ) )
-                .stream()
+        List<AppUser> users = userRepo.findAllById( userIds );
+
+        if ( users.isEmpty() ) {
+            throw new ResourceNotFoundException( "No users found for the provided IDs" );
+        }
+
+        return users.stream()
                 .filter( user -> user.getUserSettings().userVisible() )
                 .map( this::userToDtoMapper )
                 .collect( Collectors.toSet() );
@@ -140,14 +144,17 @@ public class UserService {
         if ( !user.getUserSettings().showOrgas() || user.getOrganizations() == null ) {
             return AppUserDto.builder()
                     .name( user.getName() )
+                    .id( user.getId() )
                     .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
                     .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                     .build();
         }
 
-        List<Organization> organizations = organizationRepo.findAllById( user.getOrganizations().stream().toList() ).orElseThrow(
-                () -> new ResourceNotFoundException( "One or more organizations not found for user with id: " + user.getId() )
-        );
+        List<Organization> organizations = organizationRepo.findAllById( user.getOrganizations().stream().toList() );
+
+        if ( organizations.isEmpty() ) {
+            throw new ResourceNotFoundException( "One or more organizations not found for user with id: " + user.getId() );
+        }
 
         List<OrganizationResponseDto> organizationsDtos = organizations.stream()
                 .map( this::organizationToDtoMapper )
@@ -155,6 +162,7 @@ public class UserService {
 
         return AppUserDto.builder()
                 .name( user.getName() )
+                .id( user.getId() )
                 .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
                 .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                 .organizations( organizationsDtos )
@@ -179,13 +187,18 @@ public class UserService {
 
     private OrganizationResponseDto organizationToDtoMapper( Organization organization ) {
 
-        List<AppUser> owners = userRepo.findAllById( organization.getOwners() ).orElseThrow(
-                () -> new ResourceNotFoundException( "One or more organization owners not found." )
-        );
+        List<AppUser> owners = userRepo.findAllById( organization.getOwners() );
+
+        if ( owners.isEmpty() || owners.size() != organization.getOwners().size() ) {
+            throw new ResourceNotFoundException( "One or more organization owners not found." );
+        }
+
+        
         Set<AppUserDto> ownersDtos = owners.stream()
                 .map( user ->
                         AppUserDto.builder()
                                 .name( user.getName() )
+                                .id( user.getId() )
                                 .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
                                 .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                                 .build()

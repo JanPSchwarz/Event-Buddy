@@ -69,6 +69,7 @@ class OrganizationServiceTest {
 
         AppUserDto exampleOwner = AppUserDto.builder()
                 .name( "exampleUserName" )
+                .id( "exampleOwnerId" )
                 .email( "exampleUser@example.com" )
                 .avatarUrl( "exampleUserAvatarUrl" )
                 .build();
@@ -98,6 +99,7 @@ class OrganizationServiceTest {
                 .slug( "exampleSlug" )
                 .description( "exampleDescription" )
                 .name( "exampleName" )
+                .id( "exampleOrgaId" )
                 .contact( exampleContact )
                 .location( exampleLocation )
                 .imageId( "exampleImageId" )
@@ -140,11 +142,11 @@ class OrganizationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return true when list with OrganizationDto")
+    @DisplayName("Should return true when list with orga dto")
     void getAllOrganizations_shouldReturnTrueWhenListWithOrgaDto() {
 
         when( mockOrgaRepo.findAll() ).thenReturn( List.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUser ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUser ) );
 
         List<OrganizationResponseDto> actualList = organizationService.getAllOrganizations();
 
@@ -157,7 +159,7 @@ class OrganizationServiceTest {
     @DisplayName("Should throw true when owners not found for organization")
     void getAllOrganizations_shouldThrowWhenOwnersNotFoundForOrganization() {
         when( mockOrgaRepo.findAll() ).thenReturn( List.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.empty() );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of() );
 
         assertThatThrownBy( () -> organizationService.getAllOrganizations() )
                 .isInstanceOf( ResourceNotFoundException.class )
@@ -170,7 +172,7 @@ class OrganizationServiceTest {
     @DisplayName("Should return true when orga found")
     void getOrganizationDtoById_shouldReturnTrueWhenOrgaFound() {
         when( mockOrgaRepo.findById( "exampleOrgaId" ) ).thenReturn( Optional.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUser ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUser ) );
 
         OrganizationResponseDto actualOrgaDto = organizationService.getOrganizationDtoById( "exampleOrgaId" );
         assertEquals( actualOrgaDto, exampleOrgaResponseDto );
@@ -184,6 +186,7 @@ class OrganizationServiceTest {
 
         AppUserDto exampleUserDtoWithHiddenInfo = AppUserDto.builder()
                 .name( "exampleUserName" )
+                .id( "exampleOwnerId" )
                 .email( null )
                 .avatarUrl( null )
                 .build();
@@ -202,7 +205,7 @@ class OrganizationServiceTest {
                 .build();
 
         when( mockOrgaRepo.findById( "exampleOrgaId" ) ).thenReturn( Optional.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUserWithHiddenInfo ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUserWithHiddenInfo ) );
 
         OrganizationResponseDto actualOrgaDto = organizationService.getOrganizationDtoById( "exampleOrgaId" );
         assertEquals( actualOrgaDto, mutatedOrgaResponseDto );
@@ -217,7 +220,7 @@ class OrganizationServiceTest {
         String givenSlug = "exampleSlug";
 
         when( mockOrgaRepo.findBySlug( givenSlug ) ).thenReturn( Optional.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUser ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUser ) );
 
         OrganizationResponseDto actualOrgaDto = organizationService.getOrganizationDtoBySlug( givenSlug );
         assertEquals( actualOrgaDto, exampleOrgaResponseDto );
@@ -250,29 +253,6 @@ class OrganizationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return raw organization when updated (minimal update)")
-    void updateOrganization_shouldReturnWhenUpdatedMinimal() {
-
-        String orgaIdToUpdate = "exampleOrgaId";
-
-        OrganizationUpdateDto updatedOrga = OrganizationUpdateDto.builder()
-                .build();
-
-        when( mockOrgaRepo.findById( orgaIdToUpdate ) ).thenReturn( Optional.of( exampleOrga ) );
-
-        Organization updatedOrganization = exampleOrga.toBuilder()
-                .build();
-
-        when( mockOrgaRepo.save( updatedOrganization ) ).thenReturn( updatedOrganization );
-
-        Organization actualUpdatedOrga = organizationService.updateOrganization( orgaIdToUpdate, updatedOrga );
-
-        assertEquals( actualUpdatedOrga, updatedOrganization );
-        verify( mockOrgaRepo ).findById( orgaIdToUpdate );
-        verify( mockOrgaRepo ).save( updatedOrganization );
-    }
-
-    @Test
     @DisplayName("Should return raw organization when updated (maximal update)")
     void updateOrganization_shouldReturnWhenUpdatedFully() {
 
@@ -292,7 +272,7 @@ class OrganizationServiceTest {
                 .phoneNumber( "9876543210" )
                 .build();
 
-        OrganizationUpdateDto updatedOrga = OrganizationUpdateDto.builder()
+        OrganizationRequestDto updatedOrga = OrganizationRequestDto.builder()
                 .name( "updateName" )
                 .description( "updatedDescription" )
                 .website( "updatedWebsite" )
@@ -494,7 +474,7 @@ class OrganizationServiceTest {
     @Test
     @DisplayName("Should return true when organization created")
     void createOrganization_shouldReturnTrueWhenCreated() {
-        OrganizationCreateDto orgaToCreate = OrganizationCreateDto.builder()
+        OrganizationRequestDto orgaToCreate = OrganizationRequestDto.builder()
                 .name( "newOrgaName" )
                 .description( "newOrgaDescription" )
                 .website( "newOrgaWebsite" )
