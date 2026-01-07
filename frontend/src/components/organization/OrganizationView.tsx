@@ -14,8 +14,6 @@ type OrganizationViewProps = {
 
 export default function OrganizationView( { orgaData }: Readonly<OrganizationViewProps> ) {
 
-    console.log( "Organization Data in OrganizationView component:", orgaData );
-
     const { data: imageData, isLoading: isLoadingImage } = useGetImageAsDataUrl( orgaData.imageId || "" )
 
     return (

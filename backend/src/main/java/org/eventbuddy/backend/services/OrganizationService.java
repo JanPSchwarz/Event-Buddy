@@ -203,6 +203,7 @@ public class OrganizationService {
 
         return AppUserDto.builder()
                 .name( user.getName() )
+                .id( user.getId() )
                 .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
                 .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                 .build();
@@ -221,9 +222,12 @@ public class OrganizationService {
 
 
     private OrganizationResponseDto organizationToDtoMapper( Organization organization ) {
-        List<AppUser> owners = userRepo.findAllById( organization.getOwners() ).orElseThrow(
-                () -> new ResourceNotFoundException( "One or more organization owners not found." )
-        );
+        
+        List<AppUser> owners = userRepo.findAllById( organization.getOwners() );
+
+        if ( owners.isEmpty() || owners.size() != organization.getOwners().size() ) {
+            throw new ResourceNotFoundException( "One or more organization owners not found." );
+        }
 
         Set<AppUserDto> ownersDtos = owners.stream()
                 .map( this::userToDtoMapper )

@@ -85,6 +85,7 @@ class UserControllerTest {
         AppUser savedUser = userRepo.findById( savedUserId ).orElseThrow();
         AppUserDto dtoFromSavedUser = AppUserDto.builder()
                 .name( savedUser.getName() )
+                .id( savedUser.getId() )
                 .email( savedUser.getEmail() )
                 .avatarUrl( savedUser.getAvatarUrl() )
                 .build();
@@ -122,6 +123,7 @@ class UserControllerTest {
                 .name( savedUser.getName() )
                 .email( savedUser.getEmail() )
                 .avatarUrl( savedUser.getAvatarUrl() )
+                .id( savedUser.getId() )
                 .build();
 
         String expectedJson = objectMapper.writeValueAsString( dtoFromSavedUser );

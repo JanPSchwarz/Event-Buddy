@@ -69,6 +69,7 @@ class OrganizationServiceTest {
 
         AppUserDto exampleOwner = AppUserDto.builder()
                 .name( "exampleUserName" )
+                .id( "exampleOwnerId" )
                 .email( "exampleUser@example.com" )
                 .avatarUrl( "exampleUserAvatarUrl" )
                 .build();
@@ -141,11 +142,11 @@ class OrganizationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return true when list with OrganizationDto")
+    @DisplayName("Should return true when list with orga dto")
     void getAllOrganizations_shouldReturnTrueWhenListWithOrgaDto() {
 
         when( mockOrgaRepo.findAll() ).thenReturn( List.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUser ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUser ) );
 
         List<OrganizationResponseDto> actualList = organizationService.getAllOrganizations();
 
@@ -158,7 +159,7 @@ class OrganizationServiceTest {
     @DisplayName("Should throw true when owners not found for organization")
     void getAllOrganizations_shouldThrowWhenOwnersNotFoundForOrganization() {
         when( mockOrgaRepo.findAll() ).thenReturn( List.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.empty() );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of() );
 
         assertThatThrownBy( () -> organizationService.getAllOrganizations() )
                 .isInstanceOf( ResourceNotFoundException.class )
@@ -171,7 +172,7 @@ class OrganizationServiceTest {
     @DisplayName("Should return true when orga found")
     void getOrganizationDtoById_shouldReturnTrueWhenOrgaFound() {
         when( mockOrgaRepo.findById( "exampleOrgaId" ) ).thenReturn( Optional.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUser ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUser ) );
 
         OrganizationResponseDto actualOrgaDto = organizationService.getOrganizationDtoById( "exampleOrgaId" );
         assertEquals( actualOrgaDto, exampleOrgaResponseDto );
@@ -185,6 +186,7 @@ class OrganizationServiceTest {
 
         AppUserDto exampleUserDtoWithHiddenInfo = AppUserDto.builder()
                 .name( "exampleUserName" )
+                .id( "exampleOwnerId" )
                 .email( null )
                 .avatarUrl( null )
                 .build();
@@ -203,7 +205,7 @@ class OrganizationServiceTest {
                 .build();
 
         when( mockOrgaRepo.findById( "exampleOrgaId" ) ).thenReturn( Optional.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUserWithHiddenInfo ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUserWithHiddenInfo ) );
 
         OrganizationResponseDto actualOrgaDto = organizationService.getOrganizationDtoById( "exampleOrgaId" );
         assertEquals( actualOrgaDto, mutatedOrgaResponseDto );
@@ -218,7 +220,7 @@ class OrganizationServiceTest {
         String givenSlug = "exampleSlug";
 
         when( mockOrgaRepo.findBySlug( givenSlug ) ).thenReturn( Optional.of( exampleOrga ) );
-        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( Optional.of( List.of( exampleUser ) ) );
+        when( mockUserRepo.findAllById( exampleOrga.getOwners() ) ).thenReturn( List.of( exampleUser ) );
 
         OrganizationResponseDto actualOrgaDto = organizationService.getOrganizationDtoBySlug( givenSlug );
         assertEquals( actualOrgaDto, exampleOrgaResponseDto );

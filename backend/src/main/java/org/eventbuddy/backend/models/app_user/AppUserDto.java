@@ -11,12 +11,20 @@ import java.util.List;
 public record AppUserDto(
         @Schema(
                 description = "Email of the user",
-                accessMode = Schema.AccessMode.READ_ONLY)
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
         String email,
 
         @Schema(
+                description = "Unique identifier of the user",
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
+        String id,
+
+        @Schema(
                 description = "Name of the user",
-                accessMode = Schema.AccessMode.READ_ONLY)
+                accessMode = Schema.AccessMode.READ_ONLY
+        )
         @NotBlank
         String name,
         @Schema(

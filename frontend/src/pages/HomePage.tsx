@@ -10,7 +10,7 @@ export default function HomePage() {
                 <NavLink to="/createOrganization">Create</NavLink>
             </Button>
             <Button asChild={ true }>
-                <NavLink to="/organization/test-orga">See Orga</NavLink>
+                <NavLink to="/organization/neue-orga-2">See Orga</NavLink>
             </Button>
         </div>
     )

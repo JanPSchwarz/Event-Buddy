@@ -165,6 +165,8 @@ export interface Organization {
 export interface AppUserDto {
   /** Email of the user */
   readonly email?: string;
+  /** Unique identifier of the user */
+  readonly id?: string;
   /** Name of the user */
   readonly name: string;
   /** Avatar URL of the user */

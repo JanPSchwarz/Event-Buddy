@@ -22,8 +22,6 @@ export default function OrganizationPage() {
 
     const isOwner = loggedInUser.organizations?.includes( organizationData?.data.id || "" );
 
-    console.log( "Is Owner:", isOwner );
-
     if ( !organizationData ) {
         toast.error( "Organization Data not found" );
         return (

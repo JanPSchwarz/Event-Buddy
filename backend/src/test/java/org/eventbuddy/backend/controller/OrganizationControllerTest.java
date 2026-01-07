@@ -99,6 +99,10 @@ class OrganizationControllerTest {
 
         AppUser savedUser = userRepo.save( testUser );
 
+        testUserDto = testUserDto.toBuilder()
+                .id( savedUser.getId() )
+                .build();
+
         savedAuthenticatedUserId = savedUser.getId();
 
 
