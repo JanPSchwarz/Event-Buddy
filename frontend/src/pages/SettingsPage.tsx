@@ -1,6 +1,5 @@
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { Navigate, NavLink, useParams } from "react-router";
-import CustomLoader from "@/components/CustomLoader.tsx";
 import { toast } from 'sonner';
 import SettingsForm from "@/components/settings/SettingsForm.tsx";
 import { Settings } from 'lucide-react';
@@ -13,14 +12,7 @@ export default function SettingsPage() {
 
     const { userId } = useParams();
 
-    const { user, isLoading, isLoggedIn } = useContextUser();
-
-    if ( isLoading ) return <CustomLoader size={ "size-6" } text={ "Settings loading..." }/>;
-
-    if ( !isLoggedIn ) {
-        toast.info( "You must be logged in to access settings." );
-        return <Navigate to={ `/` }/>;
-    }
+    const { user } = useContextUser();
 
     if ( user.id !== userId ) {
         toast.info( "You can only access your own settings." );

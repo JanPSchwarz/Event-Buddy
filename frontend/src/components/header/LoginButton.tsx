@@ -31,6 +31,7 @@ export default function LoginButton( {
     const login = () => {
         const host = globalThis.location.host === "localhost:5173" ? "http://localhost:8080" : globalThis.location.origin;
 
+
         window.open( host + callbackUrl, "_self" );
     }
 

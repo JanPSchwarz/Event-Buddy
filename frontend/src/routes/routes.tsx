@@ -6,6 +6,8 @@ import SettingsPage from "@/pages/SettingsPage.tsx";
 import ProfilePage from "@/pages/ProfilePage.tsx";
 import CreateOrgaPage from "@/pages/CreateOrgaPage.tsx";
 import OrganizationPage from "@/pages/OrganizationPage.tsx";
+import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
+import CreateEventPage from "@/pages/CreateEventPage.tsx";
 
 export const routes = createBrowserRouter( [
     {
@@ -13,10 +15,15 @@ export const routes = createBrowserRouter( [
         element: <RootLayout/>,
         errorElement: <ErrorPage/>,
         children: [
-            // Define child routes
+            {
+                element: <ProtectedRoute/>,
+                children: [
+                    { path: "settings/:userId", element: <SettingsPage/> },
+                    { path: "organization/create", element: <CreateOrgaPage/> },
+                    { path: "event/create", element: <CreateEventPage/> }
+                ]
+            },
             { path: "profile/:userId", element: <ProfilePage/> },
-            { path: "settings/:userId", element: <SettingsPage/> },
-            { path: "createOrganization", element: <CreateOrgaPage/> },
             { path: "organization/:orgaSlug", element: <OrganizationPage/> },
             { path: "*", element: <PageNotFound/> }
         ],
