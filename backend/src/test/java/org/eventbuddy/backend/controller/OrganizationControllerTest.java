@@ -56,18 +56,18 @@ class OrganizationControllerTest {
     @Autowired
     UserRepository userRepo;
     @Autowired
-    private OrganizationRepository organizationRepo;
+    OrganizationRepository organizationRepo;
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
 
-        // Save annotated test user to userRepo
         userRepo.deleteAll();
 
+        // Save annotated test user to userRepo
         SecurityContext authContext = SecurityContextHolder.getContext();
         oAuth2Token = ( OAuth2AuthenticationToken ) authContext.getAuthentication();
 

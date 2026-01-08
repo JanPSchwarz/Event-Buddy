@@ -1,6 +1,5 @@
 package org.eventbuddy.backend.services;
 
-import ch.qos.logback.classic.Logger;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.models.app_user.AppUser;
@@ -10,7 +9,6 @@ import org.eventbuddy.backend.models.organization.*;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.List;
@@ -121,11 +118,6 @@ class OrganizationServiceTest {
         exampleUserDto = exampleOwner.toBuilder()
                 .organizations( List.of( exampleOrgaResponseDto ) )
                 .build();
-    }
-
-    @AfterEach
-    void teardown() {
-        ( ( Logger ) LoggerFactory.getLogger( OrganizationService.class ) ).detachAndStopAllAppenders();
     }
 
     @Test
