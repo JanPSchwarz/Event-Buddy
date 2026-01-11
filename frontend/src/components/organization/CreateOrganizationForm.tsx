@@ -3,8 +3,12 @@ import OrganizationForm from "@/components/organization/OrganizationForm.tsx";
 import { useCreateOrganization } from "@/api/generated/organization/organization.ts";
 import { toast } from "sonner";
 import type { OrganizationRequestDto } from "@/api/generated/openAPIDefinition.schemas.ts";
+import { useNavigate } from "react-router";
 
 export default function CreateOrganizationForm() {
+
+    const navigate = useNavigate();
+
     const createOrga = useCreateOrganization( {
         axios: {
             withCredentials: true,
@@ -21,8 +25,9 @@ export default function CreateOrganizationForm() {
                     }
             },
             {
-                onSuccess: () => {
+                onSuccess: ( response ) => {
                     toast.success( "Organization created successfully!" );
+                    navigate( `/organization/${ response.data.slug }` );
                 },
                 onError: ( error ) => {
                     console.error( "Error creating organization:", error );

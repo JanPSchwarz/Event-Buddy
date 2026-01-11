@@ -10,10 +10,23 @@ export default function HomePage() {
                 <NavLink to="/organization/create">Create Orga</NavLink>
             </Button>
             <Button asChild={ true }>
-                <NavLink to="/organization/neue-orga-2">See Orga</NavLink>
+                <NavLink to="/organization/test-orga">See Orga</NavLink>
             </Button>
             <Button asChild={ true }>
                 <NavLink to="/event/create">Create Event</NavLink>
+            </Button>
+            <Button asChild={ true }>
+                <NavLink to="/event/69610dce5a407520acc50037">Event details</NavLink>
+            </Button>
+            <Button asChild={ true }>
+                <NavLink to="/events">Events Page</NavLink>
+            </Button>
+            <Button asChild={ true }>
+                <NavLink to="/event/dashboard/69610dce5a407520acc50037">Event Dashboard</NavLink>
+            </Button>
+
+            <Button asChild={ true }>
+                <NavLink to="/event/edit/69610dce5a407520acc50037">Edit Event</NavLink>
             </Button>
         </div>
     )

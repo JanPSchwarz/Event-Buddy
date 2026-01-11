@@ -107,6 +107,22 @@ public class Event extends MongoBaseModel {
     private Integer maxPerBooking;
 
     @Schema(
+            description = "Indicates if the event is almost sold out",
+            example = "true",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            nullable = true
+    )
+    private Boolean ticketAlarm;
+
+    @Schema(
+            description = "Indicates if the event is sold out",
+            example = "true",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            nullable = true
+    )
+    private Boolean isSoldOut;
+
+    @Schema(
             description = "Guest list with guest names and their ticket counts",
             example = "{\"John Doe\": 2, \"Jane Smith\": 1}",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED,

@@ -26,13 +26,13 @@ public class FakeDataController {
             description = "Creates custom number fake data for testing purposes."
     )
     public void createFakeData() {
-        fakeDataService.createFakeData( 10 );
+        fakeDataService.createFakeData( 20 );
     }
 
     @DeleteMapping("/delete-all-data")
     @Operation(
-            summary = "Delete all fake users",
-            description = "Deletes all users from the system."
+            summary = "Delete all fake data",
+            description = "Deletes all data from the system."
     )
     public void deleteAllFakeData() {
         fakeDataService.deleteAllFakeData();

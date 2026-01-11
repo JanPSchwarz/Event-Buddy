@@ -83,6 +83,7 @@ class UserServiceTest {
 
     OrganizationResponseDto exampleOrgaDto = OrganizationResponseDto.builder()
             .name( exampleOrganization.getName() )
+            .id( exampleOrganization.getId() )
             .slug( exampleOrganization.getSlug() )
             .contact( exampleOrganization.getContact() )
             .location( exampleOrganization.getLocation() )

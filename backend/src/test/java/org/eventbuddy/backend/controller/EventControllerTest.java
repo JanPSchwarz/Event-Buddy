@@ -157,6 +157,8 @@ class EventControllerTest {
                 .eventOrganization( savedOrganizationDto )
                 .title( savedExampleEvent.getTitle() )
                 .eventDateTime( savedExampleEvent.getEventDateTime() )
+                .isSoldOut( false )
+                .ticketAlarm( false )
                 .location( savedExampleEvent.getLocation() )
                 .build();
 
@@ -194,6 +196,28 @@ class EventControllerTest {
                 .andExpect( status().isOk() )
                 .andExpect( content().json( expectedJson ) );
 
+    }
+
+    @Test
+    @DisplayName("Returns event dto found by id")
+    void getEventById() throws Exception {
+        String expectedJson = objectMapper.writeValueAsString( savedExampleEventResponse );
+
+        mockMvc.perform( get( "/api/events/" + savedExampleEvent.getId() )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() )
+                .andExpect( content().json( expectedJson ) );
+    }
+
+    @Test
+    @DisplayName("Throws 404 when event not found")
+    void getEventById_throws404WhenNotFound() throws Exception {
+        String nonexistentEventId = "nonexistent";
+
+        mockMvc.perform( get( "/api/events/" + nonexistentEventId )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNotFound() )
+                .andExpect( jsonPath( "$.error" ).value( "Event not found with id: " + nonexistentEventId ) );
     }
 
     @Test

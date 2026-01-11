@@ -14,20 +14,19 @@ import { Input } from "@/components/ui/input.tsx";
 import type { OrganizationRequestDto, OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
-import { ImagePlusIcon } from 'lucide-react';
-import { type ChangeEvent, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
+import LocationFormPart from "@/components/shared/LocationFormPart.tsx";
+import ImageFormPart from "@/components/shared/ImageFormPart.tsx";
 
 type OrganizationFormData = {
     name: string;
     description?: string;
     website?: string;
-    address?: string;
-    city?: string;
-    zipCode?: string;
-    country?: string;
+    address: string;
+    city: string;
+    zipCode: string;
+    country: string;
     latitude?: number;
     longitude?: number;
     email?: string;
@@ -47,22 +46,20 @@ const formSchema = z.object( {
         .optional()
         .or( z.literal( "" ) ),
     website: z.url().optional().or( z.literal( `` ) ),
+    locationName: z.string().optional(),
     address: z
         .string()
-        .max( 30, "Address must be at most 30 characters" )
-        .optional()
-        .or( z.literal( `` ) ),
+        .min( 1, "Address is required" )
+        .max( 30, "Address must be at most 30 characters" ),
     city: z
         .string()
-        .max( 30, "City must be at most 30 characters" )
-        .optional()
-        .or( z.literal( `` ) ),
-    zipCode: z.string().optional().or( z.literal( `` ) ),
+        .min( 1, "City is required" )
+        .max( 30, "City must be at most 30 characters" ),
+    zipCode: z.string()
+        .min( 1, "Zip Code is required" ),
     country: z.string()
         .min( 4, "Country must be at least 4 characters" )
-        .max( 30, "Country must be at most 30 characters" )
-        .optional()
-        .or( z.literal( `` ) ),
+        .max( 30, "Country must be at most 30 characters" ),
     email: z.email().trim().optional().or( z.literal( `` ) ),
     phoneNumber: z
         .string()
@@ -86,9 +83,8 @@ export default function OrganizationForm( {
         }
     } )
 
-    const [ imageSource, setImageSource ] = useState<string | null>( imageData?.data || null );
     const [ imageFile, setImageFile ] = useState<File | null>( null );
-    const fileInputRef = useRef<HTMLInputElement>( null );
+    const [ isRemovingImage, setIsRemovingImage ] = useState<boolean>( false );
 
     const form = useForm<OrganizationFormData>( {
         resolver: zodResolver( formSchema ),
@@ -107,7 +103,7 @@ export default function OrganizationForm( {
         }
     } );
 
-    const isImageDeletion = ( organizationData?.imageId != null || organizationData?.imageId !== "" ) && !imageSource && !imageFile
+    const isImageDeletion = !!organizationData?.imageId && isRemovingImage && !imageFile;
     const suppressSubmit = ( !form.formState.isDirty && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: OrganizationFormData ) => {
@@ -138,52 +134,16 @@ export default function OrganizationForm( {
         onSubmit( organizationDto, imageFile, isImageDeletion );
     }
 
-    const handleImageClick = () => {
-        fileInputRef.current?.click();
-    }
-
-    const handleImageChange = ( event: ChangeEvent<HTMLInputElement> ) => {
-        const file = event.target.files?.[ 0 ];
-
-        if ( !file ) return;
-
-        if ( file.size > 5 * 1024 * 1024 ) {
-            toast.error( "Image size is too large" );
-            return;
-        }
-
-        const allowedTypes = [ "image/jpeg", "image/png", "image/svg+xml", "image/heic", "image/webp" ];
-
-        if ( !allowedTypes.includes( file.type ) ) {
-            toast.error( "Image type not supported" );
-            return;
-        }
-
-        setImageFile( file );
-
-        const reader = new FileReader();
-        reader.onload = ( e ) => {
-            setImageSource( e.target?.result as string );
-        };
-        reader.readAsDataURL( file );
-
-    }
-
-    const handleImageSize = ( size: number | undefined ) => {
-        if ( !size ) return "";
-
-        if ( size < 1024 ) {
-            return `${ size } B`;
-        } else if ( size < 1024 * 1024 ) {
-            return `${ ( size / 1024 ).toFixed( 1 ) } KB`;
+    const handleImageFile = ( file: File | null ) => {
+        if ( file === null ) {
+            setImageFile( null );
         } else {
-            return `${ ( size / ( 1024 * 1024 ) ).toFixed( 1 ) } MB`;
+            setImageFile( file );
         }
     }
 
-    const handleRemoveImage = () => {
-        setImageFile( null );
-        setImageSource( "" );
+    const handleTrackImageRemoval = ( isRemoving: boolean ) => {
+        setIsRemovingImage( isRemoving );
     }
 
 
@@ -191,42 +151,11 @@ export default function OrganizationForm( {
         <form onSubmit={ form.handleSubmit( handleSubmit ) }>
             <FieldGroup>
                 <FieldSeparator/>
-                <FieldSet>
-                    <FieldLabel>
-                        Your Logo
-                    </FieldLabel>
-                    <Avatar
-                        aria-label={ "click to select image logo for upload" }
-                        onClick={ handleImageClick }
-                        className={ "mx-auto object-contain border cursor-pointer size-36 my-4" }
-                    >
-                        <AvatarImage className={ "" } src={ imageSource || "" }/>
-                        <AvatarFallback>
-                            <ImagePlusIcon className={ "size-8" }/>
-                        </AvatarFallback>
-                    </Avatar>
-                    { imageSource &&
-                        <Button onClick={ handleRemoveImage }
-                                variant={ "outline" }
-                                type={ "button" }
-                                className={ "max-w-[200px] mx-auto" }>
-                            Remove Image
-                        </Button>
-                    }
-                    <input
-                        ref={ fileInputRef }
-                        type={ "file" }
-                        onChange={ handleImageChange }
-                        accept={ "image/jpeg,image/png,image/svg+xml,image/heic,image/webp" }
-                        className={ "hidden" }/>
-                    <FieldDescription>
-                        { imageFile &&
-                            <span className={ "my-2 block" }>
-                                    { imageFile?.name } ({ handleImageSize( imageFile?.size ) })
-                                </span> }
-                        Max. 5MB. jpeg, png, svg, heic, webp only
-                    </FieldDescription>
-                </FieldSet>
+                <ImageFormPart setImageFile={ handleImageFile }
+                               imageData={ imageData?.data }
+                               labelText={ "Your logo" }
+                               avatar={ true }
+                               trackImageRemoval={ handleTrackImageRemoval }/>
                 <FieldSeparator/>
                 <FieldSet>
                     <FieldLabel>
@@ -239,7 +168,7 @@ export default function OrganizationForm( {
                             ( { field, fieldState } ) => (
                                 <Field data-invalid={ fieldState.invalid }>
                                     <FieldLabel>
-                                        Organization Name
+                                        Organization Name<span className={ "text-red-400" }>*</span>
                                         { fieldState.invalid && (
                                             <FieldError className={ "text-xs ml-auto leading-0" }
                                                         errors={ [ fieldState.error ] }/>
@@ -310,97 +239,7 @@ export default function OrganizationForm( {
                     />
                 </FieldSet>
                 <FieldSeparator/>
-                <FieldSet>
-                    <FieldLabel>Address and Location</FieldLabel>
-                    <Controller
-                        name={ "address" }
-                        control={ form.control }
-                        render={
-                            ( { field, fieldState } ) => (
-                                <Field data-invalid={ fieldState.invalid }>
-                                    <FieldLabel>
-                                        Street name and number
-                                        { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
-                                                        errors={ [ fieldState.error ] }/>
-                                        ) }
-                                    </FieldLabel>
-                                    <Input
-                                        { ...field }
-                                        aria-invalid={ fieldState.invalid }
-                                        placeholder={ "Example drive 15" }
-                                    />
-                                </Field>
-                            )
-                        }
-                    />
-                    <Controller
-                        name={ "city" }
-                        control={ form.control }
-                        render={
-                            ( { field, fieldState } ) => (
-                                <Field data-invalid={ fieldState.invalid }>
-                                    <FieldLabel>
-                                        City
-                                        { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
-                                                        errors={ [ fieldState.error ] }/>
-                                        ) }
-                                    </FieldLabel>
-                                    <Input
-                                        { ...field }
-                                        aria-invalid={ fieldState.invalid }
-                                        placeholder={ "Example City" }
-                                    />
-                                </Field>
-                            )
-                        }
-                    />
-                    <Controller
-                        name={ "zipCode" }
-                        control={ form.control }
-                        render={
-                            ( { field, fieldState } ) => (
-                                <Field data-invalid={ fieldState.invalid }>
-                                    <FieldLabel>
-                                        Zip-Code
-                                        { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
-                                                        errors={ [ fieldState.error ] }/>
-                                        ) }
-                                    </FieldLabel>
-                                    <Input
-                                        { ...field }
-                                        aria-invalid={ fieldState.invalid }
-                                        placeholder={ "12345" }
-                                    />
-                                </Field>
-                            )
-                        }
-                    />
-                    <Controller
-                        name={ "country" }
-                        control={ form.control }
-                        render={
-                            ( { field, fieldState } ) => (
-                                <Field data-invalid={ fieldState.invalid }>
-                                    <FieldLabel>
-                                        Country
-                                        { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
-                                                        errors={ [ fieldState.error ] }/>
-                                        ) }
-                                    </FieldLabel>
-                                    <Input
-                                        { ...field }
-                                        aria-invalid={ fieldState.invalid }
-                                        placeholder={ "12345" }
-                                    />
-                                </Field>
-                            )
-                        }
-                    />
-                </FieldSet>
+                <LocationFormPart form={ form }/>
                 <FieldSeparator/>
                 <FieldSet>
                     <FieldLabel>

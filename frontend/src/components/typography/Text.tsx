@@ -61,7 +61,7 @@ export default function Text( { asTag, children, styleVariant, className, ...pro
 
     return (
         <Tag
-            className={ cn( "", styles, className ) }
+            className={ cn( styles, className ) }
             { ...props }>
             { children }
         </Tag>

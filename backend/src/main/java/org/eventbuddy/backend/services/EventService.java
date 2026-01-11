@@ -40,6 +40,15 @@ public class EventService {
                 .toList();
     }
 
+    public EventResponseDto getEventById( String eventId ) {
+        Event event = eventRepo.findById( eventId ).orElseThrow(
+                () -> new ResourceNotFoundException( "Event not found with id: " + eventId )
+        );
+
+        return eventToEventResponseDtoMapper( event );
+    }
+
+
     public Event getRawEventById( String eventId ) {
         return eventRepo.findById( eventId ).orElseThrow(
                 () -> new ResourceNotFoundException( "Event not found with id: " + eventId )
@@ -49,9 +58,9 @@ public class EventService {
     // === POST ===
 
     public Event createEvent( EventRequestDto eventDto, String imageId ) {
-        Event mappedEvent = eventDtoToEventMapper( eventDto );
+        Event mappedEvent = eventRequestDtoToEventMapper( eventDto );
 
-        if ( imageId != null && !imageId.isEmpty() ) {
+        if ( imageId != null ) {
             mappedEvent = mappedEvent.toBuilder()
                     .imageId( imageId )
                     .build();
@@ -62,7 +71,7 @@ public class EventService {
 
     // === Mappers ===
 
-    private Event eventDtoToEventMapper( EventRequestDto eventDto ) {
+    private Event eventRequestDtoToEventMapper( EventRequestDto eventDto ) {
 
         Organization organization = orgaRepo.findById( eventDto.organizationId() ).orElseThrow(
                 () -> new ResourceNotFoundException( "Organization not found with id: " + eventDto.organizationId() )
@@ -76,6 +85,7 @@ public class EventService {
                 .location( eventDto.location() )
                 .price( eventDto.price() )
                 .maxTicketCapacity( eventDto.maxTicketCapacity() )
+                .freeTicketCapacity( eventDto.maxTicketCapacity() != null ? eventDto.maxTicketCapacity() : null )
                 .maxPerBooking( eventDto.maxPerBooking() )
                 .build();
     }
@@ -111,6 +121,13 @@ public class EventService {
                 .owners( ownersDto )
                 .build();
 
+        boolean hasMaxCapacity = event.getMaxTicketCapacity() != null && event.getMaxTicketCapacity() > 0;
+        boolean hasFreeCapacity = hasMaxCapacity && event.getFreeTicketCapacity() != null && event.getFreeTicketCapacity() > 0;
+
+        boolean isUnder20PercentLeft = hasFreeCapacity && ( ( double ) event.getFreeTicketCapacity() / event.getMaxTicketCapacity() ) <= 0.2;
+
+        boolean isSoldOut = hasMaxCapacity && !hasFreeCapacity;
+
         return EventResponseDto.builder()
                 .id( event.getId() )
                 .eventOrganization( orgDto )
@@ -119,7 +136,8 @@ public class EventService {
                 .eventDateTime( event.getEventDateTime() )
                 .location( event.getLocation() )
                 .price( event.getPrice() )
-                .maxTicketCapacity( event.getMaxTicketCapacity() )
+                .ticketAlarm( isUnder20PercentLeft )
+                .isSoldOut( isSoldOut )
                 .maxPerBooking( event.getMaxPerBooking() )
                 .imageId( event.getImageId() )
                 .build();

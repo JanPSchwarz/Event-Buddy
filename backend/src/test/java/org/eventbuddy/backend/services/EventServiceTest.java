@@ -18,6 +18,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +29,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,6 +57,22 @@ class EventServiceTest {
     EventResponseDto exampleEventResponseDto;
     Organization exampleOrganization;
     AppUser exampleUser;
+
+    private static Stream<Arguments> provideTicketCapacityTestCases() {
+        return Stream.of(
+                // maxCapacity, freeCapacity, expectedTicketAlarm, expectedSoldOut
+                Arguments.of( null, null, false, false ),              // With null capacities
+                Arguments.of( 0, 0, false, false ),                    // With capacities set to 0
+                Arguments.of( 100, 100, false, false ),                // All Tickets available
+                Arguments.of( 100, 50, false, false ),                 // 50% available
+                Arguments.of( 100, 21, false, false ),                 // 21% available
+                Arguments.of( 100, 20, true, false ),                  // Edge case: 20% available - Alarm active
+                Arguments.of( 100, 10, true, false ),                  // 10% available - Alarm active
+                Arguments.of( 100, 1, true, false ),                   // 1% available - Alarm active
+                Arguments.of( 100, 0, false, true ),                   // sold out
+                Arguments.of( 100, null, false, true )                 // freeCapacity null = sold out
+        );
+    }
 
     @BeforeEach
     void setUp() {
@@ -125,10 +145,11 @@ class EventServiceTest {
                 .eventOrganization( exampleOrganizationResponseDto )
                 .title( exampleEvent.getTitle() )
                 .eventDateTime( exampleEvent.getEventDateTime() )
+                .ticketAlarm( false )
+                .isSoldOut( false )
                 .location( exampleLocation )
                 .build();
     }
-
 
     @Test
     @DisplayName("Returns list of event dtos")
@@ -156,6 +177,58 @@ class EventServiceTest {
 
         verify( eventRepo ).findAll();
         verify( userRepo ).findAllById( exampleOrganization.getOwners() );
+    }
+
+    @ParameterizedTest
+    @DisplayName("Returns correct ticketAlarm and isSoldOut based on ticket capacities")
+    @MethodSource("provideTicketCapacityTestCases")
+    void getEventById_calculatesTicketAlarmAndSoldOutCorrectly(
+            Integer maxCapacity,
+            Integer freeCapacity,
+            boolean expectedTicketAlarm,
+            boolean expectedSoldOut
+    ) {
+        Event eventWithCapacities = exampleEvent.toBuilder()
+                .maxTicketCapacity( maxCapacity )
+                .freeTicketCapacity( freeCapacity )
+                .build();
+
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( eventWithCapacities ) );
+        when( userRepo.findAllById( exampleOrganization.getOwners() ) ).thenReturn( List.of( exampleUser ) );
+
+        EventResponseDto actualEvent = eventService.getEventById( exampleEvent.getId() );
+
+        assertEquals( expectedTicketAlarm, actualEvent.ticketAlarm() );
+        assertEquals( expectedSoldOut, actualEvent.isSoldOut() );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( userRepo ).findAllById( exampleOrganization.getOwners() );
+    }
+
+    @Test
+    @DisplayName("Returns event dto found by id")
+    void getEventById() {
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( exampleEvent ) );
+        when( userRepo.findAllById( exampleOrganization.getOwners() ) ).thenReturn( List.of( exampleUser ) );
+
+        EventResponseDto actualEvent = eventService.getEventById( exampleEvent.getId() );
+
+        assertEquals( exampleEventResponseDto, actualEvent );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( userRepo ).findAllById( exampleOrganization.getOwners() );
+    }
+
+    @Test
+    @DisplayName("Returns 404 when event not found by id")
+    void getEventById_throws404WhenNotFound() {
+        String notExistingEventId = "nonExistentEventId";
+        when( eventRepo.findById( notExistingEventId ) ).thenReturn( Optional.empty() );
+        assertThatThrownBy( () ->
+                eventService.getEventById( notExistingEventId ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Event not found with id: " + notExistingEventId );
+        verify( eventRepo ).findById( notExistingEventId );
     }
 
     @Test
@@ -192,6 +265,31 @@ class EventServiceTest {
         Event actualCreatedEvent = eventService.createEvent( exampleEventRequestDto, null );
 
         assertEquals( exampleEvent, actualCreatedEvent );
+
+        verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
+    }
+
+    @Test
+    @DisplayName("Should return created event with correct ticket capacities")
+    void createEvent_shouldReturnCapacityCorrect() {
+        EventRequestDto eventRequestWithMaxCapacity = exampleEventRequestDto.toBuilder()
+                .maxTicketCapacity( 100 )
+                .build();
+
+        Event exampleEventWithMaxCapacity = exampleEvent.toBuilder()
+                .maxTicketCapacity( eventRequestWithMaxCapacity.maxTicketCapacity() )
+                .freeTicketCapacity( eventRequestWithMaxCapacity.maxTicketCapacity() )
+                .build();
+
+        when( eventRepo.save( any( Event.class ) ) ).thenReturn( exampleEventWithMaxCapacity );
+        when( orgaRepo.findById( exampleEventRequestDto.organizationId() ) ).thenReturn( Optional.of( exampleOrganization ) );
+
+        Event actualCreatedEvent = eventService.createEvent( eventRequestWithMaxCapacity, null );
+
+        Integer expectedFreeCapacity = eventRequestWithMaxCapacity.maxTicketCapacity();
+        Integer actualFreeCapacity = actualCreatedEvent.getFreeTicketCapacity();
+
+        assertEquals( expectedFreeCapacity, actualFreeCapacity );
 
         verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
     }

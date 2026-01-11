@@ -16,6 +16,9 @@ export default function OrganizationView( { orgaData }: Readonly<OrganizationVie
 
     const { data: imageData, isLoading: isLoadingImage } = useGetImageAsDataUrl( orgaData.imageId || "" )
 
+    console.log( orgaData.imageId )
+    console.log( imageData?.data )
+
     return (
         <Card className={ "w-full max-w-[800px] mb-12 mx-auto" }>
             <CardHeader className={ "flex flex-col justify-center md:flex-row md:justify-between" }>
@@ -97,13 +100,12 @@ export default function OrganizationView( { orgaData }: Readonly<OrganizationVie
                         <Text asTag={ "h3" } className={ "text-muted-foreground" } styleVariant={ "h6" }>
                             Website (external)
                         </Text>
-                        <Text className={ "italic break-words" }>
-                            <Button asChild variant={ "link" }>
-                                <a href={ orgaData.website } target={ "_blank" }>
-                                    { orgaData.website }
-                                </a>
-                            </Button>
-                        </Text>
+                        <Button asChild variant={ "link" } className={ "p-0 whitespace-break-spaces" }>
+                            <a href={ orgaData.website } target={ "_blank" }
+                               className={ "" }>
+                                { orgaData.website }
+                            </a>
+                        </Button>
                         <Separator className={ "my-4" }/>
                     </div>
                 }

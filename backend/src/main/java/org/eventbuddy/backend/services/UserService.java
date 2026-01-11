@@ -193,7 +193,7 @@ public class UserService {
             throw new ResourceNotFoundException( "One or more organization owners not found." );
         }
 
-        
+
         Set<AppUserDto> ownersDtos = owners.stream()
                 .map( user ->
                         AppUserDto.builder()
@@ -207,6 +207,7 @@ public class UserService {
 
         return OrganizationResponseDto.builder()
                 .name( organization.getName() )
+                .id( organization.getId() )
                 .description( organization.getDescription() )
                 .website( organization.getWebsite() )
                 .slug( organization.getSlug() )

@@ -1,6 +1,7 @@
 package org.eventbuddy.backend.models.event;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.eventbuddy.backend.models.organization.Location;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
@@ -35,9 +36,10 @@ public record EventResponseDto(
         String description,
 
         @Schema(
-                description = "Date and time of the event",
+                description = "Iso Date and time of the event",
                 example = "2024-09-15T18:00:00Z"
         )
+        @NotNull
         Instant eventDateTime,
 
         @Schema(
@@ -47,16 +49,23 @@ public record EventResponseDto(
         Location location,
 
         @Schema(
-                description = "Price of the event in cents",
+                description = "Ticket price for the event",
                 example = "49.99"
         )
+        @NotNull
         Double price,
 
         @Schema(
-                description = "Maximum ticket capacity for the event",
-                example = "100"
+                description = "Indicates if event is almost sold out",
+                example = "true"
         )
-        Integer maxTicketCapacity,
+        Boolean ticketAlarm,
+
+        @Schema(
+                description = "Indicates if event is sold out",
+                example = "true"
+        )
+        Boolean isSoldOut,
 
         @Schema(
                 description = "Maximum tickets allowed per booking",

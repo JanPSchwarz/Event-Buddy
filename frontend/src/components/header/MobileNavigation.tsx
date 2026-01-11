@@ -3,15 +3,26 @@ import { Button } from "@/components/ui/button.tsx";
 import { Menu } from 'lucide-react';
 import { navigations } from "@/lib/navigations.tsx";
 import { NavLink, useLocation } from "react-router";
+import { useState } from "react";
 
 
 export default function MobileNavigation() {
 
     const { pathname } = useLocation();
 
+    const [ openSheet, setOpenSheet ] = useState( false );
+
+    const handleOpenSheet = ( isOpen: boolean ) => {
+        setOpenSheet( isOpen );
+    };
+
+    const closeSheet = () => {
+        setOpenSheet( false );
+    };
+
     return (
         <div className={ "md:hidden" }>
-            <Sheet>
+            <Sheet open={ openSheet } onOpenChange={ handleOpenSheet }>
                 <SheetTrigger asChild>
                     <Button variant={ "outline" }>
                         <Menu/>
@@ -31,8 +42,10 @@ export default function MobileNavigation() {
                                 variant={ "ghost" }
                                 asChild
                             >
-                                <NavLink to={ href }
-                                         className={ `${ pathname === href && "underline decoration-primary underline-offset-2" }` }>
+                                <NavLink
+                                    to={ href }
+                                    onClick={ closeSheet }
+                                    className={ `${ pathname === href && "underline decoration-primary underline-offset-2" }` }>
                                     { title }
                                 </NavLink>
                             </Button>

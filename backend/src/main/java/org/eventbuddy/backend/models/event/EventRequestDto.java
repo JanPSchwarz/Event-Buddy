@@ -66,7 +66,7 @@ public record EventRequestDto(
                 nullable = false
         )
         @NotNull
-        @Positive
+        @PositiveOrZero
         Double price,
 
         @Schema(

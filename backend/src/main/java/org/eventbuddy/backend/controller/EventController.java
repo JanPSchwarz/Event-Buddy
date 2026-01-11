@@ -57,6 +57,23 @@ public class EventController {
         return ResponseEntity.ok( eventService.getAllEvents() );
     }
 
+    @GetMapping("/{eventId}")
+    @Operation(
+            summary = "Get Event dto by ID",
+            description = "Retrieve an event by its unique ID"
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Event not found",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    public ResponseEntity<EventResponseDto> getEventById( @PathVariable String eventId ) {
+        return ResponseEntity.ok( eventService.getEventById( eventId ) );
+    }
+
     @GetMapping("/raw/{eventId}")
     @Operation(
             summary = "Get Event by ID",
@@ -75,7 +92,9 @@ public class EventController {
         return ResponseEntity.ok( eventService.getRawEventById( eventId ) );
     }
 
-    @PostMapping("/create")
+    @PostMapping(
+            path = "/create",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Create a new Event",
             description = "Create a new event with the provided details"
@@ -135,6 +154,8 @@ public class EventController {
     private void checkIsOrganizationOwnerOrSuperAdmin( String eventId, OAuth2AuthenticationToken authToken ) {
         AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
         Event event = eventService.getRawEventById( eventId );
+
+        System.out.println( "Event Organization ID: " + event.toString() );
 
         String organizationId = event.getEventOrganization().getId();
 
