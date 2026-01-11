@@ -4,14 +4,17 @@ import { useContextUser } from "@/context/UserProvider.tsx";
 import { useGetUserById } from "@/api/generated/user/user.ts";
 import { Navigate, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { useCreateEvent } from "@/api/generated/event-controller/event-controller.ts";
+import { getGetAllEventsQueryKey, useCreateEvent } from "@/api/generated/event-controller/event-controller.ts";
 import type { EventRequestDto } from "@/api/generated/openAPIDefinition.schemas.ts";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CreateEventForm() {
 
     const { user } = useContextUser();
 
     const navigate = useNavigate();
+
+    const queryClient = useQueryClient();
 
     const createEvent = useCreateEvent( {
             axios: {
@@ -53,6 +56,7 @@ export default function CreateEventForm() {
             },
             {
                 onSuccess: ( response ) => {
+                    queryClient.invalidateQueries( { queryKey: getGetAllEventsQueryKey() } )
                     toast.success( "Event created successfully!" );
                     navigate( `/event/${ response.data.id }` );
                 },

@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.t
 import PageWrapper from "@/components/PageWrapper.tsx";
 import EventCalendarSheet from "@/components/event/EventCalendarSheet.tsx";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
-import { AspectRatio } from "@/components/ui/aspect-ratio.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import EventBadges from "@/components/event/EventBadges.tsx";
+import EventImage from "@/components/event/EventImage.tsx";
 
 export default function EventDetailsPage() {
 
@@ -70,22 +70,18 @@ export default function EventDetailsPage() {
                                   styleVariant={ "h2" }>{ event.title } { getYear( ( event.eventDateTime || "" ) ) }
                             </Text>
                             <Text
-                                styleVariant={ "smallMuted" }>{ event.location?.locationName + ", " || "" } { event.location?.city }</Text>
+                                styleVariant={ "smallMuted" }>
+                                { event.location?.locationName ? `${ event.location.locationName }, ` : "" }
+                                <Text asTag={ "span" }>
+                                    { event.location?.city }
+                                </Text>
+                            </Text>
                         </div>
                         <EventCalendarSheet isoDate={ event.eventDateTime || "" }/>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className={ "space-y-8" }>
-                    {
-                        imageData?.data &&
-                        <div className={ "md:space-y-6" }>
-                            <AspectRatio ratio={ 16 / 9 } className={ "" }>
-                                <img src={ imageData.data }
-                                     className={ "object-cover w-full h-full rounded-md m-auto" }
-                                     alt={ "Event" }/>
-                            </AspectRatio>
-                        </div>
-                    }
+                    <EventImage imageData={ imageData?.data }/>
                     <Button disabled={ event.isSoldOut }>
                         Book a Ticket
                     </Button>
@@ -93,25 +89,27 @@ export default function EventDetailsPage() {
                         <Text styleVariant={ "h3" } className={ "text-muted-foreground" }>
                             Description
                         </Text>
-                        <Text>
+                        <div className={ "space-y-4" }>
                             {
                                 event.description ?
                                     event.description.split( ( `\n` ) ).map( ( paragraph, index ) => (
-                                            <p key={ index } className={ "" }>
+                                            <Text key={ index } className={ "" }>
                                                 { paragraph }
-                                            </p>
+                                            </Text>
                                         )
                                     ) :
-                                    "No description provided."
+                                    <Text styleVariant={ "smallMuted" }>
+                                        "No description provided."
+                                    </Text>
                             }
-                        </Text>
+                        </div>
                     </div>
                     <Separator/>
                     <div className={ "grid grid-cols-2 items-center gap-4" }>
                         <Text styleVariant={ "h3" } className={ "text-muted-foreground" }>
                             Price
-                            <Text>
-                                (per Ticket)
+                            <Text asTag={ "span" }>
+                                { " " }(per Ticket)
                             </Text>
                         </Text>
                         <Text>
