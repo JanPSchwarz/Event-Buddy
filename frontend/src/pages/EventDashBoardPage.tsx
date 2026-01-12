@@ -22,8 +22,6 @@ export default function EventDashBoardPage() {
         }
     } );
 
-    console.log( eventData?.data )
-
     if ( isLoading ) {
         return (
             <CustomLoader/>
