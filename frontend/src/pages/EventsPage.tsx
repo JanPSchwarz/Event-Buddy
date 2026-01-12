@@ -17,8 +17,6 @@ export default function EventsPage() {
         );
     }
 
-    if ( !allEvents?.data ) return "No events found";
-
     return (
         <PageWrapper className={ "space-y-12 mb-12" }>
             <div className={ "w-full space-y-4 flex flex-col" }>
@@ -39,9 +37,13 @@ export default function EventsPage() {
             </div>
             <div className={ "flex items-start justify-center flex-wrap gap-12 w-full" }>
                 {
-                    allEvents.data.map( ( event ) => {
+                    allEvents?.data.map( ( event ) => {
                         return <EventCard key={ event.id } event={ event }/>
                     } )
+                }
+                {
+                    ( allEvents?.data.length === 0 || !allEvents?.data ) &&
+                    <p>No events found.</p>
                 }
             </div>
         </PageWrapper>

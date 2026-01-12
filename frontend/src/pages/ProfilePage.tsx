@@ -17,8 +17,6 @@ export default function ProfilePage() {
 
     const isOwner = loggedInUser?.id === profileUserId;
 
-    console.log( loggedInUser );
-
     return (
         <PageWrapper>
             { isOwner ?

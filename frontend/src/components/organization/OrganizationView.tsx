@@ -7,6 +7,7 @@ import Text from "@/components/typography/Text.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
+import { NavLink } from "react-router";
 
 type OrganizationViewProps = {
     orgaData: OrganizationResponseDto,
@@ -15,9 +16,6 @@ type OrganizationViewProps = {
 export default function OrganizationView( { orgaData }: Readonly<OrganizationViewProps> ) {
 
     const { data: imageData, isLoading: isLoadingImage } = useGetImageAsDataUrl( orgaData.imageId || "" )
-
-    console.log( orgaData.imageId )
-    console.log( imageData?.data )
 
     return (
         <Card className={ "w-full max-w-[800px] mb-12 mx-auto" }>
@@ -142,16 +140,18 @@ export default function OrganizationView( { orgaData }: Readonly<OrganizationVie
                         orgaData?.owners && orgaData?.owners?.length > 0 &&
                         orgaData.owners?.map( ( owner ) => {
                             return (
-                                <div className={ "flex flex-col max-w-max justify-center items-center" }
-                                     key={ owner.name }>
-                                    <Avatar>
-                                        <AvatarImage src={ owner.avatarUrl }/>
-                                        <AvatarFallback>
-                                            <User/>
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <Text styleVariant={ "smallMuted" }>{ owner.name }</Text>
-                                </div>
+                                <NavLink to={ `/profile/${ owner.id }` } key={ owner.id }>
+                                    <div className={ "flex flex-col max-w-max justify-center items-center" }
+                                    >
+                                        <Avatar>
+                                            <AvatarImage src={ owner.avatarUrl }/>
+                                            <AvatarFallback>
+                                                <User/>
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <Text styleVariant={ "smallMuted" }>{ owner.name }</Text>
+                                    </div>
+                                </NavLink>
                             )
                         } )
                     }

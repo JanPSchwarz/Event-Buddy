@@ -42,9 +42,12 @@ export default function EventCard( { event }: Readonly<EventCardProps> ) {
                                 { event.title }
 
                             </CardTitle>
-                            <Text styleVariant={ "smallMuted" } className={ "leading-5" }>
-                                by { event.eventOrganization?.name }
-                            </Text>
+                            <NavLink to={ `/organization/${ event.eventOrganization.slug }` }
+                                     className={ "hover:underline underline-offset-4 hover:text-primary" }>
+                                <Text styleVariant={ "smallMuted" } className={ "leading-5 hover:text-primary" }>
+                                    by { event.eventOrganization?.name }
+                                </Text>
+                            </NavLink>
                             <Text styleVariant={ "smallMuted" }>
                                 { event.location?.locationName }
                             </Text>

@@ -58,6 +58,7 @@ public class FakeDataService {
 
             AppUser updatedUser = !orgaIds.isEmpty() ? user.toBuilder()
                     .organizations( orgaIds )
+                    .userSettings( user.getUserSettings().toBuilder().userVisible( true ).build() )
                     .build() : user;
 
             updatedFakeUsers.add( updatedUser );
@@ -106,7 +107,7 @@ public class FakeDataService {
                     .title( faker.funnyName().name() )
                     .description( faker.lorem().sentence( 100 ) )
                     .eventDateTime( faker.timeAndDate().future() )
-                    .price( faker.number().randomDouble( 2, 5, 100 ) )
+                    .price( faker.bool().bool() ? faker.number().randomDouble( 2, 5, 100 ) : 0.0 )
                     .maxTicketCapacity( maxCapacity > 0 ? maxCapacity : null )
                     .freeTicketCapacity( freeTicketCapacity > 0 ? freeTicketCapacity : null )
                     .maxPerBooking( faker.number().numberBetween( 0, 8 ) )
@@ -194,7 +195,7 @@ public class FakeDataService {
 
     private Location provideFakeLocation() {
         return Location.builder()
-                .locationName( faker.name().fullName() )
+                .locationName( faker.bool().bool() ? faker.name().fullName() + " Hall" : null )
                 .address( faker.address().streetAddress() )
                 .city( faker.address().city() )
                 .zipCode( faker.number().digits( 6 ) )
