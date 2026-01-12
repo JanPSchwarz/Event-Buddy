@@ -5,7 +5,9 @@ import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.UserSettings;
+import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.organization.*;
+import org.eventbuddy.backend.repos.EventRepository;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
@@ -35,6 +37,9 @@ class OrganizationServiceTest {
 
     @Mock
     UserRepository mockUserRepo;
+
+    @Mock
+    EventRepository mockEventRepo;
 
     @Mock
     ImageRepository mockImageRepo;
@@ -518,16 +523,27 @@ class OrganizationServiceTest {
                 .organizations( Set.of() )
                 .build();
 
+        Event exampleEvent = Event.builder()
+                .id( "exampleEventId" )
+                .imageId( "exampleEventImageId" )
+                .eventOrganization( exampleOrga )
+                .build();
+
         when( mockOrgaRepo.findById( orgaIdToDelete ) ).thenReturn( Optional.of( exampleOrga ) );
         when( mockUserRepo.findById( "exampleOwnerId" ) ).thenReturn( Optional.of( exampleUser ) );
         when( mockUserRepo.save( modifiedExampleUser ) ).thenReturn( modifiedExampleUser );
+        when( mockEventRepo.findAll() ).thenReturn( List.of( exampleEvent ) );
 
         organizationService.deleteOrganizationById( orgaIdToDelete );
 
         verify( mockOrgaRepo ).findById( orgaIdToDelete );
         verify( mockOrgaRepo ).deleteById( orgaIdToDelete );
+        verify( mockEventRepo ).findAll();
+        verify( mockEventRepo ).deleteById( "exampleEventId" );
         verify( mockImageRepo ).deleteById( exampleOrga.getImageId() );
+        verify( mockImageRepo ).deleteById( "exampleEventImageId" );
         verify( mockUserRepo ).findById( "exampleOwnerId" );
         verify( mockUserRepo ).save( modifiedExampleUser );
     }
+
 }

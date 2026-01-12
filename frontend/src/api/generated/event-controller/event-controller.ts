@@ -291,6 +291,188 @@ export function useGetRawEventById<TData = Awaited<ReturnType<typeof getRawEvent
 
 
 /**
+ * Get list of event dtos by orga id
+ * @summary Get Event dtos by orga id
+ */
+export const getEventsByUserId = (
+    userId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<EventResponseDto[]>> => {
+    
+    
+    return axios.default.get(
+      `http://localhost:8080/api/events/byUser/${userId}`,options
+    );
+  }
+
+
+
+
+export const getGetEventsByUserIdQueryKey = (userId?: string,) => {
+    return [
+    `http://localhost:8080/api/events/byUser/${userId}`
+    ] as const;
+    }
+
+    
+export const getGetEventsByUserIdQueryOptions = <TData = Awaited<ReturnType<typeof getEventsByUserId>>, TError = AxiosError<ErrorMessage>>(userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByUserId>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventsByUserIdQueryKey(userId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventsByUserId>>> = ({ signal }) => getEventsByUserId(userId, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventsByUserId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEventsByUserIdQueryResult = NonNullable<Awaited<ReturnType<typeof getEventsByUserId>>>
+export type GetEventsByUserIdQueryError = AxiosError<ErrorMessage>
+
+
+export function useGetEventsByUserId<TData = Awaited<ReturnType<typeof getEventsByUserId>>, TError = AxiosError<ErrorMessage>>(
+ userId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByUserId>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventsByUserId>>,
+          TError,
+          Awaited<ReturnType<typeof getEventsByUserId>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventsByUserId<TData = Awaited<ReturnType<typeof getEventsByUserId>>, TError = AxiosError<ErrorMessage>>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByUserId>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventsByUserId>>,
+          TError,
+          Awaited<ReturnType<typeof getEventsByUserId>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventsByUserId<TData = Awaited<ReturnType<typeof getEventsByUserId>>, TError = AxiosError<ErrorMessage>>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByUserId>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Event dtos by orga id
+ */
+
+export function useGetEventsByUserId<TData = Awaited<ReturnType<typeof getEventsByUserId>>, TError = AxiosError<ErrorMessage>>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByUserId>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEventsByUserIdQueryOptions(userId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Get list of event dtos by orga id
+ * @summary Get Event dtos by orga id
+ */
+export const getEventsByOrgaId = (
+    organizationId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<EventResponseDto[]>> => {
+    
+    
+    return axios.default.get(
+      `http://localhost:8080/api/events/byOrga/${organizationId}`,options
+    );
+  }
+
+
+
+
+export const getGetEventsByOrgaIdQueryKey = (organizationId?: string,) => {
+    return [
+    `http://localhost:8080/api/events/byOrga/${organizationId}`
+    ] as const;
+    }
+
+    
+export const getGetEventsByOrgaIdQueryOptions = <TData = Awaited<ReturnType<typeof getEventsByOrgaId>>, TError = AxiosError<ErrorMessage>>(organizationId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByOrgaId>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventsByOrgaIdQueryKey(organizationId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventsByOrgaId>>> = ({ signal }) => getEventsByOrgaId(organizationId, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(organizationId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventsByOrgaId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEventsByOrgaIdQueryResult = NonNullable<Awaited<ReturnType<typeof getEventsByOrgaId>>>
+export type GetEventsByOrgaIdQueryError = AxiosError<ErrorMessage>
+
+
+export function useGetEventsByOrgaId<TData = Awaited<ReturnType<typeof getEventsByOrgaId>>, TError = AxiosError<ErrorMessage>>(
+ organizationId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByOrgaId>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventsByOrgaId>>,
+          TError,
+          Awaited<ReturnType<typeof getEventsByOrgaId>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventsByOrgaId<TData = Awaited<ReturnType<typeof getEventsByOrgaId>>, TError = AxiosError<ErrorMessage>>(
+ organizationId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByOrgaId>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventsByOrgaId>>,
+          TError,
+          Awaited<ReturnType<typeof getEventsByOrgaId>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventsByOrgaId<TData = Awaited<ReturnType<typeof getEventsByOrgaId>>, TError = AxiosError<ErrorMessage>>(
+ organizationId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByOrgaId>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Event dtos by orga id
+ */
+
+export function useGetEventsByOrgaId<TData = Awaited<ReturnType<typeof getEventsByOrgaId>>, TError = AxiosError<ErrorMessage>>(
+ organizationId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventsByOrgaId>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEventsByOrgaIdQueryOptions(organizationId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * Retrieve a list of all events
  * @summary Get an array of all Event dtos
  */

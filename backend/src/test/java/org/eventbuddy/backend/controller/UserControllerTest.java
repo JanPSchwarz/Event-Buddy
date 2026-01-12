@@ -88,6 +88,7 @@ class UserControllerTest {
                 .id( savedUser.getId() )
                 .email( savedUser.getEmail() )
                 .avatarUrl( savedUser.getAvatarUrl() )
+                .organizations( List.of() )
                 .build();
 
         List<AppUserDto> expectedUsers = List.of( dtoFromSavedUser );
@@ -123,6 +124,7 @@ class UserControllerTest {
                 .name( savedUser.getName() )
                 .email( savedUser.getEmail() )
                 .avatarUrl( savedUser.getAvatarUrl() )
+                .organizations( List.of() )
                 .id( savedUser.getId() )
                 .build();
 

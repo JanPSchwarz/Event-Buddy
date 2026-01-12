@@ -17,6 +17,7 @@ export default function ProfileView( { userData }: Readonly<ProfileViewProps> ) 
         { label: "Email", value: userData.email ? userData.email : "N/A" },
     ]
 
+    console.log( userData )
     return (
         <Card className={ "w-full max-w-[600px] mx-auto" }>
             <CardContent className={ "flex flex-col gap-4" }>

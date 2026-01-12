@@ -6,6 +6,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
 import { useState } from "react";
 import EditOrganizationForm from "@/components/organization/EditOrganizationForm.tsx";
 import UpdateOwnerDialog from "@/components/organization/UpdateOwnerDialog.tsx";
+import { useDeleteOrganization } from "@/api/generated/organization/organization.ts";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 type OrganizationOwnerViewProps = {
     orgData: OrganizationResponseDto,
@@ -15,14 +18,39 @@ export default function OrganizationOwnerView( { orgData }: Readonly<Organizatio
 
     const [ isEditing, setIsEditing ] = useState( false );
 
+    const navigate = useNavigate();
+
+    const deleteOrga = useDeleteOrganization( {
+        axios: { withCredentials: true }
+    } );
+
     const toggleEdit = () => {
         setIsEditing( !isEditing );
     }
 
+    const handleDeleteOrganization = () => {
+        if ( isEditing ) return;
+
+
+        deleteOrga.mutate(
+            { organizationId: orgData.id },
+            {
+                onSuccess: () => {
+                    toast.success( "Organization deleted successfully." );
+                    navigate( "/" );
+
+                },
+                onError: ( error ) => {
+                    console.error( "Error deleting organization:", error );
+                }
+            }
+        )
+    }
+
     return (
         <PageWrapper>
-            <div className={ "max-w-[800px] w-full flex gap-6 justify-between" }>
-                <Alert className={ "max-w-max" }>
+            <div className={ "max-w-[800px] w-full flex gap-6 justify-between items-center" }>
+                <Alert className={ "max-w-max max-h-max" }>
                     <AlertDescription>
                         You are owner of this organization.
                     </AlertDescription>
@@ -31,6 +59,9 @@ export default function OrganizationOwnerView( { orgData }: Readonly<Organizatio
                     <UpdateOwnerDialog disabled={ isEditing } orgaData={ orgData }/>
                     <Button variant={ "outline" } onClick={ toggleEdit }>
                         { isEditing ? "Cancel Editing" : "Edit Organization" }
+                    </Button>
+                    <Button variant={ "destructive" } disabled={ isEditing } onClick={ handleDeleteOrganization }>
+                        Delete Organization
                     </Button>
                 </div>
             </div>

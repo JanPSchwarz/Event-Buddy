@@ -95,6 +95,7 @@ class UserServiceTest {
             .email( exampleUser.getEmail() )
             .id( "exampleUserId" )
             .name( exampleUser.getName() )
+            .organizations( List.of() )
             .avatarUrl( exampleUser.getAvatarUrl() )
             .build();
 
@@ -102,8 +103,15 @@ class UserServiceTest {
     @Test
     @DisplayName("Should return true when user found")
     void getUserDtoById_shouldReturnTrueWhenFound() {
+        AppUserDto userDtoWithoutOrgas = AppUserDto.builder()
+                .email( exampleUser.getEmail() )
+                .id( exampleUser.getId() )
+                .name( exampleUser.getName() )
+                .avatarUrl( exampleUser.getAvatarUrl() )
+                .build();
+
         exampleOrgaDto = exampleOrgaDto.toBuilder()
-                .owners( Set.of( exampleUserDto ) )
+                .owners( Set.of( userDtoWithoutOrgas ) )
                 .build();
 
         exampleUserDto = exampleUserDto.toBuilder()
@@ -126,10 +134,10 @@ class UserServiceTest {
         verify( mockOrganizationRepo ).findAllById( orgIds );
     }
 
+
     @Test
     @DisplayName("Should return true when minimal user found")
     void getUserDtoById_shouldReturnTrueWhenMinimalUserFound() {
-
         exampleUser = exampleUser.toBuilder()
                 .userSettings( exampleUserSettings.toBuilder()
                         .showEmail( false )
@@ -137,19 +145,20 @@ class UserServiceTest {
                         .build() )
                 .build();
 
-        exampleUserDto = exampleUserDto.toBuilder()
-                .email( null )
-                .avatarUrl( null )
+        AppUserDto userDtoWithoutOrgas = AppUserDto.builder()
+                .id( exampleUser.getId() )
+                .name( exampleUser.getName() )
                 .build();
 
         exampleOrgaDto = exampleOrgaDto.toBuilder()
-                .owners( Set.of( exampleUserDto ) )
+                .owners( Set.of( userDtoWithoutOrgas ) )
                 .build();
 
-        exampleUserDto = exampleUserDto.toBuilder()
+        exampleUserDto = AppUserDto.builder()
+                .name( exampleUser.getName() )
+                .id( exampleUser.getId() )
                 .organizations( List.of( exampleOrgaDto ) )
                 .build();
-
 
         List<String> orgIds = exampleUser.getOrganizations().stream().toList();
 
@@ -166,6 +175,7 @@ class UserServiceTest {
         verify( mockUserRepo ).findAllById( exampleOrganization.getOwners() );
         verify( mockOrganizationRepo ).findAllById( orgIds );
     }
+
 
     @Test
     @DisplayName("Should throw when user not found")
@@ -270,6 +280,7 @@ class UserServiceTest {
         AppUserDto expectedUserDto = AppUserDto.builder()
                 .name( exampleUserWithoutOrgas.getName() )
                 .id( exampleUserWithoutOrgas.getId() )
+                .organizations( List.of() )
                 .build();
 
         when( mockUserRepo.findById( exampleUserWithoutOrgas.getId() ) ).thenReturn( Optional.of( exampleUserWithoutOrgas ) );
@@ -280,6 +291,7 @@ class UserServiceTest {
 
         verify( mockUserRepo ).findById( exampleUserWithoutOrgas.getId() );
     }
+
 
     @Test
     @DisplayName("Should return true when set of users found by ids")

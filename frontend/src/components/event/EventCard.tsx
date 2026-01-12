@@ -20,8 +20,8 @@ export default function EventCard( { event }: Readonly<EventCardProps> ) {
     } )
 
     return (
-        <div className={ "flex flex-col" }>
-            <div className={ "flex justify-between px-2" }>
+        <div className={ "max-w-min" }>
+            <div className={ " px-2 flex justify-between" }>
                 <Text className={ "text-muted-foreground" }>
                     { event.location?.city }
                 </Text>

@@ -1,8 +1,88 @@
+import { NavLink, useParams } from "react-router";
+import { useGetRawEventById } from "@/api/generated/event-controller/event-controller.ts";
+import PageWrapper from "@/components/PageWrapper.tsx";
+import MainHeading from "@/components/shared/MainHeading.tsx";
+import CustomLoader from "@/components/CustomLoader.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { useContextUser } from "@/context/UserProvider.tsx";
+import { ArrowLeftIcon } from "lucide-react";
+import { Progress } from "@/components/ui/progress.tsx";
+import Text from "@/components/typography/Text.tsx";
+
 export default function EventDashBoardPage() {
 
+    const { eventId } = useParams();
+
+    const { user } = useContextUser();
+
+    const { data: eventData, isLoading } = useGetRawEventById( eventId || "", {
+        axios: { withCredentials: true },
+        query: {
+            enabled: !!eventId
+        }
+    } );
+
+    console.log( eventData?.data )
+
+    if ( isLoading ) {
+        return (
+            <CustomLoader/>
+        )
+    }
+
+    if ( !eventData?.data ) return null;
+
+    const maxTickets = eventData?.data?.maxTicketCapacity;
+    const freeTickets = eventData?.data?.freeTicketCapacity;
+
+    const progressValue = maxTickets && freeTickets ? ( ( maxTickets - freeTickets ) / maxTickets ) * 100 : 100;
+
     return (
-        <div>
-            events dashboard page
-        </div>
+        <PageWrapper>
+            <MainHeading heading={ "Event Manager" } subheading={ eventData.data.title || "" }/>
+            <div className={ "w-full flex justify-between" }>
+                <Button asChild variant={ "outline" }>
+                    <NavLink to={ `/dashboard/${ user.id }` }>
+                        <ArrowLeftIcon/>
+                        Go to dashboard
+                    </NavLink>
+                </Button>
+                <div className={ "space-x-4" }>
+                    <Button asChild>
+                        <NavLink to={ `/event/edit/${ eventData.data.id }` }>
+                            Download Guest List
+                        </NavLink>
+                    </Button>
+                    <Button asChild variant={ "outline" }>
+                        <NavLink to={ `/event/edit/${ eventData.data.id }` }>
+                            Edit Event
+                        </NavLink>
+                    </Button>
+                </div>
+            </div>
+            <div className={ "w-full space-y-4" }>
+                <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+                    Event Start:
+                </Text>
+                <Text className={ "text-primary font-bold" }>
+                    { new Date( eventData.data.eventDateTime ).toLocaleString() }
+                </Text>
+                <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+                    Tickets Sold: { maxTickets && freeTickets ? maxTickets - freeTickets : "Limitless Tickets" }
+                </Text>
+                <Progress value={ progressValue } className={ "w-full" }/>
+                <div className={ "flex justify-between" }>
+                    <Text>
+                        Max Tickets: { maxTickets ?? "no limit" }
+                    </Text>
+                    <Text>
+                        { progressValue }
+                    </Text>
+                    <Text>
+                        Free Tickets: { freeTickets ?? "n/a" }
+                    </Text>
+                </div>
+            </div>
+        </PageWrapper>
     )
 }

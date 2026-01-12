@@ -9,7 +9,7 @@ import Text from "@/components/typography/Text.tsx";
 import PageNotFound from "@/pages/PageNotFound.tsx";
 import OrganizationOwnerView from "@/components/organization/OrganizationOwnerView.tsx";
 
-export default function OrganizationPage() {
+export default function OrganizationDetailsPage() {
     const { orgaSlug } = useParams();
 
     const { user: loggedInUser, isLoading: isLoadingLoggedInUser } = useContextUser();

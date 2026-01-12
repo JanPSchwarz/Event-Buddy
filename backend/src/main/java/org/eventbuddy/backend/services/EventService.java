@@ -55,6 +55,31 @@ public class EventService {
         );
     }
 
+    public List<EventResponseDto> getEventsByOrganizationId( String organizationId ) {
+        List<Event> events = eventRepo.findAll();
+
+        List<Event> filteredEvents = events.stream()
+                .filter( event -> event.getEventOrganization().getId().equals( organizationId ) )
+                .toList();
+
+        return filteredEvents.stream()
+                .map( this::eventToEventResponseDtoMapper )
+                .toList();
+    }
+
+
+    public List<EventResponseDto> getEventByUserId( String userId ) {
+        List<Event> events = eventRepo.findAll();
+
+        List<Event> filteredEvents = events.stream()
+                .filter( event -> event.getEventOrganization().getOwners().contains( userId ) )
+                .toList();
+
+        return filteredEvents.stream()
+                .map( this::eventToEventResponseDtoMapper )
+                .toList();
+    }
+
     // === POST ===
 
     public Event createEvent( EventRequestDto eventDto, String imageId ) {

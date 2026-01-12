@@ -2,6 +2,7 @@ package org.eventbuddy.backend.models.app_user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
 
@@ -37,6 +38,7 @@ public record AppUserDto(
                 example = "[\"{OrganizationResponseDto Object}\"]",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
+        @NotNull
         List<OrganizationResponseDto> organizations
 ) {
 }

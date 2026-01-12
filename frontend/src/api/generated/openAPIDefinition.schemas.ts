@@ -252,7 +252,7 @@ export interface AppUserDto {
   /** Avatar URL of the user */
   readonly avatarUrl?: string;
   /** List of organizations the user is associated with */
-  readonly organizations?: readonly OrganizationResponseDto[];
+  readonly organizations: readonly OrganizationResponseDto[];
 }
 
 export interface OrganizationResponseDto {

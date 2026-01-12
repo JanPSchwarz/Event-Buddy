@@ -79,9 +79,6 @@ export default function ImageFormPart( {
         trackImageRemoval( true );
     }
 
-    console.log( "image source:", imageSource );
-    console.log( "image file:", imageFile );
-
     return (
         <FieldSet>
             <FieldLabel>

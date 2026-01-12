@@ -6,9 +6,11 @@ import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.UserSettings;
+import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationRequestDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
+import org.eventbuddy.backend.repos.EventRepository;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
@@ -29,6 +31,8 @@ public class OrganizationService {
     private final UserRepository userRepo;
 
     private final ImageRepository imageRepo;
+
+    private final EventRepository eventRepo;
 
     // === Public Organization Methods (DTO) ===
 
@@ -144,10 +148,28 @@ public class OrganizationService {
             removeOrganizationFromUser( organizationId, ownerId );
         }
 
+        deleteEventsOfOrganization( organizationId );
+
         organizationRepo.deleteById( organizationId );
     }
 
     // === Private Helper Methods ===
+
+    private void deleteEventsOfOrganization( String organizationId ) {
+        List<Event> events = eventRepo.findAll();
+
+        List<Event> filteredEvents = events.stream()
+                .filter( event -> event.getEventOrganization().getId().equals( organizationId ) )
+                .toList();
+
+        for ( Event event : filteredEvents ) {
+            if ( event.getImageId() != null ) {
+                imageRepo.deleteById( event.getImageId() );
+            }
+
+            eventRepo.deleteById( event.getId() );
+        }
+    }
 
     private Organization getOrganizationByIdOrThrow( String organizationId ) {
         return organizationRepo.findById( organizationId )
@@ -222,7 +244,7 @@ public class OrganizationService {
 
 
     private OrganizationResponseDto organizationToDtoMapper( Organization organization ) {
-        
+
         List<AppUser> owners = userRepo.findAllById( organization.getOwners() );
 
         if ( owners.isEmpty() || owners.size() != organization.getOwners().size() ) {

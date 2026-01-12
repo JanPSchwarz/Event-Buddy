@@ -124,7 +124,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                             <Input
                                 { ...field }
                                 aria-invalid={ fieldState.invalid }
-                                placeholder={ "12345" }
+                                placeholder={ "Germany" }
                             />
                         </Field>
                     )

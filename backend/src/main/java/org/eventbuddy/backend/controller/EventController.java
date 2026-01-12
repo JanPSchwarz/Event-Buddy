@@ -74,6 +74,28 @@ public class EventController {
         return ResponseEntity.ok( eventService.getEventById( eventId ) );
     }
 
+    @GetMapping("/byOrga/{organizationId}")
+    @Operation(
+            summary = "Get Event dtos by orga id",
+            description = "Get list of event dtos by orga id"
+
+    )
+    public ResponseEntity<List<EventResponseDto>> getEventsByOrgaId( @PathVariable String organizationId ) {
+
+        return ResponseEntity.ok( eventService.getEventsByOrganizationId( organizationId ) );
+    }
+
+    @GetMapping("/byUser/{userId}")
+    @Operation(
+            summary = "Get Event dtos by orga id",
+            description = "Get list of event dtos by orga id"
+
+    )
+    public ResponseEntity<List<EventResponseDto>> getEventsByUserId( @PathVariable String userId ) {
+
+        return ResponseEntity.ok( eventService.getEventByUserId( userId ) );
+    }
+
     @GetMapping("/raw/{eventId}")
     @Operation(
             summary = "Get Event by ID",

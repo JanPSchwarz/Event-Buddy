@@ -292,6 +292,41 @@ class EventControllerTest {
     }
 
     @Test
+    @DisplayName("Returns list of events found by orga id")
+    void getEventsByOrganizationId() throws Exception {
+        String expectedJson = objectMapper.writeValueAsString( List.of( savedExampleEventResponse ) );
+
+        mockMvc.perform( get( "/api/events/byOrga/" + savedOrganization.getId() )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() )
+                .andExpect( content().json( expectedJson ) );
+    }
+
+    @Test
+    @DisplayName("Returns list of events found by user id")
+    void getEventsByUserId() throws Exception {
+        String expectedJson = objectMapper.writeValueAsString( List.of( savedExampleEventResponse ) );
+
+        mockMvc.perform( get( "/api/events/byUser/" + savedAuthenticatedUserId )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() )
+                .andExpect( content().json( expectedJson ) );
+    }
+
+    @Test
+    @DisplayName("Returns empty list when no events found for user")
+    void getEventsByUserId_returnsEmpty() throws Exception {
+        String nonexistentUserId = "nonexistent";
+        String expectedJson = objectMapper.writeValueAsString( List.of() );
+
+        mockMvc.perform( get( "/api/events/byUser/" + nonexistentUserId )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() )
+                .andExpect( content().json( expectedJson ) );
+    }
+
+
+    @Test
     @DisplayName("Returns created event without image")
     void createEvent() throws Exception {
         String eventRequestDtoJson = objectMapper.writeValueAsString( exampleEventRequestDto );

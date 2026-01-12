@@ -141,10 +141,11 @@ public class UserService {
 
     private AppUserDto userToDtoMapper( AppUser user ) {
 
-        if ( !user.getUserSettings().showOrgas() || user.getOrganizations() == null ) {
+        if ( !user.getUserSettings().showOrgas() || user.getOrganizations() == null || user.getOrganizations().isEmpty() ) {
             return AppUserDto.builder()
                     .name( user.getName() )
                     .id( user.getId() )
+                    .organizations( List.of() )
                     .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
                     .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                     .build();

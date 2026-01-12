@@ -20,7 +20,7 @@ export default function EventsPage() {
     return (
         <PageWrapper className={ "space-y-12 mb-12" }>
             <div className={ "w-full space-y-4 flex flex-col" }>
-                <div className={ "w-full flex justify-between border-b border-primary" }>
+                <div className={ "w-full flex justify-between" }>
                     <MainHeading
                         heading={ "Events" }
                         subheading={ "Find or create a new Event" }

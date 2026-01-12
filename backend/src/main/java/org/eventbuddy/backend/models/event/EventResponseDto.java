@@ -27,6 +27,7 @@ public record EventResponseDto(
                 description = "Title of the event",
                 example = "Annual Meetup 2024"
         )
+        @NotNull
         String title,
 
         @Schema(

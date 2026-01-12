@@ -257,6 +257,59 @@ class EventServiceTest {
     }
 
     @Test
+    @DisplayName("Returns list of events found by orga id")
+    void getEventsByOrganizationId() {
+        when( eventRepo.findAll() ).thenReturn( List.of( exampleEvent ) );
+        when( userRepo.findAllById( exampleOrganization.getOwners() ) ).thenReturn( List.of( exampleUser ) );
+
+        List<EventResponseDto> actualEvents = eventService.getEventsByOrganizationId( exampleOrganization.getId() );
+
+        assertEquals( List.of( exampleEventResponseDto ), actualEvents );
+
+        verify( eventRepo ).findAll();
+        verify( userRepo ).findAllById( exampleOrganization.getOwners() );
+    }
+
+    @Test
+    @DisplayName("Returns empty list when no events found by orga id")
+    void getEventsByOrganizationId_noEventsFound() {
+        when( eventRepo.findAll() ).thenReturn( List.of() );
+
+        List<EventResponseDto> actualEvents = eventService.getEventsByOrganizationId( exampleOrganization.getId() );
+
+        assertEquals( List.of(), actualEvents );
+
+        verify( eventRepo ).findAll();
+    }
+
+    @Test
+    @DisplayName("Returns list of events found by user id")
+    void getEventByUserId() {
+        when( eventRepo.findAll() ).thenReturn( List.of( exampleEvent ) );
+        when( userRepo.findAllById( exampleOrganization.getOwners() ) ).thenReturn( List.of( exampleUser ) );
+
+        List<EventResponseDto> actualEvents = eventService.getEventByUserId( exampleUser.getId() );
+
+        assertEquals( List.of( exampleEventResponseDto ), actualEvents );
+
+        verify( eventRepo ).findAll();
+        verify( userRepo ).findAllById( exampleOrganization.getOwners() );
+    }
+
+    @Test
+    @DisplayName("Returns empty list when no events found by user id")
+    void getEventByUserId_noEventsFound() {
+        when( eventRepo.findAll() ).thenReturn( List.of() );
+
+        List<EventResponseDto> actualEvents = eventService.getEventByUserId( "nonExistentUserId" );
+
+        assertEquals( List.of(), actualEvents );
+
+        verify( eventRepo ).findAll();
+    }
+
+
+    @Test
     @DisplayName("Should return created event without image")
     void createEvent_withoutImage() {
         when( eventRepo.save( any( Event.class ) ) ).thenReturn( exampleEvent );
