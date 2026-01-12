@@ -25,8 +25,6 @@ export default function EditOrganizationForm( { organizationData, closeEdit }: R
     const queryClient = useQueryClient();
 
     const handleSubmit = ( organizationFormData: OrganizationRequestDto, imageFile: File | null, deleteImage: boolean | undefined ) => {
-
-
         if ( !organizationData.id ) {
             console.error( "Organization ID is missing. Cannot update organization." );
             return;

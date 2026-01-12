@@ -27,10 +27,12 @@ export default function DashboardPage() {
         }
     } );
 
+    console.log( "DashboardPage userDto:", userDto );
+
     return (
         <PageWrapper className={ "mb-12" }>
             <MainHeading heading={ "Your Dashboard" } subheading={ user.name }/>
-            <div className={ "w-4/5 space-y-4" }>
+            <div className={ "w-11/12 space-y-12" }>
                 <div className={ "flex flex-col gap-2" }>
                     <Text className={ "border-b" }>
                         Your Orgas
@@ -57,7 +59,7 @@ export default function DashboardPage() {
             </div>
             {
                 eventsByUser?.data && eventsByUser?.data?.length > 0 &&
-                <div className={ "w-4/5 space-y-4 mt-8" }>
+                <div className={ "w-11/12 space-y-12 mt-8" }>
                     <div className={ "flex flex-col gap-2" }>
                         <Text className={ "border-b" }>
                             Your Events

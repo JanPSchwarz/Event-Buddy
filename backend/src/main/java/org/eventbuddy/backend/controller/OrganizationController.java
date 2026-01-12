@@ -203,9 +203,9 @@ public class OrganizationController {
         isOrgaOwnerOrSuperAdmin( authToken, organizationId );
 
         if ( file != null ) {
-            imageService.updateImage( organizationId, file );
+            imageService.updateOrganizationImage( organizationId, file );
         } else if ( deleteImage.orElse( false ) ) {
-            imageService.deleteImage( organizationId );
+            imageService.deleteImageFromOrganization( organizationId );
         }
 
         Organization organization = organizationService.updateOrganization( organizationId, updatedOrganization );

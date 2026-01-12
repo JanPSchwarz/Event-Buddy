@@ -106,7 +106,7 @@ export default function ImageFormPart( {
                 :
                 <div
                     role={ "button" }
-                    className={ "cursor-pointer relative" }
+                    className={ "cursor-pointer relative max-w-[600px] w-full mx-auto" }
                     aria-label={ "click to select image for upload" }
                     tabIndex={ 0 }
                     onKeyDown={ ( e ) => {

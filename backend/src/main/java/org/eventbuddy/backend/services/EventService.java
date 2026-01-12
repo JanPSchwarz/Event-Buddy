@@ -1,5 +1,6 @@
 package org.eventbuddy.backend.services;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
@@ -94,6 +95,33 @@ public class EventService {
         return eventRepo.save( mappedEvent );
     }
 
+    // === PUT ===
+
+    public Event updateEvent( String eventId, @Valid EventRequestDto updateEventData ) {
+        Event existingEvent = eventRepo.findById( eventId ).orElseThrow( () ->
+                new ResourceNotFoundException( "Event not found with id:" + eventId )
+        );
+
+        Organization organization = orgaRepo.findById( updateEventData.organizationId() ).orElseThrow(
+                () -> new ResourceNotFoundException( "Organization not found with id: " + updateEventData.organizationId() )
+        );
+
+        Event updatedEvent = existingEvent.toBuilder()
+                .eventOrganization( organization )
+                .title( updateEventData.title() )
+                .description( updateEventData.description() )
+                .eventDateTime( updateEventData.eventDateTime() )
+                .location( updateEventData.location() )
+                .price( updateEventData.price() )
+                .maxTicketCapacity( updateEventData.maxTicketCapacity() )
+                .freeTicketCapacity( existingEvent.getFreeTicketCapacity() )
+                .maxPerBooking( updateEventData.maxPerBooking() )
+                .build();
+
+
+        return eventRepo.save( updatedEvent );
+    }
+
     // === Mappers ===
 
     private Event eventRequestDtoToEventMapper( EventRequestDto eventDto ) {
@@ -142,6 +170,7 @@ public class EventService {
                 .id( org.getId() )
                 .name( org.getName() )
                 .slug( org.getSlug() )
+                .imageId( org.getImageId() )
                 .location( org.getLocation() )
                 .owners( ownersDto )
                 .build();

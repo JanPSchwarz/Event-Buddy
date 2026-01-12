@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -47,6 +48,8 @@ public class EventController {
         this.authService = authService;
         this.imageService = imageService;
     }
+
+    // === GET Endpoints ===
 
     @GetMapping("/all")
     @Operation(
@@ -114,6 +117,8 @@ public class EventController {
         return ResponseEntity.ok( eventService.getRawEventById( eventId ) );
     }
 
+    // === POST Endpoints ===
+
     @PostMapping(
             path = "/create",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -145,6 +150,14 @@ public class EventController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @ApiResponse(
+            responseCode = "413",
+            description = "Payload too large",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
     public ResponseEntity<Event> createEvent(
             @Nullable @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             @Valid @RequestPart("event") EventRequestDto eventRequestDto,
@@ -159,6 +172,60 @@ public class EventController {
         }
 
         return ResponseEntity.ok( eventService.createEvent( eventRequestDto, imageId ) );
+    }
+
+    // === PUT Endpoints ===
+
+    @PutMapping(
+            path = "/{eventId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @Operation(
+            summary = "Update an event (Organization Owners / Super Admin only)",
+            description = "Updates the event with the specified ID and returns the updated event."
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "User not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Event/organization not found",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "413",
+            description = "Payload too large",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    public ResponseEntity<Event> updateEvent(
+            OAuth2AuthenticationToken authToken,
+            @Nullable @RequestPart(value = "imageFile", required = false) MultipartFile file,
+            Optional<Boolean> deleteImage,
+            @PathVariable String eventId,
+            @Valid @RequestPart("updateEvent") EventRequestDto updateEventData
+    ) throws IOException {
+        checkIsOrganizationOwnerOrSuperAdmin( eventId, authToken );
+
+        if ( file != null ) {
+            imageService.updateEventImage( eventId, file );
+        } else if ( deleteImage.orElse( false ) ) {
+            imageService.deleteImageFromEvent( eventId );
+        }
+
+        Event updatedEvent = eventService.updateEvent( eventId, updateEventData );
+
+        return ResponseEntity.ok( updatedEvent );
     }
 
     // == Helper methods ==

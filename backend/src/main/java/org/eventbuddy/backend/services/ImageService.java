@@ -6,8 +6,10 @@ import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
 import org.eventbuddy.backend.enums.ImageType;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
+import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.image.Image;
 import org.eventbuddy.backend.models.organization.Organization;
+import org.eventbuddy.backend.repos.EventRepository;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ public class ImageService {
     private final ImageRepository imageRepo;
 
     private final OrganizationRepository organizationRepo;
+
+    private final EventRepository eventRepo;
 
     public Image getImageById( String imageUrl ) {
         return imageRepo.findById( imageUrl ).orElseThrow(
@@ -58,7 +62,7 @@ public class ImageService {
         return savedImage.getImageId();
     }
 
-    public String updateImage( String organizationId, MultipartFile imageData ) throws IOException {
+    public String updateOrganizationImage( String organizationId, MultipartFile imageData ) throws IOException {
 
         Organization organization = organizationRepo.findById( organizationId ).orElseThrow(
                 () -> new ResourceNotFoundException( "Organization not found with ID: " + organizationId )
@@ -94,7 +98,51 @@ public class ImageService {
         }
     }
 
-    public void deleteImage( String organizationId ) {
+    public String updateEventImage( String eventId, MultipartFile imageData ) throws IOException {
+
+        Event event = eventRepo.findById( eventId ).orElseThrow(
+                () -> new ResourceNotFoundException( "Event not found with ID: " + eventId )
+        );
+        String existingImageId = event.getImageId();
+
+        if ( existingImageId != null ) {
+            Image image = imageRepo.findById( existingImageId ).orElseThrow(
+                    () -> new ResourceNotFoundException( "Image not found with ID: " + existingImageId )
+            );
+            Binary imageBinary = new org.bson.types.Binary( BsonBinarySubType.BINARY, imageData.getBytes() );
+            Image updatedImage = image.toBuilder()
+                    .imageData( imageBinary )
+                    .contentType( imageData.getContentType() )
+                    .build();
+            Image savedImage = imageRepo.save( updatedImage );
+            return savedImage.getImageId();
+        } else {
+            String newImageId = storeImage( imageData );
+            Event updatedEvent = event.toBuilder()
+                    .imageId( newImageId )
+                    .build();
+            Event savedEvent = eventRepo.save( updatedEvent );
+
+            return savedEvent.getImageId();
+        }
+    }
+
+    public void deleteImageFromEvent( String eventId ) {
+        Event event = eventRepo.findById( eventId ).orElseThrow(
+                () -> new ResourceNotFoundException( "Event not found with ID: " + eventId )
+        );
+
+        if ( event.getImageId() != null ) {
+            Event updatedEvent = event.toBuilder()
+                    .imageId( null )
+                    .build();
+
+            eventRepo.save( updatedEvent );
+            imageRepo.deleteById( event.getImageId() );
+        }
+    }
+
+    public void deleteImageFromOrganization( String organizationId ) {
         Organization organization = organizationRepo.findById( organizationId ).orElseThrow(
                 () -> new ResourceNotFoundException( "Organization not found with ID: " + organizationId )
         );

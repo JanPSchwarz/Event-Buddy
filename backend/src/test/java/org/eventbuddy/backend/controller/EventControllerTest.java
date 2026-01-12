@@ -410,4 +410,167 @@ class EventControllerTest {
                 .andExpect( jsonPath( "$.error" ).value( "Event date and time must be in the future." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
+
+    @Test
+    @DisplayName("Updates event successfully without image")
+    void updateEvent() throws Exception {
+        EventRequestDto updateEventDto = exampleEventRequestDto.toBuilder()
+                .title( "Updated Event Title" )
+                .price( 9.99 )
+                .build();
+
+        String eventRequestDtoJson = objectMapper.writeValueAsString( updateEventDto );
+
+        MockPart eventPart = new MockPart( "updateEvent", "eventUpdate.json", eventRequestDtoJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/events/" + savedExampleEvent.getId() )
+                        .part( eventPart )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( savedExampleEvent.getId() ) )
+                .andExpect( jsonPath( "$.title" ).value( "Updated Event Title" ) )
+                .andExpect( jsonPath( "$.price" ).value( 9.99 ) );
+    }
+
+    @Test
+    @DisplayName("Updates event with new image")
+    void updateEvent_withImage() throws Exception {
+        EventRequestDto updateEventDto = exampleEventRequestDto.toBuilder()
+                .title( "Updated Event" )
+                .build();
+
+        String eventRequestDtoJson = objectMapper.writeValueAsString( updateEventDto );
+
+        MockPart imagePart = new MockPart( "imageFile", "updatedImage.jpg", "newImageContent".getBytes() ) {{
+            getHeaders().add( "Content-Type", "image/jpeg" );
+        }};
+
+        MockPart eventPart = new MockPart( "updateEvent", "eventUpdate.json", eventRequestDtoJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/events/" + savedExampleEvent.getId() )
+                        .part( imagePart )
+                        .part( eventPart )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( savedExampleEvent.getId() ) )
+                .andExpect( jsonPath( "$.title" ).value( "Updated Event" ) );
+    }
+
+    @Test
+    @DisplayName("Updates event with image deletion")
+    void updateEvent_withImageDeletion() throws Exception {
+        EventRequestDto updateEventDto = exampleEventRequestDto.toBuilder()
+                .title( "Updated Event" )
+                .build();
+
+        String eventRequestDtoJson = objectMapper.writeValueAsString( updateEventDto );
+
+        MockPart eventPart = new MockPart( "updateEvent", "eventUpdate.json", eventRequestDtoJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/events/" + savedExampleEvent.getId() )
+                        .part( eventPart )
+                        .param( "deleteImage", "true" )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.imageId" ).isEmpty() )
+                .andExpect( jsonPath( "$.id" ).value( savedExampleEvent.getId() ) )
+                .andExpect( jsonPath( "$.title" ).value( "Updated Event" ) );
+    }
+
+    @Test
+    @DisplayName("Update event throws 401 when not authorized")
+    void updateEvent_throws401WhenNotAuthorized() throws Exception {
+        Organization orgaWithForeignOwner = savedOrganization.toBuilder()
+                .owners( Set.of( "foreignOwnerId" ) )
+                .build();
+
+        organizationRepo.save( orgaWithForeignOwner );
+
+        String eventRequestDtoJson = objectMapper.writeValueAsString( exampleEventRequestDto );
+
+        MockPart eventPart = new MockPart( "updateEvent", "eventUpdate.json", eventRequestDtoJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/events/" + savedExampleEvent.getId() )
+                        .part( eventPart )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isUnauthorized() )
+                .andExpect( jsonPath( "$.error" ).value( "Your are not allowed to perform this action." ) );
+    }
+
+    @Test
+    @DisplayName("Updates event when called by super admin")
+    @WithCustomSuperAdmin
+    void updateEvent_whenCalledBySuperAdmin() throws Exception {
+        Organization orgaWithForeignOwner = savedOrganization.toBuilder()
+                .owners( Set.of( "foreignOwnerId" ) )
+                .build();
+
+        organizationRepo.save( orgaWithForeignOwner );
+
+        EventRequestDto updateEventDto = exampleEventRequestDto.toBuilder()
+                .title( "Super Admin Update" )
+                .build();
+
+        String eventRequestDtoJson = objectMapper.writeValueAsString( updateEventDto );
+
+        MockPart eventPart = new MockPart( "updateEvent", "eventUpdate.json", eventRequestDtoJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/events/" + savedExampleEvent.getId() )
+                        .part( eventPart )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.title" ).value( "Super Admin Update" ) );
+    }
+
+    @Test
+    @DisplayName("Update event throws 404 when event not found")
+    void updateEvent_throws404WhenEventNotFound() throws Exception {
+        String nonexistentEventId = "nonexistent";
+        String eventRequestDtoJson = objectMapper.writeValueAsString( exampleEventRequestDto );
+
+        MockPart eventPart = new MockPart( "updateEvent", "eventUpdate.json", eventRequestDtoJson.getBytes() ) {{
+            getHeaders().add( "Content-Type", MediaType.APPLICATION_JSON_VALUE );
+        }};
+
+        mockMvc.perform( multipart( "/api/events/" + nonexistentEventId )
+                        .part( eventPart )
+                        .with( request -> {
+                            request.setMethod( "PUT" );
+                            return request;
+                        } )
+                        .contentType( MediaType.MULTIPART_FORM_DATA ) )
+                .andExpect( status().isNotFound() )
+                .andExpect( jsonPath( "$.error" ).value( "Event not found with id: " + nonexistentEventId ) );
+    }
+
 }

@@ -34,7 +34,8 @@ import type {
   CreateEventBody,
   ErrorMessage,
   Event,
-  EventResponseDto
+  EventResponseDto,
+  UpdateEventBody
 } from '../openAPIDefinition.schemas';
 
 
@@ -42,73 +43,6 @@ import type {
 
 
 /**
- * Create a new event with the provided details
- * @summary Create a new Event
- */
-export const createEvent = (
-    createEventBody: CreateEventBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Event>> => {
-    
-    const formData = new FormData();
-if(createEventBody.imageFile !== undefined) {
- formData.append(`imageFile`, createEventBody.imageFile)
- }
-formData.append(`event`, JSON.stringify(createEventBody.event));
-
-    return axios.default.post(
-      `http://localhost:8080/api/events/create`,
-      formData,options
-    );
-  }
-
-
-
-export const getCreateEventMutationOptions = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: CreateEventBody}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: CreateEventBody}, TContext> => {
-
-const mutationKey = ['createEvent'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEvent>>, {data: CreateEventBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  createEvent(data,axiosOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CreateEventMutationResult = NonNullable<Awaited<ReturnType<typeof createEvent>>>
-    export type CreateEventMutationBody = CreateEventBody
-    export type CreateEventMutationError = AxiosError<ErrorMessage>
-
-    /**
- * @summary Create a new Event
- */
-export const useCreateEvent = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: CreateEventBody}, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof createEvent>>,
-        TError,
-        {data: CreateEventBody},
-        TContext
-      > => {
-
-      const mutationOptions = getCreateEventMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
  * Retrieve an event by its unique ID
  * @summary Get Event dto by ID
  */
@@ -200,6 +134,144 @@ export function useGetEventById<TData = Awaited<ReturnType<typeof getEventById>>
 
 
 /**
+ * Updates the event with the specified ID and returns the updated event.
+ * @summary Update an event (Organization Owners / Super Admin only)
+ */
+export const updateEvent = (
+    eventId: string,
+    updateEventBody: UpdateEventBody, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<Event>> => {
+    
+    const formData = new FormData();
+if(updateEventBody.imageFile !== undefined) {
+ formData.append(`imageFile`, updateEventBody.imageFile)
+ }
+if(updateEventBody.deleteImage !== undefined) {
+ formData.append(`deleteImage`, updateEventBody.deleteImage.toString())
+ }
+formData.append(`updateEvent`, JSON.stringify(updateEventBody.updateEvent));
+
+    return axios.default.put(
+      `http://localhost:8080/api/events/${eventId}`,
+      formData,options
+    );
+  }
+
+
+
+export const getUpdateEventMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEvent>>, TError,{eventId: string;data: UpdateEventBody}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEvent>>, TError,{eventId: string;data: UpdateEventBody}, TContext> => {
+
+const mutationKey = ['updateEvent'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEvent>>, {eventId: string;data: UpdateEventBody}> = (props) => {
+          const {eventId,data} = props ?? {};
+
+          return  updateEvent(eventId,data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEventMutationResult = NonNullable<Awaited<ReturnType<typeof updateEvent>>>
+    export type UpdateEventMutationBody = UpdateEventBody
+    export type UpdateEventMutationError = AxiosError<ErrorMessage>
+
+    /**
+ * @summary Update an event (Organization Owners / Super Admin only)
+ */
+export const useUpdateEvent = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEvent>>, TError,{eventId: string;data: UpdateEventBody}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateEvent>>,
+        TError,
+        {eventId: string;data: UpdateEventBody},
+        TContext
+      > => {
+
+      const mutationOptions = getUpdateEventMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * Create a new event with the provided details
+ * @summary Create a new Event
+ */
+export const createEvent = (
+    createEventBody: CreateEventBody, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<Event>> => {
+    
+    const formData = new FormData();
+if(createEventBody.imageFile !== undefined) {
+ formData.append(`imageFile`, createEventBody.imageFile)
+ }
+formData.append(`event`, JSON.stringify(createEventBody.event));
+
+    return axios.default.post(
+      `http://localhost:8080/api/events/create`,
+      formData,options
+    );
+  }
+
+
+
+export const getCreateEventMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: CreateEventBody}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: CreateEventBody}, TContext> => {
+
+const mutationKey = ['createEvent'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEvent>>, {data: CreateEventBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEvent(data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEventMutationResult = NonNullable<Awaited<ReturnType<typeof createEvent>>>
+    export type CreateEventMutationBody = CreateEventBody
+    export type CreateEventMutationError = AxiosError<ErrorMessage>
+
+    /**
+ * @summary Create a new Event
+ */
+export const useCreateEvent = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEvent>>, TError,{data: CreateEventBody}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createEvent>>,
+        TError,
+        {data: CreateEventBody},
+        TContext
+      > => {
+
+      const mutationOptions = getCreateEventMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * Retrieve an event by its unique ID
  * @summary Get Event by ID
  */

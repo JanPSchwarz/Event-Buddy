@@ -282,7 +282,7 @@ export interface EventResponseDto {
   /** Organization (dto) the event belongs to */
   eventOrganization: OrganizationResponseDto;
   /** Title of the event */
-  title?: string;
+  title: string;
   /** Description of the event */
   description?: string;
   /** Iso Date and time of the event */
@@ -305,6 +305,12 @@ export type UpdateOrganizationBody = {
   image?: Blob;
   deleteImage?: boolean;
   updateOrganization: OrganizationRequestDto;
+};
+
+export type UpdateEventBody = {
+  imageFile?: Blob;
+  deleteImage?: boolean;
+  updateEvent: EventRequestDto;
 };
 
 export type CreateOrganizationBody = {

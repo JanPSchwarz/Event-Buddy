@@ -70,7 +70,7 @@ type EventFormData = z.infer<typeof formSchema>
 type EventFormProps = {
     eventData?: Event;
     user: AppUserDto;
-    onSubmit: ( data: EventRequestDto, file: File | null ) => void;
+    onSubmit: ( data: EventRequestDto, file: File | null, deleteImage: boolean ) => void;
 }
 
 export default function EventForm( { eventData, user, onSubmit }: Readonly<EventFormProps> ) {
@@ -93,7 +93,9 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
             organizationId: eventData?.eventOrganization.id || "",
             title: eventData?.title || "",
             description: eventData?.description || "",
-            eventDateTime: eventData?.eventDateTime || "",
+            eventDateTime: eventData?.eventDateTime
+                ? new Date( eventData.eventDateTime ).toISOString().slice( 0, 16 )
+                : "",
             address: eventData?.location?.address || "",
             city: eventData?.location?.city || "",
             zipCode: eventData?.location?.zipCode || "",
@@ -108,8 +110,6 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
     const suppressSubmit = ( !form.formState.isDirty && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: EventFormData ) => {
-        console.log( form.formState )
-        console.log( "Event Form Data:", data );
 
         if ( suppressSubmit ) {
             console.log( "Form is dirty or is submitting, returning early." );
@@ -133,7 +133,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
             maxPerBooking: data.maxPerBooking || undefined,
         };
 
-        onSubmit( eventRequestDto, imageFile );
+        onSubmit( eventRequestDto, imageFile, isImageDeletion );
     }
 
     const handleImageFile = ( file: File | null ) => {

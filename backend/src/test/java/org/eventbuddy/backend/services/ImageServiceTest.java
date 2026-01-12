@@ -4,8 +4,10 @@ import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
 import org.eventbuddy.backend.enums.ImageType;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
+import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.image.Image;
 import org.eventbuddy.backend.models.organization.Organization;
+import org.eventbuddy.backend.repos.EventRepository;
 import org.eventbuddy.backend.repos.ImageRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,9 @@ class ImageServiceTest {
 
     @Mock
     OrganizationRepository mockOrganizationRepo;
+
+    @Mock
+    EventRepository mockEventRepo;
 
     @InjectMocks
     ImageService mockImageService;
@@ -138,7 +143,7 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should return true when Image updated")
-    void updateImage_shouldReturnTrueWhenImageUpdated() throws IOException {
+    void updateImage_shouldReturnTrueWhenOrganizationImageUpdated() throws IOException {
 
         byte[] imageDataBytes = "fake image content".getBytes();
 
@@ -163,7 +168,7 @@ class ImageServiceTest {
         when( mockImageRepo.save( givenImage ) ).thenReturn( givenImage );
         when( mockImageRepo.findById( givenImageId ) ).thenReturn( Optional.of( givenImage ) );
 
-        String actualImageId = mockImageService.updateImage( givenOrganizationId, mockFile );
+        String actualImageId = mockImageService.updateOrganizationImage( givenOrganizationId, mockFile );
 
         assertEquals( givenImageId, actualImageId );
 
@@ -174,7 +179,7 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should return true when Image created on update")
-    void updateImage_shouldReturnTrueWhenImageCreatedOnUpdate() throws IOException {
+    void updateImage_shouldReturnTrueWhenImageCreatedOnUpdateOrganization() throws IOException {
 
         byte[] imageDataBytes = "fake image content".getBytes();
 
@@ -205,7 +210,7 @@ class ImageServiceTest {
         when( mockImageRepo.save( imageToSave ) ).thenReturn( savedImage );
         when( mockOrganizationRepo.save( updatedOrganization ) ).thenReturn( updatedOrganization );
 
-        String actualImageId = mockImageService.updateImage( givenOrganizationId, mockFile );
+        String actualImageId = mockImageService.updateOrganizationImage( givenOrganizationId, mockFile );
 
         assertEquals( givenImageId, actualImageId );
 
@@ -216,7 +221,7 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should throw when Image not found on update")
-    void updateImage_shouldThrowWhenImageNotFound() {
+    void updateImage_shouldThrowWhenOrganizationImageNotFound() {
         String organizationId = "org123";
         String imageId = "img123";
 
@@ -234,7 +239,7 @@ class ImageServiceTest {
         when( mockImageRepo.findById( imageId ) ).thenReturn( Optional.empty() );
 
         assertThatThrownBy( () ->
-                mockImageService.updateImage( organizationId, mockFile ) )
+                mockImageService.updateOrganizationImage( organizationId, mockFile ) )
                 .isInstanceOf( ResourceNotFoundException.class )
                 .hasMessage( "Image not found with ID: " + imageId );
 
@@ -244,7 +249,7 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should throw when Organization not found on update")
-    void updateImage_shouldThrowWhenOrganizationNotFound() {
+    void updateOrganizationImage_shouldThrowWhenOrganizationNotFound() {
         String organizationId = "nonExistingOrgId";
 
         byte[] imageDataBytes = "fake image content".getBytes();
@@ -254,7 +259,7 @@ class ImageServiceTest {
         when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.empty() );
 
         assertThatThrownBy( () ->
-                mockImageService.updateImage( organizationId, mockFile ) )
+                mockImageService.updateOrganizationImage( organizationId, mockFile ) )
                 .isInstanceOf( ResourceNotFoundException.class )
                 .hasMessage( "Organization not found with ID: " + organizationId );
 
@@ -263,7 +268,7 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should return true when image deleted")
-    void deleteImage_shouldReturnTrueWhenImageDeleted() {
+    void deleteImage_shouldReturnTrueWhenImageFromOrganizationDeleted() {
         String organizationId = "org123";
         String imageId = "img123";
 
@@ -279,7 +284,7 @@ class ImageServiceTest {
         when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.of( givenOrganization ) );
         when( mockOrganizationRepo.save( updatedOrganization ) ).thenReturn( updatedOrganization );
 
-        mockImageService.deleteImage( organizationId );
+        mockImageService.deleteImageFromOrganization( organizationId );
 
         verify( mockOrganizationRepo ).findById( organizationId );
         verify( mockOrganizationRepo ).save( updatedOrganization );
@@ -287,13 +292,13 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should throw 404 when organization not found")
-    void deleteImage_shouldThrowWhenOrganizationNotFound() {
+    void deleteImage_FromOrganization_shouldThrowWhenOrganizationNotFound() {
         String organizationId = "nonExistingOrgId";
 
         when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.empty() );
 
         assertThatThrownBy( () ->
-                mockImageService.deleteImage( organizationId ) )
+                mockImageService.deleteImageFromOrganization( organizationId ) )
                 .isInstanceOf( ResourceNotFoundException.class )
                 .hasMessage( "Organization not found with ID: " + organizationId );
 
@@ -302,7 +307,7 @@ class ImageServiceTest {
 
     @Test
     @DisplayName("Should do nothing when organization has no image")
-    void deleteImage_shouldDoNothingWhenNoImageToDelete() {
+    void deleteImage_shouldDoNothingWhenNoImageToDeleteFromOrganization() {
         String organizationId = "org123";
 
         Organization givenOrganization = Organization.builder()
@@ -312,9 +317,185 @@ class ImageServiceTest {
 
         when( mockOrganizationRepo.findById( organizationId ) ).thenReturn( Optional.of( givenOrganization ) );
 
-        mockImageService.deleteImage( organizationId );
+        mockImageService.deleteImageFromOrganization( organizationId );
 
         verify( mockOrganizationRepo ).findById( organizationId );
         verifyNoInteractions( mockImageRepo );
     }
+
+    @Test
+    @DisplayName("Should return true when Event Image updated")
+    void updateEventImage_shouldReturnTrueWhenEventImageUpdated() throws IOException {
+        byte[] imageDataBytes = "fake image content".getBytes();
+        MultipartFile mockFile = new MockMultipartFile( "file", null, "image/jpeg", imageDataBytes );
+
+        String givenEventId = "event123";
+        String givenImageId = "123";
+
+        Image givenImage = Image.builder()
+                .imageId( givenImageId )
+                .contentType( mockFile.getContentType() )
+                .imageData( new Binary( BsonBinarySubType.BINARY, imageDataBytes ) )
+                .build();
+
+        Event givenEvent = Event.builder()
+                .id( givenEventId )
+                .imageId( givenImageId )
+                .build();
+
+        when( mockEventRepo.findById( givenEventId ) ).thenReturn( Optional.of( givenEvent ) );
+        when( mockImageRepo.findById( givenImageId ) ).thenReturn( Optional.of( givenImage ) );
+        when( mockImageRepo.save( givenImage ) ).thenReturn( givenImage );
+
+        String actualImageId = mockImageService.updateEventImage( givenEventId, mockFile );
+
+        assertEquals( givenImageId, actualImageId );
+
+        verify( mockEventRepo ).findById( givenEventId );
+        verify( mockImageRepo ).findById( givenImageId );
+        verify( mockImageRepo ).save( givenImage );
+    }
+
+    @Test
+    @DisplayName("Should return true when Image created on update Event")
+    void updateEventImage_shouldReturnTrueWhenImageCreatedOnUpdateEvent() throws IOException {
+        byte[] imageDataBytes = "fake image content".getBytes();
+        MultipartFile mockFile = new MockMultipartFile( "file", null, "image/jpeg", imageDataBytes );
+
+        String givenEventId = "event123";
+        String givenImageId = "123";
+
+        Image imageToSave = Image.builder()
+                .contentType( mockFile.getContentType() )
+                .imageData( new Binary( BsonBinarySubType.BINARY, imageDataBytes ) )
+                .build();
+
+        Image savedImage = imageToSave.toBuilder()
+                .imageId( givenImageId )
+                .build();
+
+        Event givenEvent = Event.builder()
+                .id( givenEventId )
+                .build();
+
+        Event updatedEvent = givenEvent.toBuilder()
+                .imageId( givenImageId )
+                .build();
+
+        when( mockEventRepo.findById( givenEventId ) ).thenReturn( Optional.of( givenEvent ) );
+        when( mockImageRepo.save( imageToSave ) ).thenReturn( savedImage );
+        when( mockEventRepo.save( updatedEvent ) ).thenReturn( updatedEvent );
+
+        String actualImageId = mockImageService.updateEventImage( givenEventId, mockFile );
+
+        assertEquals( givenImageId, actualImageId );
+
+        verify( mockEventRepo ).findById( givenEventId );
+        verify( mockImageRepo ).save( imageToSave );
+        verify( mockEventRepo ).save( updatedEvent );
+    }
+
+    @Test
+    @DisplayName("Should throw when Event Image not found on update")
+    void updateEventImage_shouldThrowWhenEventImageNotFound() {
+        String eventId = "event123";
+        String imageId = "img123";
+
+        byte[] imageDataBytes = "fake image content".getBytes();
+        MultipartFile mockFile = new MockMultipartFile( "file", null, "image/jpeg", imageDataBytes );
+
+        Event givenEvent = Event.builder()
+                .id( eventId )
+                .imageId( imageId )
+                .build();
+
+        when( mockEventRepo.findById( eventId ) ).thenReturn( Optional.of( givenEvent ) );
+        when( mockImageRepo.findById( imageId ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                mockImageService.updateEventImage( eventId, mockFile ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Image not found with ID: " + imageId );
+
+        verify( mockEventRepo ).findById( eventId );
+        verify( mockImageRepo ).findById( imageId );
+    }
+
+    @Test
+    @DisplayName("Should throw when Event not found on update")
+    void updateEventImage_shouldThrowWhenEventNotFound() {
+        String eventId = "nonExistingEventId";
+
+        byte[] imageDataBytes = "fake image content".getBytes();
+        MultipartFile mockFile = new MockMultipartFile( "file", null, "image/jpeg", imageDataBytes );
+
+        when( mockEventRepo.findById( eventId ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                mockImageService.updateEventImage( eventId, mockFile ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Event not found with ID: " + eventId );
+
+        verify( mockEventRepo ).findById( eventId );
+    }
+
+    @Test
+    @DisplayName("Should delete image from Event successfully")
+    void deleteImageFromEvent_shouldDeleteImageSuccessfully() {
+        String eventId = "event123";
+        String imageId = "img123";
+
+        Event givenEvent = Event.builder()
+                .id( eventId )
+                .imageId( imageId )
+                .build();
+
+        Event updatedEvent = givenEvent.toBuilder()
+                .imageId( null )
+                .build();
+
+        when( mockEventRepo.findById( eventId ) ).thenReturn( Optional.of( givenEvent ) );
+        when( mockEventRepo.save( updatedEvent ) ).thenReturn( updatedEvent );
+
+        mockImageService.deleteImageFromEvent( eventId );
+
+        verify( mockEventRepo ).findById( eventId );
+        verify( mockEventRepo ).save( updatedEvent );
+        verify( mockImageRepo ).deleteById( imageId );
+    }
+
+    @Test
+    @DisplayName("Should throw when Event not found on delete")
+    void deleteImageFromEvent_shouldThrowWhenEventNotFound() {
+        String eventId = "nonExistingEventId";
+
+        when( mockEventRepo.findById( eventId ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                mockImageService.deleteImageFromEvent( eventId ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Event not found with ID: " + eventId );
+
+        verify( mockEventRepo ).findById( eventId );
+    }
+
+    @Test
+    @DisplayName("Should do nothing when Event has no image")
+    void deleteImageFromEvent_shouldDoNothingWhenNoImageToDelete() {
+        String eventId = "event123";
+
+        Event givenEvent = Event.builder()
+                .id( eventId )
+                .imageId( null )
+                .build();
+
+        when( mockEventRepo.findById( eventId ) ).thenReturn( Optional.of( givenEvent ) );
+
+        mockImageService.deleteImageFromEvent( eventId );
+
+        verify( mockEventRepo ).findById( eventId );
+        verifyNoInteractions( mockImageRepo );
+    }
+
+
 }

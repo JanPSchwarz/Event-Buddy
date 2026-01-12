@@ -88,6 +88,7 @@ class UserServiceTest {
             .contact( exampleOrganization.getContact() )
             .location( exampleOrganization.getLocation() )
             .website( exampleOrganization.getWebsite() )
+            .imageId( exampleOrganization.getImageId() )
             .description( exampleOrganization.getDescription() )
             .build();
 

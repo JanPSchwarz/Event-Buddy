@@ -209,6 +209,7 @@ public class UserService {
         return OrganizationResponseDto.builder()
                 .name( organization.getName() )
                 .id( organization.getId() )
+                .imageId( organization.getImageId() )
                 .description( organization.getDescription() )
                 .website( organization.getWebsite() )
                 .slug( organization.getSlug() )

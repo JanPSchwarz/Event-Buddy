@@ -376,4 +376,90 @@ class EventServiceTest {
 
         verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
     }
+
+    @Test
+    @DisplayName("Should return updated event")
+    void updateEvent() {
+        Event updatedEvent = exampleEvent.toBuilder()
+                .title( "Updated Event Title" )
+                .description( "Updated description" )
+                .build();
+
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( exampleEvent ) );
+        when( orgaRepo.findById( exampleEventRequestDto.organizationId() ) ).thenReturn( Optional.of( exampleOrganization ) );
+        when( eventRepo.save( any( Event.class ) ) ).thenReturn( updatedEvent );
+
+        EventRequestDto updateDto = exampleEventRequestDto.toBuilder()
+                .title( "Updated Event Title" )
+                .description( "Updated description" )
+                .build();
+
+        Event actualUpdatedEvent = eventService.updateEvent( exampleEvent.getId(), updateDto );
+
+        assertEquals( updatedEvent, actualUpdatedEvent );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
+        verify( eventRepo ).save( any( Event.class ) );
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when event not found during update")
+    void updateEvent_throws404WhenEventNotFound() {
+        String nonExistentEventId = "nonExistentEventId";
+        when( eventRepo.findById( nonExistentEventId ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                eventService.updateEvent( nonExistentEventId, exampleEventRequestDto ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Event not found with id:" + nonExistentEventId );
+
+        verify( eventRepo ).findById( nonExistentEventId );
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when organization not found during update")
+    void updateEvent_throws404WhenOrgaNotFound() {
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( exampleEvent ) );
+        when( orgaRepo.findById( exampleEventRequestDto.organizationId() ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                eventService.updateEvent( exampleEvent.getId(), exampleEventRequestDto ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Organization not found with id: " + exampleEventRequestDto.organizationId() );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
+    }
+
+    @Test
+    @DisplayName("Should preserve freeTicketCapacity when updating event")
+    void updateEvent_preservesFreeTicketCapacity() {
+        Event eventWithCapacities = exampleEvent.toBuilder()
+                .maxTicketCapacity( 100 )
+                .freeTicketCapacity( 50 )
+                .build();
+
+        EventRequestDto updateDto = exampleEventRequestDto.toBuilder()
+                .maxTicketCapacity( 150 )
+                .build();
+
+        Event updatedEvent = eventWithCapacities.toBuilder()
+                .maxTicketCapacity( 150 )
+                .freeTicketCapacity( 50 )
+                .build();
+
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( eventWithCapacities ) );
+        when( orgaRepo.findById( exampleEventRequestDto.organizationId() ) ).thenReturn( Optional.of( exampleOrganization ) );
+        when( eventRepo.save( any( Event.class ) ) ).thenReturn( updatedEvent );
+
+        Event actualUpdatedEvent = eventService.updateEvent( exampleEvent.getId(), updateDto );
+
+        assertEquals( 50, actualUpdatedEvent.getFreeTicketCapacity() );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
+        verify( eventRepo ).save( any( Event.class ) );
+    }
+
 }
