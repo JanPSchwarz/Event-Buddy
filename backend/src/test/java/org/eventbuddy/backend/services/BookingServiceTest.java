@@ -1,10 +1,12 @@
 package org.eventbuddy.backend.services;
 
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
+import org.eventbuddy.backend.models.booking.Booking;
 import org.eventbuddy.backend.models.booking.BookingRequestDto;
 import org.eventbuddy.backend.models.booking.BookingResponseDto;
 import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.organization.Organization;
+import org.eventbuddy.backend.repos.BookingRepository;
 import org.eventbuddy.backend.repos.EventRepository;
 import org.eventbuddy.backend.repos.OrganizationRepository;
 import org.eventbuddy.backend.repos.UserRepository;
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +37,9 @@ class BookingServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private BookingRepository bookingRepository;
+
+    @Mock
     private OrganizationRepository organizationRepository;
 
     @InjectMocks
@@ -42,6 +48,7 @@ class BookingServiceTest {
     private Organization testOrganization;
     private Event testEvent;
     private BookingRequestDto bookingRequestDto;
+    private Booking testBooking;
 
     @BeforeEach
     void setUp() {
@@ -68,6 +75,14 @@ class BookingServiceTest {
                 .name( "John Doe" )
                 .numberOfTickets( 5 )
                 .build();
+
+        testBooking = Booking.builder()
+                .userId( "user-1" )
+                .name( "John Doe" )
+                .numberOfTickets( 5 )
+                .event( testEvent )
+                .id( "booking-1" )
+                .build();
     }
 
     @Test
@@ -77,6 +92,7 @@ class BookingServiceTest {
         when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
         when( eventRepository.save( any( Event.class ) ) )
                 .thenReturn( testEvent );
+        when( bookingRepository.save( any( Booking.class ) ) ).thenReturn( testBooking );
 
         BookingResponseDto result = bookingService.makeBooking( bookingRequestDto );
 
@@ -130,6 +146,7 @@ class BookingServiceTest {
         when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
         when( eventRepository.save( any( Event.class ) ) )
                 .thenReturn( testEvent );
+        when( bookingRepository.save( any( Booking.class ) ) ).thenReturn( testBooking );
 
 
         bookingService.makeBooking( largeBooking );
@@ -147,6 +164,7 @@ class BookingServiceTest {
         when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
         when( eventRepository.save( any( Event.class ) ) )
                 .thenReturn( testEvent );
+        when( bookingRepository.save( any( Booking.class ) ) ).thenReturn( testBooking );
 
         bookingService.makeBooking( bookingRequestDto );
 
@@ -157,6 +175,46 @@ class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Returns bookings for a specific user")
+    void getBookingsByUser_shouldReturnBookingsForUser() {
+        when( bookingRepository.findAll() ).thenReturn( List.of( testBooking ) );
+
+        List<BookingResponseDto> result = bookingService.getBookingsByUser( "user-1" );
+
+        assertNotNull( result );
+        assertEquals( 1, result.size() );
+        assertEquals( "John Doe", result.get( 0 ).name() );
+        verify( bookingRepository ).findAll();
+    }
+
+    @Test
+    @DisplayName("Throws exception when user has already booked the event")
+    void checkIfUserHasBookedEvent_shouldThrowExceptionIfUserAlreadyBooked() {
+        when( bookingRepository.findAll() ).thenReturn( List.of( testBooking ) );
+
+        IllegalStateException exception = assertThrows( IllegalStateException.class, () ->
+                bookingService.checkIfUserHasBookedEvent( "user-1", "event-1" )
+        );
+
+        assertTrue( exception.getMessage().contains( "You cannot book the same event more than once." ) );
+        verify( bookingRepository ).findAll();
+    }
+
+    @Test
+    @DisplayName("Does not throw exception when user has not booked the event")
+    void checkIfUserHasBookedEvent_shouldNotThrowExceptionIfUserHasNotBooked() {
+        when( bookingRepository.findAll() ).thenReturn( List.of() );
+
+        assertDoesNotThrow( () ->
+                bookingService.checkIfUserHasBookedEvent( "user-1", "event-1" )
+        );
+
+        verify( bookingRepository ).findAll();
+    }
+
+
+    @Test
+    @DisplayName("Does not update capacity for limitless tickets")
     void makeBooking_shouldNotUpdateCapacityForLimitlessTickets() {
 
         testEvent = testEvent.toBuilder()
@@ -164,6 +222,7 @@ class BookingServiceTest {
                 .freeTicketCapacity( null )
                 .build();
         when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
+        when( bookingRepository.save( any( Booking.class ) ) ).thenReturn( testBooking );
 
 
         bookingService.makeBooking( bookingRequestDto );
