@@ -32,7 +32,6 @@ const formSchema = z.object( {
         .refine( ( date ) => {
             const now = new Date();
             const eventTime = new Date( date );
-            console.log( now > eventTime );
             return now < eventTime;
         }, { error: "Must be in the future" } ),
 
@@ -107,7 +106,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
     } )
 
     const isImageDeletion = !!eventData?.imageId && isRemovingImage && !imageFile;
-    const suppressSubmit = ( !form.formState.isDirty && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
+    const suppressSubmit = ( !form.formState.isValid && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: EventFormData ) => {
 
@@ -350,7 +349,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <LocationFormPart form={ form }/>
-                <Button className={ "max-w-[100px] ml-auto" }>
+                <Button disabled={ form.formState.isSubmitting } className={ "max-w-[100px] ml-auto" }>
                     Submit
                 </Button>
             </FieldGroup>

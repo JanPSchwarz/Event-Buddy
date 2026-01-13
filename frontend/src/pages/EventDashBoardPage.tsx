@@ -22,6 +22,7 @@ export default function EventDashBoardPage() {
         }
     } );
 
+
     if ( isLoading ) {
         return (
             <CustomLoader/>
@@ -36,7 +37,7 @@ export default function EventDashBoardPage() {
     const progressValue = maxTickets && freeTickets ? ( ( maxTickets - freeTickets ) / maxTickets ) * 100 : 100;
 
     return (
-        <PageWrapper>
+        <PageWrapper className={ "w-11/12 mx-auto max-w-[1000px]" }>
             <MainHeading heading={ "Event Manager" } subheading={ eventData.data.title || "" }/>
             <div className={ "w-full flex justify-between" }>
                 <Button asChild variant={ "outline" }>
@@ -46,10 +47,8 @@ export default function EventDashBoardPage() {
                     </NavLink>
                 </Button>
                 <div className={ "space-x-4" }>
-                    <Button asChild>
-                        <NavLink to={ `/event/edit/${ eventData.data.id }` }>
-                            Download Guest List
-                        </NavLink>
+                    <Button disabled>
+                        Download Guest List
                     </Button>
                     <Button asChild variant={ "outline" }>
                         <NavLink to={ `/event/edit/${ eventData.data.id }` }>
@@ -60,9 +59,15 @@ export default function EventDashBoardPage() {
             </div>
             <div className={ "w-full space-y-4" }>
                 <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+                    Title:
+                </Text>
+                <Text className={ "" }>
+                    { eventData?.data.title }
+                </Text>
+                <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
                     Event Start:
                 </Text>
-                <Text className={ "text-primary font-bold" }>
+                <Text className={ "text-primary" }>
                     { new Date( eventData.data.eventDateTime ).toLocaleString() }
                 </Text>
                 <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
@@ -74,10 +79,10 @@ export default function EventDashBoardPage() {
                         Max Tickets: { maxTickets ?? "no limit" }
                     </Text>
                     <Text>
-                        { progressValue }
+                        { maxTickets && progressValue + " % sold" }
                     </Text>
                     <Text>
-                        Free Tickets: { freeTickets ?? "n/a" }
+                        Tickets Available: { freeTickets ?? "-" }
                     </Text>
                 </div>
             </div>

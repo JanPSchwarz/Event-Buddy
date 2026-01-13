@@ -159,7 +159,7 @@ export default function ImageFormPart( {
                                 </span> }
                 Max. 5MB. jpeg, png, svg, heic, webp only.
                 <Text styleVariant={ "smallMuted" } asTag={ "span" } className={ "block" }>
-                    Image ratio 16 / 9 recommended.
+                    { !avatar && "Image ratio 16 / 9 recommended." }
                 </Text>
             </FieldDescription>
         </FieldSet>

@@ -4,6 +4,7 @@ import { useCreateOrganization } from "@/api/generated/organization/organization
 import { toast } from "sonner";
 import type { OrganizationRequestDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CreateOrganizationForm() {
 
@@ -14,6 +15,8 @@ export default function CreateOrganizationForm() {
             withCredentials: true,
         }
     } );
+
+    const queryClient = useQueryClient();
 
     const handleSubmit = ( organizationDto: OrganizationRequestDto, imageFile: File | null ) => {
         createOrga.mutate(
@@ -27,6 +30,7 @@ export default function CreateOrganizationForm() {
             {
                 onSuccess: ( response ) => {
                     toast.success( "Organization created successfully!" );
+                    queryClient.invalidateQueries();
                     navigate( `/organization/${ response.data.slug }` );
                 },
                 onError: ( error ) => {

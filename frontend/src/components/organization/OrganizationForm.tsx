@@ -104,7 +104,7 @@ export default function OrganizationForm( {
     } );
 
     const isImageDeletion = !!organizationData?.imageId && isRemovingImage && !imageFile;
-    const suppressSubmit = ( !form.formState.isDirty && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
+    const suppressSubmit = ( !form.formState.isValid && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: OrganizationFormData ) => {
         if ( suppressSubmit ) {
@@ -290,7 +290,7 @@ export default function OrganizationForm( {
                         }
                     />
                 </FieldSet>
-                <Button className={ "ml-auto" } type={ "submit" }>
+                <Button disabled={ form.formState.isSubmitting } className={ "ml-auto" } type={ "submit" }>
                     Submit
                 </Button>
             </FieldGroup>

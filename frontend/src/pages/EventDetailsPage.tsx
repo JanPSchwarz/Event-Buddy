@@ -11,10 +11,15 @@ import { Button } from "@/components/ui/button.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import EventBadges from "@/components/event/EventBadges.tsx";
 import EventImage from "@/components/event/EventImage.tsx";
+import BookingDialog from "@/components/booking/BookingDialog.tsx";
+import { useContextUser } from "@/context/UserProvider.tsx";
+import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
 
 export default function EventDetailsPage() {
 
     const { eventId } = useParams();
+
+    const { user } = useContextUser();
 
     const { data: eventData, isLoading: isLoadingEvent } = useGetEventById( eventId || "", {
         query: { enabled: !!eventId }
@@ -58,9 +63,26 @@ export default function EventDetailsPage() {
         }
     }
 
+    const isOwner = user?.organizations?.includes( event.eventOrganization.id || "" );
+
     return (
-        <PageWrapper>
-            <Card className={ "w-full max-w-[800px] mb-12 mx-auto space-y-6 md:space-y-12" }>
+        <PageWrapper className={ "max-w-[800px] mx-auto" }>
+            {
+                isOwner &&
+                <div className={ "flex w-full justify-between items-center" }>
+                    <Alert className={ "max-w-max mr-auto" }>
+                        <AlertDescription>
+                            You are viewing this event as an organizer. Go to your dashboard to manage it.
+                        </AlertDescription>
+                    </Alert>
+                    <Button variant={ "outline" } asChild>
+                        <NavLink to={ `/dashboard/event/${ event.id }` }>
+                            Manager
+                        </NavLink>
+                    </Button>
+                </div>
+            }
+            <Card className={ "w-full mb-12 mx-auto space-y-6 md:space-y-12" }>
                 <CardHeader>
                     <EventBadges event={ event }/>
                     <CardTitle className={ "flex flex-col md:flex-row gap-6 justify-between" }>
@@ -82,9 +104,7 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent className={ "space-y-8" }>
                     <EventImage imageData={ imageData?.data }/>
-                    <Button disabled={ event.isSoldOut }>
-                        Book a Ticket
-                    </Button>
+                    <BookingDialog event={ eventData?.data }/>
                     <div className={ "space-y-4" }>
                         <Text styleVariant={ "h3" } className={ "text-muted-foreground" }>
                             Description

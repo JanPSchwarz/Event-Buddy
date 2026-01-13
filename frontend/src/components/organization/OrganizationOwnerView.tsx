@@ -9,6 +9,7 @@ import UpdateOwnerDialog from "@/components/organization/UpdateOwnerDialog.tsx";
 import { useDeleteOrganization } from "@/api/generated/organization/organization.ts";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 type OrganizationOwnerViewProps = {
     orgData: OrganizationResponseDto,
@@ -19,6 +20,8 @@ export default function OrganizationOwnerView( { orgData }: Readonly<Organizatio
     const [ isEditing, setIsEditing ] = useState( false );
 
     const navigate = useNavigate();
+
+    const queryClient = useQueryClient();
 
     const deleteOrga = useDeleteOrganization( {
         axios: { withCredentials: true }
@@ -37,6 +40,7 @@ export default function OrganizationOwnerView( { orgData }: Readonly<Organizatio
             {
                 onSuccess: () => {
                     toast.success( "Organization deleted successfully." );
+                    queryClient.invalidateQueries();
                     navigate( "/" );
 
                 },
