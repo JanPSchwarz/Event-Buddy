@@ -10,7 +10,6 @@ import type { UserSettings } from "@/api/generated/openAPIDefinition.schemas.ts"
 import { useUpdateUser } from "@/api/generated/user/user.ts";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetMeQueryKey } from "@/api/generated/authentication/authentication.ts";
 import Text from "@/components/typography/Text.tsx";
 import { useNavigate, useSearchParams } from "react-router";
 import { Spinner } from "@/components/ui/spinner.tsx";
@@ -111,8 +110,6 @@ export default function SettingsForm() {
 
         if ( formIsDirty ) return;
 
-        console.log( currentSettings );
-
         updateUser.mutate(
             {
                 userId: user.id,
@@ -122,9 +119,8 @@ export default function SettingsForm() {
             },
             {
                 onSuccess: () => {
-                    console.log( "User settings updated successfully." );
                     toast.success( "User settings updated successfully." );
-                    queryClient.invalidateQueries( { queryKey: getGetMeQueryKey() } );
+                    queryClient.invalidateQueries();
 
                     if ( fromProfilePage ) navigate( `/profile/${ user.id }` );
                 },

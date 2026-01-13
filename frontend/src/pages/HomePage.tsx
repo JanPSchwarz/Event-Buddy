@@ -1,30 +1,28 @@
+import PageWrapper from "@/components/PageWrapper.tsx";
+import Text from "@/components/typography/Text.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { PlayIcon } from "lucide-react";
+import { NavLink } from "react-router";
+
 export default function HomePage() {
 
     return (
-        <div className={ "space-y-8 flex flex-col mx-auto" }>
-            {/*<p>Home page</p>*/ }
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/organization/create">Create Orga</NavLink>*/ }
-            {/*</Button>*/ }
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/organization/test-orga">See Orga</NavLink>*/ }
-            {/*</Button>*/ }
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/event/create">Create Event</NavLink>*/ }
-            {/*</Button>*/ }
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/event/69610dce5a407520acc50037">Event details</NavLink>*/ }
-            {/*</Button>*/ }
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/events">Events Page</NavLink>*/ }
-            {/*</Button>*/ }
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/event/dashboard/69610dce5a407520acc50037">Event Dashboard</NavLink>*/ }
-            {/*</Button>*/ }
-
-            {/*<Button asChild={ true }>*/ }
-            {/*    <NavLink to="/event/edit/69610dce5a407520acc50037">Edit Event</NavLink>*/ }
-            {/*</Button>*/ }
-        </div>
+        <PageWrapper>
+            <Text styleVariant={ "h1" } asTag={ "h1" } className={ "border-b border-primary" }>
+                Welcome to Event Buddy!
+            </Text>
+            <Text styleVariant={ "h4" }>
+                Find or create events with ease.
+            </Text>
+            <div className={ "w-full flex items-center justify-center relative max-w-[800px]" }>
+                <img src={ "/hero.svg" } alt={ "Hero" } className={ "rounded-md m-auto " }/>
+                <Button className={ "absolute top-4 right-4" } asChild>
+                    <NavLink to={ "/events" }>
+                        Get Started
+                        <PlayIcon/>
+                    </NavLink>
+                </Button>
+            </div>
+        </PageWrapper>
     )
 }

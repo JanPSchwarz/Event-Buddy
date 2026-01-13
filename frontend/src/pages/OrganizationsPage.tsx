@@ -21,7 +21,7 @@ export default function OrganizationsPage() {
         <PageWrapper className={ "mb-12" }>
             <div className={ "w-full space-y-4 flex flex-col" }>
                 <div className={ "w-full flex justify-center items-center" }>
-                    <MainHeading heading={ "All Organizations" } subheading={ "Find an Organization" }
+                    <MainHeading heading={ "Organizations" } subheading={ "Find an Organization" }
                                  Icon={ Building2 }/>
                 </div>
                 <Button asChild size={ "sm" } className={ "ml-auto" }>

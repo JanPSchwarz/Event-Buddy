@@ -168,10 +168,12 @@ export default function BookingForm( {
                 <Text>
                     { summedUpPrice ? `${ summedUpPrice.toFixed( 2 ) } €` : "Free" }
                 </Text>
-                <Text styleVariant={ "smallMuted" } className={ "col-span-2 mt-2" }>
-                    <InfoIcon className={ "inline mr-2" }/>
-                    Payment is going to be handled on-site.
-                </Text>
+                { price !== 0 &&
+                    <Text styleVariant={ "smallMuted" } className={ "col-span-2 mt-2" }>
+                        <InfoIcon className={ "inline mr-2" }/>
+                        Payment is going to be handled on-site.
+                    </Text>
+                }
             </div>
         </div>
     )

@@ -21,7 +21,7 @@ export default function EventDashBoardPage() {
             enabled: !!eventId
         }
     } );
-    
+
 
     if ( isLoading ) {
         return (
@@ -37,7 +37,7 @@ export default function EventDashBoardPage() {
     const progressValue = maxTickets && freeTickets ? ( ( maxTickets - freeTickets ) / maxTickets ) * 100 : 100;
 
     return (
-        <PageWrapper>
+        <PageWrapper className={ "w-11/12 mx-auto max-w-[1000px]" }>
             <MainHeading heading={ "Event Manager" } subheading={ eventData.data.title || "" }/>
             <div className={ "w-full flex justify-between" }>
                 <Button asChild variant={ "outline" }>
@@ -82,7 +82,7 @@ export default function EventDashBoardPage() {
                         { maxTickets && progressValue + " % sold" }
                     </Text>
                     <Text>
-                        Tickets Available: { freeTickets ?? "n/a" }
+                        Tickets Available: { freeTickets ?? "-" }
                     </Text>
                 </div>
             </div>

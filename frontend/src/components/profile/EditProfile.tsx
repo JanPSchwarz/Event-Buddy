@@ -16,7 +16,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button.tsx";
 import { useUpdateUser } from "@/api/generated/user/user.ts";
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetMeQueryKey } from "@/api/generated/authentication/authentication.ts";
 import { toast } from "sonner";
 
 type UserFormData = {
@@ -77,7 +76,7 @@ export default function EditProfile( { userData, onSubmit }: Readonly<EditProfil
                 onSuccess: () => {
                     console.log( "Profile updated successfully." );
                     toast.success( "Profile updated successfully." );
-                    queryClient.invalidateQueries( { queryKey: getGetMeQueryKey() } );
+                    queryClient.invalidateQueries();
                     onSubmit();
                 },
                 onError: ( error ) => {

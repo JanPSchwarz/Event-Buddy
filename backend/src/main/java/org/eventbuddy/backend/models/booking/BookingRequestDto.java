@@ -24,7 +24,7 @@ public record BookingRequestDto(
                 requiredMode = Schema.RequiredMode.REQUIRED,
                 nullable = false
         )
-        @NotNull
+        @NotNull(message = "You must be logged in to book tickets")
         String userId,
 
         @Schema(
