@@ -15,6 +15,7 @@ public record EventResponseDto(
                 description = "ID of the created event",
                 example = "694ceebb43db708d04241ac9"
         )
+        @NotNull
         String id,
 
         @Schema(
