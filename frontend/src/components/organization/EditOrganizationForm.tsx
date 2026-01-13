@@ -45,6 +45,8 @@ export default function EditOrganizationForm( { organizationData, closeEdit }: R
 
                     toast.success( "Organization updated successfully!" );
 
+                    queryClient.invalidateQueries();
+
                     if ( response.data.name === organizationData.name ) {
                         queryClient.invalidateQueries( { queryKey: getGetOrganizationBySlugQueryKey( organizationData.slug ) } )
                         closeEdit();

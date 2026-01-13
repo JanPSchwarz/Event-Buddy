@@ -242,6 +242,17 @@ export interface Event {
   imageId?: string;
 }
 
+export interface BookingRequestDto {
+  /** ID of the event for which the booking is made */
+  eventId: string;
+  /** ID of the user who made the booking */
+  userId: string;
+  /** Number of tickets booked */
+  numberOfTickets: number;
+  /** Name of the person booking tickets */
+  name: string;
+}
+
 export interface AppUserDto {
   /** Email of the user */
   readonly email?: string;
@@ -253,6 +264,45 @@ export interface AppUserDto {
   readonly avatarUrl?: string;
   /** List of organizations the user is associated with */
   readonly organizations: readonly OrganizationResponseDto[];
+}
+
+export interface BookingResponseDto {
+  /** ID of the booking */
+  bookingId: string;
+  /** Event for which the booking is made */
+  hostingEvent: EventResponseDto;
+  /** Number of tickets booked */
+  numberOfTickets: number;
+  /** Name of the person booking tickets */
+  name: string;
+}
+
+/**
+ * Event for which the booking is made
+ */
+export interface EventResponseDto {
+  /** ID of the created event */
+  id: string;
+  /** Organization (dto) the event belongs to */
+  eventOrganization: OrganizationResponseDto;
+  /** Title of the event */
+  title: string;
+  /** Description of the event */
+  description?: string;
+  /** Iso Date and time of the event */
+  eventDateTime: string;
+  /** Location of the event */
+  location?: Location;
+  /** Ticket price for the event */
+  price: number;
+  /** Indicates if event is almost sold out */
+  ticketAlarm?: boolean;
+  /** Indicates if event is sold out */
+  isSoldOut?: boolean;
+  /** Maximum tickets allowed per booking */
+  maxPerBooking?: number;
+  /** Image ID associated with the event */
+  imageId?: string;
 }
 
 export interface OrganizationResponseDto {
@@ -274,31 +324,6 @@ export interface OrganizationResponseDto {
   readonly location?: Location;
   /** Contact information of the organization */
   readonly contact?: Contact;
-}
-
-export interface EventResponseDto {
-  /** ID of the created event */
-  id?: string;
-  /** Organization (dto) the event belongs to */
-  eventOrganization: OrganizationResponseDto;
-  /** Title of the event */
-  title: string;
-  /** Description of the event */
-  description?: string;
-  /** Iso Date and time of the event */
-  eventDateTime: string;
-  /** Location of the event */
-  location?: Location;
-  /** Ticket price for the event */
-  price: number;
-  /** Indicates if event is almost sold out */
-  ticketAlarm?: boolean;
-  /** Indicates if event is sold out */
-  isSoldOut?: boolean;
-  /** Maximum tickets allowed per booking */
-  maxPerBooking?: number;
-  /** Image ID associated with the event */
-  imageId?: string;
 }
 
 export type UpdateOrganizationBody = {

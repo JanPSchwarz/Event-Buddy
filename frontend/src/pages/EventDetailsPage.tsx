@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import EventBadges from "@/components/event/EventBadges.tsx";
 import EventImage from "@/components/event/EventImage.tsx";
+import BookingDialog from "@/components/booking/BookingDialog.tsx";
 
 export default function EventDetailsPage() {
 
@@ -82,9 +83,7 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent className={ "space-y-8" }>
                     <EventImage imageData={ imageData?.data }/>
-                    <Button disabled={ event.isSoldOut }>
-                        Book a Ticket
-                    </Button>
+                    <BookingDialog event={ eventData?.data }/>
                     <div className={ "space-y-4" }>
                         <Text styleVariant={ "h3" } className={ "text-muted-foreground" }>
                             Description
