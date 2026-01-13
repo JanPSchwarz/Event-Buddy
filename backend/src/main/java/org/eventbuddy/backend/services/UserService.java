@@ -141,10 +141,11 @@ public class UserService {
 
     private AppUserDto userToDtoMapper( AppUser user ) {
 
-        if ( !user.getUserSettings().showOrgas() || user.getOrganizations() == null ) {
+        if ( !user.getUserSettings().showOrgas() || user.getOrganizations() == null || user.getOrganizations().isEmpty() ) {
             return AppUserDto.builder()
                     .name( user.getName() )
                     .id( user.getId() )
+                    .organizations( List.of() )
                     .email( user.getUserSettings().showEmail() ? user.getEmail() : null )
                     .avatarUrl( user.getUserSettings().showAvatar() ? user.getAvatarUrl() : null )
                     .build();
@@ -193,7 +194,7 @@ public class UserService {
             throw new ResourceNotFoundException( "One or more organization owners not found." );
         }
 
-        
+
         Set<AppUserDto> ownersDtos = owners.stream()
                 .map( user ->
                         AppUserDto.builder()
@@ -207,6 +208,8 @@ public class UserService {
 
         return OrganizationResponseDto.builder()
                 .name( organization.getName() )
+                .id( organization.getId() )
+                .imageId( organization.getImageId() )
                 .description( organization.getDescription() )
                 .website( organization.getWebsite() )
                 .slug( organization.getSlug() )

@@ -1,6 +1,7 @@
 package org.eventbuddy.backend.models.organization;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.hibernate.validator.constraints.URL;
@@ -14,18 +15,24 @@ public record OrganizationResponseDto(
                 description = "Name of the organization",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
+        @NotBlank
+
         String name,
 
         @Schema(
                 description = "ID of the organization",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
+        @NotBlank
+
         String id,
 
         @Schema(
                 description = "Slug of the organization",
                 accessMode = Schema.AccessMode.READ_ONLY
         )
+        @NotBlank
+
         String slug,
 
         @Schema(

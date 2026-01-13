@@ -9,6 +9,13 @@ import lombok.Builder;
 public record Location(
 
         @Schema(
+                description = "Name of the location",
+                accessMode = Schema.AccessMode.READ_ONLY,
+                example = "Main Office"
+        )
+        String locationName,
+
+        @Schema(
                 description = "Street and house number of the location",
                 accessMode = Schema.AccessMode.READ_ONLY,
                 example = "Example Street 1A"
@@ -49,16 +56,14 @@ public record Location(
                 accessMode = Schema.AccessMode.READ_ONLY,
                 example = "52.5200"
         )
-        @NotNull
-        double latitude,
+        Double latitude,
 
         @Schema(
                 description = "Longitude coordinate",
                 accessMode = Schema.AccessMode.READ_ONLY,
                 example = "13.4050"
         )
-        @NotNull
-        double longitude
+        Double longitude
 
 ) {
 }

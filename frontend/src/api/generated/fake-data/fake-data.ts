@@ -91,8 +91,8 @@ export const useCreateFakeData = <TError = AxiosError<ErrorMessage>,
       return useMutation(mutationOptions, queryClient);
     }
     /**
- * Deletes all users from the system.
- * @summary Delete all fake users
+ * Deletes all data from the system.
+ * @summary Delete all fake data
  */
 export const deleteAllFakeData = (
      options?: AxiosRequestConfig
@@ -136,7 +136,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
     export type DeleteAllFakeDataMutationError = AxiosError<ErrorMessage>
 
     /**
- * @summary Delete all fake users
+ * @summary Delete all fake data
  */
 export const useDeleteAllFakeData = <TError = AxiosError<ErrorMessage>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllFakeData>>, TError,void, TContext>, axios?: AxiosRequestConfig}

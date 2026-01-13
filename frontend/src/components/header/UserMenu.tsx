@@ -29,6 +29,12 @@ export default function UserMenu( { avatarUrl, userId }: Readonly<UserMenuProps>
 
     const userMenuButtons = [
         {
+            label: "Dashboard",
+            action: () => {
+                navigate( `/dashboard/${ userId }` );
+            },
+        },
+        {
             label: "Profile",
             action: () => {
                 navigate( `/profile/${ userId }` );

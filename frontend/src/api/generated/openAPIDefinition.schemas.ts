@@ -99,6 +99,8 @@ export interface Contact {
 }
 
 export interface Location {
+  /** Name of the location */
+  readonly locationName?: string;
   /** Street and house number of the location */
   readonly address: string;
   /** City of the location */
@@ -108,9 +110,9 @@ export interface Location {
   /** Country of the location */
   readonly country: string;
   /** Latitude coordinate */
-  readonly latitude: number;
+  readonly latitude?: number;
   /** Longitude coordinate */
-  readonly longitude: number;
+  readonly longitude?: number;
 }
 
 export interface OrganizationRequestDto {
@@ -162,6 +164,84 @@ export interface Organization {
   location: Location;
 }
 
+export interface EventRequestDto {
+  /** Organization ID the event belongs to */
+  organizationId: string;
+  /**
+   * Title of the event
+   * @minLength 4
+   * @maxLength 50
+   */
+  title: string;
+  /**
+   * Description of the event
+   * @minLength 0
+   * @maxLength 1500
+   */
+  description?: string;
+  /** Date and time of the event in ISO 8601 format */
+  eventDateTime: string;
+  /** Location of the event */
+  location: Location;
+  /** Price of the event */
+  price: number;
+  /** Maximum ticket capacity of the event */
+  maxTicketCapacity?: number;
+  /** Maximum tickets allowed per booking */
+  maxPerBooking?: number;
+}
+
+/**
+ * Guest list with guest names and their ticket counts
+ */
+export type EventGuestList = {[key: string]: number};
+
+/**
+ * Event entity
+ */
+export interface Event {
+  /** Unique identifier of the mongoDb entity */
+  id: string;
+  /** The timestamp when this entity was created. */
+  createdDate: string;
+  /** The timestamp of the last modification of this entity. */
+  lastModifiedDate: string;
+  /** Organization hosting the event */
+  eventOrganization: Organization;
+  /**
+   * Title of the event
+   * @minLength 4
+   * @maxLength 50
+   */
+  title: string;
+  /**
+   * Description of the event
+   * @minLength 0
+   * @maxLength 1500
+   */
+  description?: string;
+  /** Date and time of the event in ISO 8601 format */
+  eventDateTime: string;
+  /** Location of the event */
+  location: Location;
+  /** Price of the event ticket */
+  price?: number;
+  /** Maximum capacity of the event */
+  maxTicketCapacity?: number;
+  /** Free capacity of the event */
+  freeTicketCapacity?: number;
+  /** Maximum number of tickets allowed per booking */
+  maxPerBooking?: number;
+  /** Indicates if the event is almost sold out */
+  ticketAlarm?: boolean;
+  /** Indicates if the event is sold out */
+  isSoldOut?: boolean;
+  /** Guest list with guest names and their ticket counts */
+  guestList?: EventGuestList;
+  /** Image ID of the event's banner */
+  imageId?: string;
+}
+
 export interface AppUserDto {
   /** Email of the user */
   readonly email?: string;
@@ -172,16 +252,16 @@ export interface AppUserDto {
   /** Avatar URL of the user */
   readonly avatarUrl?: string;
   /** List of organizations the user is associated with */
-  readonly organizations?: readonly OrganizationResponseDto[];
+  readonly organizations: readonly OrganizationResponseDto[];
 }
 
 export interface OrganizationResponseDto {
   /** Name of the organization */
-  readonly name?: string;
+  readonly name: string;
   /** ID of the organization */
-  readonly id?: string;
+  readonly id: string;
   /** Slug of the organization */
-  readonly slug?: string;
+  readonly slug: string;
   /** List of admin user IDs */
   readonly owners?: readonly AppUserDto[];
   /** Description of the organization */
@@ -196,14 +276,50 @@ export interface OrganizationResponseDto {
   readonly contact?: Contact;
 }
 
+export interface EventResponseDto {
+  /** ID of the created event */
+  id?: string;
+  /** Organization (dto) the event belongs to */
+  eventOrganization: OrganizationResponseDto;
+  /** Title of the event */
+  title: string;
+  /** Description of the event */
+  description?: string;
+  /** Iso Date and time of the event */
+  eventDateTime: string;
+  /** Location of the event */
+  location?: Location;
+  /** Ticket price for the event */
+  price: number;
+  /** Indicates if event is almost sold out */
+  ticketAlarm?: boolean;
+  /** Indicates if event is sold out */
+  isSoldOut?: boolean;
+  /** Maximum tickets allowed per booking */
+  maxPerBooking?: number;
+  /** Image ID associated with the event */
+  imageId?: string;
+}
+
 export type UpdateOrganizationBody = {
   image?: Blob;
   deleteImage?: boolean;
   updateOrganization: OrganizationRequestDto;
 };
 
+export type UpdateEventBody = {
+  imageFile?: Blob;
+  deleteImage?: boolean;
+  updateEvent: EventRequestDto;
+};
+
 export type CreateOrganizationBody = {
   image?: Blob;
   organization: OrganizationRequestDto;
+};
+
+export type CreateEventBody = {
+  imageFile?: Blob;
+  event: EventRequestDto;
 };
 
