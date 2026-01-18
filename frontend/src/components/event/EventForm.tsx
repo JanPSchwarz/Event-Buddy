@@ -11,60 +11,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
 import { useState } from "react";
 import ImageFormPart from "@/components/shared/ImageFormPart.tsx";
+import { createEventBody } from "@/api/generated/event-controller/event-controller.zod.ts";
 
-const formSchema = z.object( {
+const extendedEventBody = createEventBody.extend( {
+    event: createEventBody.shape.event.extend( {
+            eventDateTime: z.preprocess( ( dateTime: string ) => {
+                if ( dateTime.length == 0 ) return "";
+                return new Date( dateTime ).toISOString();
+            }, z.iso.datetime( "Date and time are required" ) )
+                .refine( ( date ) => {
+                    const now = new Date();
+                    const eventTime = new Date( date );
+                    return now < eventTime;
+                }, { error: "Must be in the future" } ),
+            maxTicketCapacity: z.coerce.number<number>()
+                .positive( "Max ticket capacity must be positive" )
+                .optional(),
+            maxPerBooking: z.coerce.number<number>()
+                .positive( "Max tickets per booking must be positive" )
+                .optional(),
+            price: z.coerce.number<number>()
+                .nonnegative( "Price cannot be negative" ),
+        }
+    )
+} );
 
-    organizationId: z.string().nonempty( "Organization is required" ),
-
-    title: z.string()
-        .min( 1, "Title is required" )
-        .max( 50, "Title must be at most 50 characters" ),
-
-    description: z.string()
-        .max( 1500, "Description must be at most 1500 characters" )
-        .optional()
-        .or( z.literal( "" ) ),
-
-    eventDateTime: z.preprocess( ( dateTime: string ) => {
-        if ( dateTime.length == 0 ) return "";
-        return new Date( dateTime ).toISOString();
-    }, z.iso.datetime( "Date and time are required" ) )
-        .refine( ( date ) => {
-            const now = new Date();
-            const eventTime = new Date( date );
-            return now < eventTime;
-        }, { error: "Must be in the future" } ),
-
-    locationName: z.string().optional(),
-
-    address: z
-        .string()
-        .min( 1, "Address is required" )
-        .max( 30, "Address must be at most 30 characters" ),
-    city: z
-        .string()
-        .min( 1, "City is required" )
-        .max( 30, "City must be at most 30 characters" ),
-    zipCode: z.string()
-        .min( 1, "Zip Code is required" ),
-    country: z.string()
-        .min( 4, "Country must be at least 4 characters" )
-        .max( 30, "Country must be at most 30 characters" ),
-
-    price: z.coerce.number<number>()
-        .nonnegative( "Price cannot be negative" ),
-
-    maxTicketCapacity: z.coerce.number<number>()
-        .positive( "Max ticket capacity must be positive" )
-        .optional(),
-
-    maxPerBooking: z.coerce.number<number>()
-        .positive( "Max tickets per booking must be positive" )
-        .optional(),
-
-} )
-
-type EventFormData = z.infer<typeof formSchema>
+type EventFormData = z.infer<typeof extendedEventBody>
 
 type EventFormProps = {
     eventData?: Event;
@@ -79,7 +51,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
 
     const { data: imageData } = useGetImageAsDataUrl( eventData?.imageId || "", {
         query: {
-            enabled: eventData?.imageId !== null
+            enabled: eventData?.imageId !== null && eventData?.imageId !== undefined
         }
     } )
 
@@ -87,21 +59,26 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
     const [ imageFile, setImageFile ] = useState<File | null>( null );
 
     const form = useForm<EventFormData>( {
-        resolver: zodResolver( formSchema ),
+        resolver: zodResolver( extendedEventBody ),
         defaultValues: {
-            organizationId: eventData?.eventOrganization.id || "",
-            title: eventData?.title || "",
-            description: eventData?.description || "",
-            eventDateTime: eventData?.eventDateTime
-                ? new Date( eventData.eventDateTime ).toISOString().slice( 0, 16 )
-                : "",
-            address: eventData?.location?.address || "",
-            city: eventData?.location?.city || "",
-            zipCode: eventData?.location?.zipCode || "",
-            country: eventData?.location?.country || "",
-            price: eventData?.price || 0,
-            maxTicketCapacity: eventData?.maxTicketCapacity || undefined,
-            maxPerBooking: eventData?.maxPerBooking || undefined,
+            event: {
+                organizationId: eventData?.eventOrganization.id || "",
+                title: eventData?.title || "",
+                description: eventData?.description || "",
+                eventDateTime: eventData?.eventDateTime
+                    ? new Date( eventData.eventDateTime ).toISOString().slice( 0, 16 )
+                    : "",
+                price: eventData?.price || 0,
+                maxTicketCapacity: eventData?.maxTicketCapacity || undefined,
+                maxPerBooking: eventData?.maxPerBooking || undefined,
+                location: {
+
+                    address: eventData?.location?.address || "",
+                    city: eventData?.location?.city || "",
+                    zipCode: eventData?.location?.zipCode || "",
+                    country: eventData?.location?.country || "",
+                }
+            },
         }
     } )
 
@@ -110,26 +87,27 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
 
     const handleSubmit = ( data: EventFormData ) => {
 
+
         if ( suppressSubmit ) {
             console.log( "Form is dirty or is submitting, returning early." );
             return;
         }
 
         const eventRequestDto: EventRequestDto = {
-            organizationId: data.organizationId,
-            title: data.title,
-            description: data.description,
-            eventDateTime: data.eventDateTime,
+            organizationId: data.event.organizationId,
+            title: data.event.title,
+            description: data.event.description,
+            eventDateTime: data.event.eventDateTime,
             location: {
-                locationName: data.locationName,
-                address: data.address,
-                city: data.city,
-                zipCode: data.zipCode,
-                country: data.country,
+                locationName: data.event.location.locationName,
+                address: data.event.location.address,
+                city: data.event.location.city,
+                zipCode: data.event.location.zipCode,
+                country: data.event.location.country,
             },
-            price: data.price,
-            maxTicketCapacity: data.maxTicketCapacity || undefined,
-            maxPerBooking: data.maxPerBooking || undefined,
+            price: data.event.price,
+            maxTicketCapacity: data.event.maxTicketCapacity || undefined,
+            maxPerBooking: data.event.maxPerBooking || undefined,
         };
 
         onSubmit( eventRequestDto, imageFile, isImageDeletion );
@@ -158,7 +136,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                trackImageRemoval={ handleTrackImageRemoval }/>
                 <FieldSeparator/>
                 <Controller
-                    name={ "organizationId" }
+                    name={ "event.organizationId" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -166,7 +144,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Organization<span className={ "text-red-400" }>*</span>
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -196,7 +174,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <Controller
-                    name={ "title" }
+                    name={ "event.title" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -204,7 +182,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Title<span className={ "text-red-400" }>*</span>
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -221,7 +199,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <Controller
-                    name={ "description" }
+                    name={ "event.description" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -229,7 +207,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Description
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -247,7 +225,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <Controller
-                    name={ "eventDateTime" }
+                    name={ "event.eventDateTime" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -255,7 +233,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Date / Time<span className={ "text-red-400" }>*</span>
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -272,7 +250,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <Controller
-                    name={ "maxTicketCapacity" }
+                    name={ "event.maxTicketCapacity" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -280,7 +258,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Max. Ticket Capacity
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -288,6 +266,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                     { ...field }
                                     type={ "number" }
                                     aria-invalid={ fieldState.invalid }
+                                    onChange={ ( e ) => e.target.value === "" ? field.onChange( undefined ) : field.onChange( e.target.value ) }
                                 />
                                 <FieldDescription>
                                     Not required. Leave empty for unlimited capacity.
@@ -297,7 +276,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <Controller
-                    name={ "price" }
+                    name={ "event.price" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -305,7 +284,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Price per Ticket (€)<span className={ "text-red-400" }>*</span>
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -323,7 +302,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <Controller
-                    name={ "maxPerBooking" }
+                    name={ "event.maxPerBooking" }
                     control={ form.control }
                     render={
                         ( { field, fieldState } ) => (
@@ -331,7 +310,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                 <FieldLabel>
                                     Tickets per Booking
                                     { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto leading-0" }
+                                        <FieldError className={ "text-xs ml-auto text-wrap" }
                                                     errors={ [ fieldState.error ] }/>
                                     ) }
                                 </FieldLabel>
@@ -340,6 +319,8 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                                     type={ "number" }
                                     defaultValue={ 1 }
                                     aria-invalid={ fieldState.invalid }
+                                    onChange={ ( e ) => e.target.value === "" ? field.onChange( undefined ) : field.onChange( e.target.value ) }
+
                                 />
                                 <FieldDescription>
                                     Not required. Maximum number of tickets that can be booked per person.
@@ -348,7 +329,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                         )
                     }
                 />
-                <LocationFormPart form={ form }/>
+                <LocationFormPart form={ form } basePath={ "event.location" }/>
                 <Button disabled={ form.formState.isSubmitting } className={ "max-w-[100px] ml-auto" }>
                     Submit
                 </Button>

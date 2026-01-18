@@ -4,17 +4,31 @@ import { Building2, Plus } from "lucide-react";
 import { useGetAllOrganizations } from "@/api/generated/organization/organization.ts";
 import CustomLoader from "@/components/CustomLoader.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { NavLink } from "react-router";
+import { useNavigate } from "react-router";
 import OrganizationCard from "@/components/organization/OrganizationCard.tsx";
+import { useContextUser } from "@/context/UserProvider.tsx";
+import { toast } from "sonner";
 
 export default function OrganizationsPage() {
 
     const { data: allOrganization, isLoading } = useGetAllOrganizations();
 
+    const { user } = useContextUser();
+
+    const navigate = useNavigate();
+
     if ( isLoading ) {
         return (
             <CustomLoader size={ "size-6" } text={ "Loading..." }/>
         );
+    }
+
+    const handleCreateOrganization = () => {
+        if ( !user?.id ) {
+            toast.error( "You must be logged in!" );
+        } else {
+            navigate( "/organization/create" );
+        }
     }
 
     return (
@@ -24,11 +38,9 @@ export default function OrganizationsPage() {
                     <MainHeading heading={ "Organizations" } subheading={ "Find an Organization" }
                                  Icon={ Building2 }/>
                 </div>
-                <Button asChild size={ "sm" } className={ "ml-auto" }>
-                    <NavLink to={ "/organization/create" }>
-                        <Plus/>
-                        Create Organization
-                    </NavLink>
+                <Button size={ "sm" } className={ "ml-auto" } onClick={ handleCreateOrganization }>
+                    <Plus/>
+                    Create Organization
                 </Button>
             </div>
             <div

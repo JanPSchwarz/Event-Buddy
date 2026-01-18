@@ -2,26 +2,25 @@ import { Controller, type FieldValues, type Path, type UseFormReturn } from "rea
 import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
-type LocationFields = {
-    locationName?: string;
-    address: string;
-    city: string;
-    zipCode: string;
-    country: string;
+type LocationFormPartProps<T extends FieldValues> = {
+    form: UseFormReturn<T>,
+    basePath?: string
 }
 
-type LocationFormPartProps<T extends FieldValues & LocationFields> = {
-    form: UseFormReturn<T>
-}
+export default function LocationFormPart<T extends FieldValues>( {
+                                                                     form,
+                                                                     basePath = ""
+                                                                 }: Readonly<LocationFormPartProps<T>> ) {
 
-export default function LocationFormPart<T extends FieldValues & LocationFields>( { form }: Readonly<LocationFormPartProps<T>> ) {
-
+    const getFieldName = ( fieldName: string ): Path<T> => {
+        return ( basePath ? `${ basePath }.${ fieldName }` : fieldName ) as Path<T>
+    }
 
     return (
         <FieldSet>
             <FieldLabel>Address</FieldLabel>
             <Controller
-                name={ "locationName" as Path<T> }
+                name={ getFieldName( "locationName" ) }
                 control={ form.control }
                 render={
                     ( { field, fieldState } ) => (
@@ -29,7 +28,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                             <FieldLabel>
                                 Location Name
                                 { fieldState.invalid && (
-                                    <FieldError className={ "text-xs ml-auto leading-0" }
+                                    <FieldError className={ "text-xs ml-auto" }
                                                 errors={ [ fieldState.error ] }/>
                                 ) }
                             </FieldLabel>
@@ -43,7 +42,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                 }
             />
             <Controller
-                name={ "address" as Path<T> }
+                name={ getFieldName( "address" ) }
                 control={ form.control }
                 render={
                     ( { field, fieldState } ) => (
@@ -51,7 +50,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                             <FieldLabel>
                                 Street / number <span className={ "text-red-400" }>*</span>
                                 { fieldState.invalid && (
-                                    <FieldError className={ "text-xs ml-auto leading-0" }
+                                    <FieldError className={ "text-xs ml-auto" }
                                                 errors={ [ fieldState.error ] }/>
                                 ) }
                             </FieldLabel>
@@ -65,7 +64,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                 }
             />
             <Controller
-                name={ "city" as Path<T> }
+                name={ getFieldName( "city" ) }
                 control={ form.control }
                 render={
                     ( { field, fieldState } ) => (
@@ -73,7 +72,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                             <FieldLabel>
                                 City<span className={ "text-red-400" }>*</span>
                                 { fieldState.invalid && (
-                                    <FieldError className={ "text-xs ml-auto leading-0" }
+                                    <FieldError className={ "text-xs ml-auto" }
                                                 errors={ [ fieldState.error ] }/>
                                 ) }
                             </FieldLabel>
@@ -87,7 +86,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                 }
             />
             <Controller
-                name={ "zipCode" as Path<T> }
+                name={ getFieldName( "zipCode" ) }
                 control={ form.control }
                 render={
                     ( { field, fieldState } ) => (
@@ -95,7 +94,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                             <FieldLabel>
                                 Zip-Code<span className={ "text-red-400" }>*</span>
                                 { fieldState.invalid && (
-                                    <FieldError className={ "text-xs ml-auto leading-0" }
+                                    <FieldError className={ "text-xs ml-auto" }
                                                 errors={ [ fieldState.error ] }/>
                                 ) }
                             </FieldLabel>
@@ -109,7 +108,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                 }
             />
             <Controller
-                name={ "country" as Path<T> }
+                name={ getFieldName( "country" ) }
                 control={ form.control }
                 render={
                     ( { field, fieldState } ) => (
@@ -117,7 +116,7 @@ export default function LocationFormPart<T extends FieldValues & LocationFields>
                             <FieldLabel>
                                 Country<span className={ "text-red-400" }>*</span>
                                 { fieldState.invalid && (
-                                    <FieldError className={ "text-xs ml-auto leading-0" }
+                                    <FieldError className={ "text-xs ml-auto" }
                                                 errors={ [ fieldState.error ] }/>
                                 ) }
                             </FieldLabel>

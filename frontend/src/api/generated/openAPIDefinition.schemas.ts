@@ -101,13 +101,29 @@ export interface Contact {
 export interface Location {
   /** Name of the location */
   readonly locationName?: string;
-  /** Street and house number of the location */
+  /**
+   * Street and house number of the location
+   * @minLength 1
+   * @maxLength 2147483647
+   */
   readonly address: string;
-  /** City of the location */
+  /**
+   * City of the location
+   * @minLength 1
+   * @maxLength 2147483647
+   */
   readonly city: string;
-  /** City zip code */
+  /**
+   * City zip code
+   * @minLength 1
+   * @maxLength 2147483647
+   */
   readonly zipCode: string;
-  /** Country of the location */
+  /**
+   * Country of the location
+   * @minLength 1
+   * @maxLength 2147483647
+   */
   readonly country: string;
   /** Latitude coordinate */
   readonly latitude?: number;
@@ -116,11 +132,15 @@ export interface Location {
 }
 
 export interface OrganizationRequestDto {
-  /** Name of the organization */
+  /**
+   * Name of the organization
+   * @minLength 1
+   * @maxLength 40
+   */
   name: string;
   /**
    * Description of the organization
-   * @minLength 4
+   * @minLength 0
    * @maxLength 1500
    */
   description?: string;
@@ -183,11 +203,20 @@ export interface EventRequestDto {
   eventDateTime: string;
   /** Location of the event */
   location: Location;
-  /** Price of the event */
+  /**
+   * Price of the event
+   * @minimum 0
+   */
   price: number;
-  /** Maximum ticket capacity of the event */
+  /**
+   * Maximum ticket capacity of the event
+   * @minimum 0
+   */
   maxTicketCapacity?: number;
-  /** Maximum tickets allowed per booking */
+  /**
+   * Maximum tickets allowed per booking
+   * @minimum 0
+   */
   maxPerBooking?: number;
 }
 
@@ -230,6 +259,8 @@ export interface Event {
   maxTicketCapacity?: number;
   /** Free capacity of the event */
   freeTicketCapacity?: number;
+  /** Number of tickets already booked for the event */
+  bookedTicketsCount: number;
   /** Maximum number of tickets allowed per booking */
   maxPerBooking?: number;
   /** Indicates if the event is almost sold out */
@@ -299,6 +330,8 @@ export interface EventResponseDto {
   ticketAlarm?: boolean;
   /** Indicates if event is sold out */
   isSoldOut?: boolean;
+  /** Number of Tickets booked for the event */
+  bookedTicketsCount: number;
   /** Maximum tickets allowed per booking */
   maxPerBooking?: number;
   /** Image ID associated with the event */

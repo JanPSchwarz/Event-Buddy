@@ -42,8 +42,14 @@ export default function BookingDialog( { event }: Readonly<BookingDialogProps> )
                                 </Text>
                             }
                             {
+                                event.isSoldOut &&
+                                <Text asTag={ "span" } className={ "mt-2 block text-red-400" }>
+                                    This event is sold out.
+                                </Text>
+                            }
+                            {
                                 !user?.name &&
-                                <Text asTag={ "span" } className={ "mt-2 block text-red-600" }>
+                                <Text asTag={ "span" } className={ "mt-2 block text-red-400" }>
                                     You need to be logged in to book tickets.
                                 </Text>
                             }

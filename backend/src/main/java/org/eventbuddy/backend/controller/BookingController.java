@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/booking")
-@Tag(name = "Event Controller", description = "CRUD operations for booking events")
+@Tag(name = "Booking Controller", description = "CRUD operations for booking events")
 @Validated
 public class BookingController {
 

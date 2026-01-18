@@ -10,10 +10,7 @@ import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationRequestDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
-import org.eventbuddy.backend.repos.EventRepository;
-import org.eventbuddy.backend.repos.ImageRepository;
-import org.eventbuddy.backend.repos.OrganizationRepository;
-import org.eventbuddy.backend.repos.UserRepository;
+import org.eventbuddy.backend.repos.*;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -33,6 +30,8 @@ public class OrganizationService {
     private final ImageRepository imageRepo;
 
     private final EventRepository eventRepo;
+
+    private final BookingRepository bookingRepo;
 
     // === Public Organization Methods (DTO) ===
 
@@ -167,6 +166,7 @@ public class OrganizationService {
                 imageRepo.deleteById( event.getImageId() );
             }
 
+            bookingRepo.deleteAllByEvent( event );
             eventRepo.deleteById( event.getId() );
         }
     }

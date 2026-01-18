@@ -5,7 +5,8 @@ import { useGetUserById } from "@/api/generated/user/user.ts";
 import MainHeading from "@/components/shared/MainHeading.tsx";
 import Text from "@/components/typography/Text.tsx";
 import OrganizationCard from "@/components/organization/OrganizationCard.tsx";
-import { useGetBookingsByUser, useGetEventsByUserId } from "@/api/generated/event-controller/event-controller.ts";
+import { useGetEventsByUserId } from "@/api/generated/event-controller/event-controller.ts";
+import { useGetBookingsByUser } from "@/api/generated/booking-controller/booking-controller.ts";
 import EventCard from "@/components/event/EventCard.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import BookingCard from "@/components/booking/BookingCard.tsx";
@@ -35,6 +36,8 @@ export default function DashboardPage() {
             enabled: !!userId
         }
     } );
+
+    console.log( eventsByUser?.data )
 
     return (
         <PageWrapper className={ "mb-12" }>
@@ -89,25 +92,26 @@ export default function DashboardPage() {
                     </div>
                 }
             </div>
-            {
-                ( userDto?.data?.organizations && userDto?.data.organizations.length > 0 ) &&
-                <div className={ "w-11/12 space-y-12 mt-8" }>
-                    <div className={ "flex flex-col gap-2" }>
-                        <Text className={ "border-b" }>
-                            Your Events
-                        </Text>
-                        <Button variant={ "outline" } size={ "sm" } className={ "ml-auto" } asChild>
-                            <NavLink to={ "/event/create" }>
-                                Create New Event
-                            </NavLink>
-                        </Button>
-                    </div>
+            <div className={ "w-11/12 space-y-12 mt-8" }>
+                <div className={ "flex flex-col gap-2" }>
+                    <Text className={ "border-b" }>
+                        Your Events
+                    </Text>
+                    <Button variant={ "outline" } size={ "sm" } className={ "ml-auto" } asChild>
+                        <NavLink to={ "/event/create" }>
+                            Create New Event
+                        </NavLink>
+                    </Button>
+                </div>
+                {
+                    ( userDto?.data?.organizations && userDto?.data.organizations.length > 0 ) &&
                     <div className={ "flex gap-8 items-center flex-wrap justify-start" }>
                         { eventsByUser?.data.map( ( event ) => (
                             <div key={ event.id } className={ "border p-4 rounded-md" }>
                                 <EventCard key={ event.id } event={ event }/>
+                                <Text styleVariant={ "smallMuted" }>Event id: { event.id }</Text>
                                 <div className={ "flex justify-between mt-4" }>
-                                    <Button variant={ "secondary" } asChild>
+                                    <Button asChild>
                                         <NavLink to={ `/dashboard/event/${ event.id }` }>
                                             Manage
                                         </NavLink>
@@ -121,8 +125,8 @@ export default function DashboardPage() {
                             </div>
                         ) ) }
                     </div>
-                </div>
-            }
+                }
+            </div>
             {
                 eventsByUser?.data.length == 0 &&
                 <Text>

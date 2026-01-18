@@ -5,7 +5,7 @@ import type { AppUser } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { useMakeBooking } from "@/api/generated/event-controller/event-controller.ts";
+import { useMakeBooking } from "@/api/generated/booking-controller/booking-controller.ts";
 import { toast } from "sonner";
 import CustomLoader from "@/components/CustomLoader.tsx";
 import Text from "@/components/typography/Text.tsx";

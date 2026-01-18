@@ -4,17 +4,31 @@ import PageWrapper from "@/components/PageWrapper.tsx";
 import { Plus, TicketIcon } from "lucide-react";
 import EventCard from "@/components/event/EventCard.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { NavLink } from "react-router";
 import MainHeading from "@/components/shared/MainHeading.tsx";
+import { useContextUser } from "@/context/UserProvider.tsx";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 export default function EventsPage() {
 
     const { data: allEvents, isLoading } = useGetAllEvents();
 
+    const { user } = useContextUser()
+
+    const navigate = useNavigate();
+
     if ( isLoading ) {
         return (
             <CustomLoader size={ "size-6" } text={ "Loading..." }/>
         );
+    }
+
+    const handleCreateEvent = () => {
+        if ( !user?.id ) {
+            toast.error( "You must be logged in!" );
+        } else {
+            navigate( "/event/create" );
+        }
     }
 
     return (
@@ -28,11 +42,9 @@ export default function EventsPage() {
                         iconClassNames={ "rotate-45" }
                     />
                 </div>
-                <Button size={ "sm" } className={ "ml-auto" } asChild>
-                    <NavLink to={ "/event/create" }>
-                        <Plus/>
-                        New Event
-                    </NavLink>
+                <Button size={ "sm" } className={ "ml-auto" } onClick={ handleCreateEvent }>
+                    <Plus/>
+                    New Event
                 </Button>
             </div>
             <div className={ "flex items-start justify-center flex-wrap gap-12 w-full" }>

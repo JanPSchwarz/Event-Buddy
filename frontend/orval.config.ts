@@ -9,17 +9,43 @@ export default defineConfig( {
     eventBuddyApi: {
         input: {
             target: "./openapi.json",
-        },
+        }
+        ,
         output: {
             mode: "tags-split",
-            target: "src/api/generated",
-            client: "react-query",
+            target:
+                "src/api/generated",
+            client:
+                "react-query",
             baseUrl: baseURL,
-            override: {
-                query: {
-                    version: 5
+            override:
+                {
+                    query: {
+                        version: 5
+                    }
                 }
-            }
-        },
+        }
     },
+    zodClient: {
+        input: {
+            target: "./openapi.json",
+        }
+        ,
+        output: {
+            mode: "tags-split",
+            target:
+                "src/api/generated",
+            client:
+                "zod",
+            baseUrl: baseURL,
+            fileExtension: ".zod.ts",
+            override:
+                {
+                    query: {
+                        version: 5
+                    }
+                }
+        }
+        ,
+    }
 } );

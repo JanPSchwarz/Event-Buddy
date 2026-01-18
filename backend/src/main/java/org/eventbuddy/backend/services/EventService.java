@@ -33,6 +33,7 @@ public class EventService {
 
     // === GET ===
 
+
     public List<EventResponseDto> getAllEvents() {
         List<Event> allEvents = eventRepo.findAll();
 
@@ -48,7 +49,6 @@ public class EventService {
 
         return eventToEventResponseDtoMapper( event );
     }
-
 
     public Event getRawEventById( String eventId ) {
         return eventRepo.findById( eventId ).orElseThrow(
@@ -68,6 +68,7 @@ public class EventService {
                 .toList();
     }
 
+    // === POST ===
 
     public List<EventResponseDto> getEventByUserId( String userId ) {
         List<Event> events = eventRepo.findAll();
@@ -81,7 +82,7 @@ public class EventService {
                 .toList();
     }
 
-    // === POST ===
+    // === PUT ===
 
     public Event createEvent( EventRequestDto eventDto, String imageId ) {
         Event mappedEvent = eventRequestDtoToEventMapper( eventDto );
@@ -95,8 +96,6 @@ public class EventService {
         return eventRepo.save( mappedEvent );
     }
 
-    // === PUT ===
-
     public Event updateEvent( String eventId, @Valid EventRequestDto updateEventData ) {
         Event existingEvent = eventRepo.findById( eventId ).orElseThrow( () ->
                 new ResourceNotFoundException( "Event not found with id:" + eventId )
@@ -106,6 +105,9 @@ public class EventService {
                 () -> new ResourceNotFoundException( "Organization not found with id: " + updateEventData.organizationId() )
         );
 
+        int currentFreeTickets = getCurrentFreeTickets( updateEventData, existingEvent );
+
+
         Event updatedEvent = existingEvent.toBuilder()
                 .eventOrganization( organization )
                 .title( updateEventData.title() )
@@ -114,7 +116,7 @@ public class EventService {
                 .location( updateEventData.location() )
                 .price( updateEventData.price() )
                 .maxTicketCapacity( updateEventData.maxTicketCapacity() )
-                .freeTicketCapacity( existingEvent.getFreeTicketCapacity() )
+                .freeTicketCapacity( currentFreeTickets )
                 .maxPerBooking( updateEventData.maxPerBooking() )
                 .build();
 
@@ -122,7 +124,24 @@ public class EventService {
         return eventRepo.save( updatedEvent );
     }
 
-    // === Mappers ===
+    // === Mappers & Helpers ===
+
+
+    private int getCurrentFreeTickets( EventRequestDto updateEventData, Event existingEvent ) {
+        boolean withNewMaxCapacity = !updateEventData.maxTicketCapacity().equals( existingEvent.getMaxTicketCapacity() );
+
+        int bookedTickets = existingEvent.getBookedTicketsCount();
+        int currentFreeTickets = existingEvent.getFreeTicketCapacity();
+        if ( withNewMaxCapacity ) {
+
+            if ( updateEventData.maxTicketCapacity() < bookedTickets ) {
+                throw new IllegalArgumentException( "Max ticket capacity cannot be less than already booked tickets: " + bookedTickets );
+            }
+
+            currentFreeTickets = updateEventData.maxTicketCapacity() - bookedTickets;
+        }
+        return currentFreeTickets;
+    }
 
     private Event eventRequestDtoToEventMapper( EventRequestDto eventDto ) {
 
@@ -137,6 +156,7 @@ public class EventService {
                 .eventDateTime( eventDto.eventDateTime() )
                 .location( eventDto.location() )
                 .price( eventDto.price() )
+                .bookedTicketsCount( 0 )
                 .maxTicketCapacity( eventDto.maxTicketCapacity() )
                 .freeTicketCapacity( eventDto.maxTicketCapacity() != null ? eventDto.maxTicketCapacity() : null )
                 .maxPerBooking( eventDto.maxPerBooking() )
@@ -191,6 +211,7 @@ public class EventService {
                 .location( event.getLocation() )
                 .price( event.getPrice() )
                 .ticketAlarm( isUnder20PercentLeft )
+                .bookedTicketsCount( event.getBookedTicketsCount() )
                 .isSoldOut( isSoldOut )
                 .maxPerBooking( event.getMaxPerBooking() )
                 .imageId( event.getImageId() )

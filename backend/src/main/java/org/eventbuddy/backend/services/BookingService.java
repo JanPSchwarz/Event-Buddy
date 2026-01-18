@@ -62,6 +62,10 @@ public class BookingService {
             throw new IllegalStateException( "Not enough tickets available for your booking. Tickets left: " + associatedEvent.getFreeTicketCapacity() );
         }
 
+        Event updatedEvent = associatedEvent.toBuilder()
+                .bookedTicketsCount( associatedEvent.getBookedTicketsCount() + bookingRequestDto.numberOfTickets() )
+                .build();
+
         // calculate and update free ticket capacity
         if ( !hasLimitlessTickets ) {
             int updatedFreeTicketCapacity = associatedEvent.getFreeTicketCapacity() - bookingRequestDto.numberOfTickets();
@@ -70,14 +74,15 @@ public class BookingService {
 
             boolean isTicketAlarm = ( ( double ) updatedFreeTicketCapacity / associatedEvent.getMaxTicketCapacity() ) <= 0.2;
 
-            Event updatedEvent = associatedEvent.toBuilder()
+            updatedEvent = updatedEvent.toBuilder()
                     .freeTicketCapacity( updatedFreeTicketCapacity )
                     .ticketAlarm( isTicketAlarm )
                     .isSoldOut( isSoldOut )
                     .build();
 
-            eventRepository.save( updatedEvent );
         }
+
+        eventRepository.save( updatedEvent );
 
         Booking newBooking = requestToBookingMapper( bookingRequestDto );
 

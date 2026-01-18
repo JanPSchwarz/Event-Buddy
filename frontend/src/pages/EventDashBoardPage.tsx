@@ -34,7 +34,7 @@ export default function EventDashBoardPage() {
     const maxTickets = eventData?.data?.maxTicketCapacity;
     const freeTickets = eventData?.data?.freeTicketCapacity;
 
-    const progressValue = maxTickets && freeTickets ? ( ( maxTickets - freeTickets ) / maxTickets ) * 100 : 100;
+    const progressValue = maxTickets ? eventData.data.bookedTicketsCount / maxTickets * 100 : 100;
 
     return (
         <PageWrapper className={ "w-11/12 mx-auto max-w-[1000px]" }>
@@ -59,6 +59,12 @@ export default function EventDashBoardPage() {
             </div>
             <div className={ "w-full space-y-4" }>
                 <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+                    Id:
+                </Text>
+                <Text>
+                    { eventData.data.id }
+                </Text>
+                <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
                     Title:
                 </Text>
                 <Text className={ "" }>
@@ -71,7 +77,10 @@ export default function EventDashBoardPage() {
                     { new Date( eventData.data.eventDateTime ).toLocaleString() }
                 </Text>
                 <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
-                    Tickets Sold: { maxTickets && freeTickets ? maxTickets - freeTickets : "Limitless Tickets" }
+                    Tickets booked:
+                </Text>
+                <Text>
+                    { eventData.data.bookedTicketsCount ?? "Limitless Tickets" }
                 </Text>
                 <Progress value={ progressValue } className={ "w-full" }/>
                 <div className={ "flex justify-between" }>
@@ -79,7 +88,7 @@ export default function EventDashBoardPage() {
                         Max Tickets: { maxTickets ?? "no limit" }
                     </Text>
                     <Text>
-                        { maxTickets && progressValue + " % sold" }
+                        { maxTickets && progressValue + " % booked" }
                     </Text>
                     <Text>
                         Tickets Available: { freeTickets ?? "-" }

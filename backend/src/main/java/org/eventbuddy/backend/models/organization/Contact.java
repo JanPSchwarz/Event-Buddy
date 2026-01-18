@@ -10,7 +10,8 @@ public record Contact(
         @Schema(
                 description = "Email address of the organization",
                 accessMode = Schema.AccessMode.READ_ONLY,
-                example = "test@example.com"
+                example = "test@example.com",
+                format = "email"
         )
         @Email
         String email,
