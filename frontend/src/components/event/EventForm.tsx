@@ -16,6 +16,7 @@ import ButtonWithLoading from "@/components/shared/ButtonWithLoading.tsx";
 const extendedEventBody = createEventBody.extend( {
     event: createEventBody.shape.event.extend( {
             eventDateTime: z.preprocess( ( dateTime: string ) => {
+                console.log( dateTime );
                 if ( dateTime.length == 0 ) return "";
                 return new Date( dateTime ).toISOString();
             }, z.iso.datetime( "Date and time are required" ) )

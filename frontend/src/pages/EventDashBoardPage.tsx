@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { ArrowLeftIcon } from "lucide-react";
 import DashboardEventData from "@/components/dashboard/DashboardEventData.tsx";
+import DeleteEventDialog from "@/components/dashboard/DeleteEventDialog.tsx";
 
 export default function EventDashBoardPage() {
 
@@ -31,16 +32,17 @@ export default function EventDashBoardPage() {
     if ( !eventData?.data ) return null;
 
     return (
-        <PageWrapper className={ "w-11/12 mx-auto max-w-[1000px]" }>
+        <PageWrapper className={ "w-11/12 mx-auto max-w-[1000px] mb-12" }>
             <MainHeading heading={ "Event Manager" } subheading={ eventData.data.title }/>
-            <div className={ "w-full mb-6 flex justify-between" }>
+            <div
+                className={ "w-full mb-6 flex items-start md:flex-row flex-col gap-8" }>
                 <Button asChild variant={ "outline" }>
                     <NavLink to={ `/dashboard/${ user.id }` }>
                         <ArrowLeftIcon/>
-                        Go to dashboard
+                        Go to Dashboard
                     </NavLink>
                 </Button>
-                <div className={ "space-x-4" }>
+                <div className={ "flex items-end md:items-end md:justify-end flex-wrap w-full gap-4" }>
                     <Button disabled>
                         Download Guest List
                     </Button>
@@ -49,6 +51,7 @@ export default function EventDashBoardPage() {
                             Edit Event
                         </NavLink>
                     </Button>
+                    <DeleteEventDialog/>
                 </div>
             </div>
             <DashboardEventData event={ eventData.data }/>

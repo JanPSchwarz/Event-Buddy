@@ -77,15 +77,13 @@ export default function BookingForm( {
                 }
             },
             {
-                onSuccess: ( response ) => {
-                    console.log( "Booking successful", response );
+                onSuccess: () => {
                     toast.success( "Event booked successfully!" );
                     queryClient.invalidateQueries().then( () => {
                         bookingCompleted();
                     } );
                 },
                 onError: ( error ) => {
-                    console.error( "Booking failed", error );
                     toast.error( error.response?.data.error || "Error booking tickets" );
                 }
             }

@@ -228,6 +228,37 @@ public class EventController {
         return ResponseEntity.ok( updatedEvent );
     }
 
+    // === DELETE Endpoints ===
+    @DeleteMapping("/{eventId}")
+    @Operation(
+            summary = "Delete an event (Organization Owners / Super Admin only)",
+            description = "Deletes the event with the specified ID."
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "User not authenticated/authorized",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Event not found",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    public ResponseEntity<Void> deleteEventById(
+            OAuth2AuthenticationToken authToken,
+            @PathVariable String eventId
+    ) {
+        checkIsOrganizationOwnerOrSuperAdmin( eventId, authToken );
+        eventService.deleteEventById( eventId );
+        return ResponseEntity.noContent().build();
+    }
+
     // == Helper methods ==
 
     private void checkIsOrganizationOwner( String organizationId, OAuth2AuthenticationToken authToken ) {

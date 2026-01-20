@@ -69,6 +69,14 @@ export const updateEventBody = zod.object({
 })
 
 /**
+ * Deletes the event with the specified ID.
+ * @summary Delete an event (Organization Owners / Super Admin only)
+ */
+export const deleteEventByIdParams = zod.object({
+  "eventId": zod.string()
+})
+
+/**
  * Create a new event with the provided details
  * @summary Create a new Event
  */

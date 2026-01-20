@@ -185,3 +185,64 @@ export function useGetBookingsByUser<TData = Awaited<ReturnType<typeof getBookin
 
 
 
+/**
+ * @summary Delete a booking by its ID
+ */
+export const deleteBookingById = (
+    bookingId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.default.delete(
+      `http://localhost:8080/api/booking/${bookingId}`,options
+    );
+  }
+
+
+
+export const getDeleteBookingByIdMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteBookingById>>, TError,{bookingId: string}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteBookingById>>, TError,{bookingId: string}, TContext> => {
+
+const mutationKey = ['deleteBookingById'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteBookingById>>, {bookingId: string}> = (props) => {
+          const {bookingId} = props ?? {};
+
+          return  deleteBookingById(bookingId,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteBookingByIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteBookingById>>>
+    
+    export type DeleteBookingByIdMutationError = AxiosError<ErrorMessage>
+
+    /**
+ * @summary Delete a booking by its ID
+ */
+export const useDeleteBookingById = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteBookingById>>, TError,{bookingId: string}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteBookingById>>,
+        TError,
+        {bookingId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteBookingByIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    

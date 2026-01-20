@@ -14,7 +14,7 @@ export default function DashboardEventData( { event }: DashboardEventManagerProp
     const progressValue = maxTickets ? event.bookedTicketsCount / maxTickets * 100 : 100;
 
     return (
-        <div className={ "w-full grid grid-cols-2 space-y-12" }>
+        <div className={ "w-full grid grid-cols-2 space-y-12 break-words" }>
             <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
                 Id:
             </Text>

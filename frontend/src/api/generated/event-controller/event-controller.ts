@@ -205,6 +205,67 @@ export const useUpdateEvent = <TError = AxiosError<ErrorMessage>,
       return useMutation(mutationOptions, queryClient);
     }
     /**
+ * Deletes the event with the specified ID.
+ * @summary Delete an event (Organization Owners / Super Admin only)
+ */
+export const deleteEventById = (
+    eventId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.default.delete(
+      `http://localhost:8080/api/events/${eventId}`,options
+    );
+  }
+
+
+
+export const getDeleteEventByIdMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEventById>>, TError,{eventId: string}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteEventById>>, TError,{eventId: string}, TContext> => {
+
+const mutationKey = ['deleteEventById'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteEventById>>, {eventId: string}> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  deleteEventById(eventId,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteEventByIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEventById>>>
+    
+    export type DeleteEventByIdMutationError = AxiosError<ErrorMessage>
+
+    /**
+ * @summary Delete an event (Organization Owners / Super Admin only)
+ */
+export const useDeleteEventById = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEventById>>, TError,{eventId: string}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteEventById>>,
+        TError,
+        {eventId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteEventByIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * Create a new event with the provided details
  * @summary Create a new Event
  */

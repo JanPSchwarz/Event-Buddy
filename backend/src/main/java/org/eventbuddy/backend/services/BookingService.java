@@ -3,6 +3,7 @@ package org.eventbuddy.backend.services;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
+import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.booking.Booking;
 import org.eventbuddy.backend.models.booking.BookingRequestDto;
 import org.eventbuddy.backend.models.booking.BookingResponseDto;
@@ -93,6 +94,41 @@ public class BookingService {
 
 
     // === DELETE Methods ===
+
+    public void deleteBookingById( String bookingId, String userId ) {
+        Booking bookingToDelete = bookingRepository.findById( bookingId ).orElseThrow( () ->
+                new ResourceNotFoundException( "Booking not found with id: " + bookingId ) );
+
+        if ( !bookingToDelete.getUserId().equals( userId ) ) {
+            throw new UnauthorizedException( "You are not authorized to perform this action." );
+        }
+
+        Event associatedEvent = bookingToDelete.getEvent();
+
+        Event updatedEvent = associatedEvent.toBuilder()
+                .bookedTicketsCount( associatedEvent.getBookedTicketsCount() - bookingToDelete.getNumberOfTickets() )
+                .build();
+
+        // calculate and update free ticket capacity
+        if ( associatedEvent.getMaxTicketCapacity() != null ) {
+            int updatedFreeTicketCapacity = associatedEvent.getFreeTicketCapacity() + bookingToDelete.getNumberOfTickets();
+
+            boolean isSoldOut = updatedFreeTicketCapacity == 0;
+
+            boolean isTicketAlarm = ( ( double ) updatedFreeTicketCapacity / associatedEvent.getMaxTicketCapacity() ) <= 0.2;
+
+            updatedEvent = updatedEvent.toBuilder()
+                    .freeTicketCapacity( updatedFreeTicketCapacity )
+                    .ticketAlarm( isTicketAlarm )
+                    .isSoldOut( isSoldOut )
+                    .build();
+
+        }
+
+        eventRepository.save( updatedEvent );
+
+        bookingRepository.deleteById( bookingId );
+    }
 
     // === Helper Methods ===
 

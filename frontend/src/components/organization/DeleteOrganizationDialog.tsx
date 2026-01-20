@@ -54,6 +54,7 @@ export default function DeleteOrganizationDialog( {
                 },
                 onError: ( error ) => {
                     console.error( "Error deleting organization:", error );
+                    toast.error( error.response?.data.error || "Error deleting orga" );
                 }
             }
         )

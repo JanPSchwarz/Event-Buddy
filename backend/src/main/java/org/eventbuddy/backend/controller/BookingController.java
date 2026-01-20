@@ -103,5 +103,35 @@ public class BookingController {
 
 
     // === DELETE Endpoints ===
+
+    @DeleteMapping("/{bookingId}")
+    @Operation(
+            summary = "Delete a booking by its ID"
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Not authorized to delete this booking",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Booking/User not found",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    public ResponseEntity<Void> deleteBookingById( @PathVariable String bookingId, OAuth2AuthenticationToken authToken ) {
+        AppUser user = authService.getAppUserByAuthToken( authToken );
+
+        bookingService.deleteBookingById( bookingId, user.getId() );
+
+        return ResponseEntity.noContent().build();
+    }
+
     // === Helper Methods ===
+
 }

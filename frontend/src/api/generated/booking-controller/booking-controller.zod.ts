@@ -21,3 +21,10 @@ export const getBookingsByUserParams = zod.object({
   "userId": zod.string()
 })
 
+/**
+ * @summary Delete a booking by its ID
+ */
+export const deleteBookingByIdParams = zod.object({
+  "bookingId": zod.string()
+})
+

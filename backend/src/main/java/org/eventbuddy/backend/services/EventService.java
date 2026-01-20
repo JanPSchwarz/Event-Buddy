@@ -11,9 +11,7 @@ import org.eventbuddy.backend.models.event.EventRequestDto;
 import org.eventbuddy.backend.models.event.EventResponseDto;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
-import org.eventbuddy.backend.repos.EventRepository;
-import org.eventbuddy.backend.repos.OrganizationRepository;
-import org.eventbuddy.backend.repos.UserRepository;
+import org.eventbuddy.backend.repos.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +29,9 @@ public class EventService {
 
     private final UserRepository userRepo;
 
+    private final ImageRepository imageRepo;
+
+    private final BookingRepository bookingRepo;
     // === GET ===
 
 
@@ -122,6 +123,22 @@ public class EventService {
 
 
         return eventRepo.save( updatedEvent );
+    }
+
+    // === DELETE ===
+
+    public void deleteEventById( String eventId ) {
+        Event existingEvent = eventRepo.findById( eventId ).orElseThrow( () ->
+                new ResourceNotFoundException( "Event not found with id:" + eventId )
+        );
+
+        if ( existingEvent.getImageId() != null ) {
+            imageRepo.deleteById( existingEvent.getImageId() );
+        }
+
+        bookingRepo.deleteAllByEvent( existingEvent );
+        
+        eventRepo.delete( existingEvent );
     }
 
     // === Mappers & Helpers ===
