@@ -1,8 +1,8 @@
 import { NavLink, useParams } from "react-router";
 import { useGetRawEventById } from "@/api/generated/event-controller/event-controller.ts";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import MainHeading from "@/components/shared/MainHeading.tsx";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { ArrowLeftIcon } from "lucide-react";
@@ -51,7 +51,7 @@ export default function EventDashBoardPage() {
                         Download Guest List
                     </Button>
                     <Button asChild variant={ "outline" }>
-                        <NavLink to={ `/event/edit/${ eventData.data.id }` }>
+                        <NavLink to={ `/event/edit/${ eventData.data.id }?src=manager` }>
                             Edit Event
                         </NavLink>
                     </Button>

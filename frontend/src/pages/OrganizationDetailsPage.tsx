@@ -1,8 +1,8 @@
 import { useParams } from "react-router";
 import { useContextUser } from "@/context/UserProvider.tsx";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import OrganizationView from "@/components/organization/OrganizationView.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import { useGetOrganizationBySlug } from "@/api/generated/organization/organization.ts";
 import { toast } from "sonner";
 import Text from "@/components/typography/Text.tsx";

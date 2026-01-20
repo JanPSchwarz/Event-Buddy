@@ -1,6 +1,6 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio.tsx";
 import { twMerge } from "tailwind-merge";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 
 type EventImageProps = {
     imageData?: string | null,

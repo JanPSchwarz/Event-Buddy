@@ -1,4 +1,4 @@
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import Text from "@/components/typography/Text.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { PlayIcon } from "lucide-react";

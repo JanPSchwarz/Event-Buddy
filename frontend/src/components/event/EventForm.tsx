@@ -3,7 +3,6 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { AppUserDto, Event, EventRequestDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import LocationFormPart from "@/components/shared/LocationFormPart.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
@@ -12,6 +11,7 @@ import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-con
 import { useState } from "react";
 import ImageFormPart from "@/components/shared/ImageFormPart.tsx";
 import { createEventBody } from "@/api/generated/event-controller/event-controller.zod.ts";
+import ButtonWithLoading from "@/components/shared/ButtonWithLoading.tsx";
 
 const extendedEventBody = createEventBody.extend( {
     event: createEventBody.shape.event.extend( {
@@ -62,7 +62,7 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
         resolver: zodResolver( extendedEventBody ),
         defaultValues: {
             event: {
-                organizationId: eventData?.eventOrganization.id || "",
+                organizationId: eventData?.eventOrganization.id || undefined,
                 title: eventData?.title || "",
                 description: eventData?.description || "",
                 eventDateTime: eventData?.eventDateTime
@@ -83,13 +83,13 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
     } )
 
     const isImageDeletion = !!eventData?.imageId && isRemovingImage && !imageFile;
-    const suppressSubmit = ( !form.formState.isValid && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
+    const suppressSubmit = ( ( !form.formState.isValid || !form.formState.isDirty ) && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: EventFormData ) => {
 
 
         if ( suppressSubmit ) {
-            console.log( "Form is dirty or is submitting, returning early." );
+            console.log( "Form state invalid, returning early." );
             return;
         }
 
@@ -330,9 +330,10 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                     }
                 />
                 <LocationFormPart form={ form } basePath={ "event.location" }/>
-                <Button disabled={ form.formState.isSubmitting } className={ "max-w-[100px] ml-auto" }>
+                <ButtonWithLoading disabled={ form.formState.isSubmitting } isLoading={ form.formState.isSubmitting }
+                                   className={ "max-w-[100px] ml-auto" }>
                     Submit
-                </Button>
+                </ButtonWithLoading>
             </FieldGroup>
         </form>
     )

@@ -1,15 +1,12 @@
 import type { OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import OrganizationView from "@/components/organization/OrganizationView.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
 import { useState } from "react";
 import EditOrganizationForm from "@/components/organization/EditOrganizationForm.tsx";
 import UpdateOwnerDialog from "@/components/organization/UpdateOwnerDialog.tsx";
-import { useDeleteOrganization } from "@/api/generated/organization/organization.ts";
-import { toast } from "sonner";
-import { useNavigate } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import DeleteOrganizationDialog from "@/components/organization/DeleteOrganizationDialog.tsx";
 
 type OrganizationOwnerViewProps = {
     orgData: OrganizationResponseDto,
@@ -19,37 +16,11 @@ export default function OrganizationOwnerView( { orgData }: Readonly<Organizatio
 
     const [ isEditing, setIsEditing ] = useState( false );
 
-    const navigate = useNavigate();
-
-    const queryClient = useQueryClient();
-
-    const deleteOrga = useDeleteOrganization( {
-        axios: { withCredentials: true }
-    } );
 
     const toggleEdit = () => {
         setIsEditing( !isEditing );
     }
 
-    const handleDeleteOrganization = () => {
-        if ( isEditing ) return;
-
-
-        deleteOrga.mutate(
-            { organizationId: orgData.id },
-            {
-                onSuccess: () => {
-                    toast.success( "Organization deleted successfully." );
-                    queryClient.invalidateQueries();
-                    navigate( "/" );
-
-                },
-                onError: ( error ) => {
-                    console.error( "Error deleting organization:", error );
-                }
-            }
-        )
-    }
 
     return (
         <PageWrapper>
@@ -64,9 +35,9 @@ export default function OrganizationOwnerView( { orgData }: Readonly<Organizatio
                     <Button variant={ "outline" } onClick={ toggleEdit }>
                         { isEditing ? "Cancel Editing" : "Edit Organization" }
                     </Button>
-                    <Button variant={ "destructive" } disabled={ isEditing } onClick={ handleDeleteOrganization }>
-                        Delete Organization
-                    </Button>
+                    <DeleteOrganizationDialog organizationId={ orgData.id }
+                                              orgaName={ orgData.name }
+                                              isEditing={ isEditing }/>
                 </div>
             </div>
             { isEditing ?

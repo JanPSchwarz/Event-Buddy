@@ -13,12 +13,12 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import type { OrganizationRequestDto, OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
 import LocationFormPart from "@/components/shared/LocationFormPart.tsx";
 import ImageFormPart from "@/components/shared/ImageFormPart.tsx";
 import { createOrganizationBody } from "@/api/generated/organization/organization.zod.ts";
+import ButtonWithLoading from "@/components/shared/ButtonWithLoading.tsx";
 
 const generatedFormSchema = createOrganizationBody;
 
@@ -68,11 +68,9 @@ export default function OrganizationForm( {
     } );
 
     const isImageDeletion = !!organizationData?.imageId && isRemovingImage && !imageFile;
-    const suppressSubmit = ( !form.formState.isValid && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
+    const suppressSubmit = ( ( !form.formState.isValid || !form.formState.isDirty ) && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: OrganizationFormData ) => {
-
-        console.log( "submit" );
 
         if ( suppressSubmit ) {
             console.log( "Form is dirty or is submitting, returning early." );
@@ -257,9 +255,10 @@ export default function OrganizationForm( {
                         }
                     />
                 </FieldSet>
-                <Button className={ "ml-auto" } type={ "submit" }>
+                <ButtonWithLoading disabled={ form.formState.isSubmitting } isLoading={ form.formState.isSubmitting }
+                                   className={ "ml-auto" } type={ "submit" }>
                     Submit
-                </Button>
+                </ButtonWithLoading>
             </FieldGroup>
         </form>
     )

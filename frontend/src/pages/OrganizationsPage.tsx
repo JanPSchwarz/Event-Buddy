@@ -1,10 +1,10 @@
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import MainHeading from "@/components/shared/MainHeading.tsx";
 import { Building2, Plus } from "lucide-react";
 import { useGetAllOrganizations } from "@/api/generated/organization/organization.ts";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import OrganizationCard from "@/components/organization/OrganizationCard.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { toast } from "sonner";
@@ -17,6 +17,8 @@ export default function OrganizationsPage() {
 
     const navigate = useNavigate();
 
+    const [ _, setSearchParams ] = useSearchParams();
+
     if ( isLoading ) {
         return (
             <CustomLoader size={ "size-6" } text={ "Loading..." }/>
@@ -24,10 +26,14 @@ export default function OrganizationsPage() {
     }
 
     const handleCreateOrganization = () => {
-        if ( !user?.id ) {
-            toast.error( "You must be logged in!" );
-        } else {
+        if ( Object.keys( user ).length > 0 ) {
             navigate( "/organization/create" );
+        } else {
+            toast.error( "You must be logged in!" );
+            setSearchParams( ( searchParams ) => {
+                searchParams.set( "loginModal", "true" );
+                return searchParams;
+            } );
         }
     }
 

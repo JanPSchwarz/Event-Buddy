@@ -1,6 +1,6 @@
 import OrganizationForm from "@/components/organization/OrganizationForm.tsx";
 import type { OrganizationRequestDto, OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
-import { getGetOrganizationBySlugQueryKey, useUpdateOrganization } from "@/api/generated/organization/organization.ts";
+import { useUpdateOrganization } from "@/api/generated/organization/organization.ts";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
@@ -45,14 +45,14 @@ export default function EditOrganizationForm( { organizationData, closeEdit }: R
 
                     toast.success( "Organization updated successfully!" );
 
-                    queryClient.invalidateQueries();
-
-                    if ( response.data.name === organizationData.name ) {
-                        queryClient.invalidateQueries( { queryKey: getGetOrganizationBySlugQueryKey( organizationData.slug ) } )
-                        closeEdit();
-                    } else {
-                        navigate( `/organization/${ response.data.slug }` );
-                    }
+                    queryClient.invalidateQueries().then( () => {
+                            if ( response.data.name === organizationData.name ) {
+                                closeEdit();
+                            } else {
+                                navigate( `/organization/${ response.data.slug }` );
+                            }
+                        }
+                    );
                 },
                 onError: ( error ) => {
                     console.error( "Error updating organization:", error );

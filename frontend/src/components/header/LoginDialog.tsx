@@ -9,11 +9,30 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { loginProvider } from "@/lib/loginProvider.tsx";
 import LoginButton from "@/components/header/LoginButton.tsx";
+import { useSearchParams } from "react-router";
 
 export default function LoginDialog() {
 
+    const [ searchParams, setSearchParams ] = useSearchParams();
+
+    const isLoginModal = searchParams.get( "loginModal" ) === "true";
+
+    const handleOpenChange = ( open: boolean ) => {
+        if ( open ) {
+            setSearchParams( ( searchParams ) => {
+                searchParams.set( "loginModal", "true" );
+                return searchParams;
+            } );
+        } else {
+            setSearchParams( ( searchParams ) => {
+                searchParams.delete( "loginModal" );
+                return searchParams;
+            } );
+        }
+    }
+
     return (
-        <Dialog>
+        <Dialog open={ isLoginModal } onOpenChange={ handleOpenChange }>
             <DialogTrigger asChild>
                 <Button className={ "h-8 px-3 md:h-9 md:px-6 text-sm md:text-base" }>
                     Login

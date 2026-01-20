@@ -30,8 +30,9 @@ export default function CreateOrganizationForm() {
             {
                 onSuccess: ( response ) => {
                     toast.success( "Organization created successfully!" );
-                    queryClient.invalidateQueries();
-                    navigate( `/organization/${ response.data.slug }` );
+                    queryClient.invalidateQueries().then( () => {
+                        navigate( `/organization/${ response.data.slug }` );
+                    } );
                 },
                 onError: ( error ) => {
                     console.error( "Error creating organization:", error );

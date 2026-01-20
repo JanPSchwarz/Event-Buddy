@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useContextUser } from "@/context/UserProvider.tsx";
-import CustomLoader from "@/components/CustomLoader.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import ProfileOwner from "@/components/profile/ProfileOwner.tsx";
 import ProfileWatcher from "@/components/profile/ProfileWatcher.tsx";
 

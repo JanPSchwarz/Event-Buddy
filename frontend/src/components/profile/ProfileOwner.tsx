@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
 import { Info } from "lucide-react";
 import EditProfile from "@/components/profile/EditProfile.tsx";
+import { useGetUserById } from "@/api/generated/user/user.ts";
 
 
 export default function ProfileOwner() {
@@ -20,6 +21,12 @@ export default function ProfileOwner() {
 
     const { user: loggedInUser, isLoggedIn } = useContextUser();
 
+    const { data: fetchedProfileData } = useGetUserById( loggedInUser.id || "", {
+        query: {
+            enabled: !!loggedInUser.id
+        }
+    } );
+
     if ( !isLoggedIn ) {
         toast.error( "User not logged in" );
         return <Navigate to={ `/` }/>;
@@ -31,22 +38,34 @@ export default function ProfileOwner() {
         setShowOwnerView( !showOwnerView );
     }
 
-    const toggleIsEdditing = () => {
+    const toggleIsEditing = () => {
         setIsEditing( !isEditing );
 
         if ( !showOwnerView ) setShowOwnerView( true );
     }
 
-    const { showAvatar, showEmail, userVisible } = loggedInUser.userSettings;
+    const { showAvatar, showEmail, userVisible, showOrgas } = loggedInUser.userSettings;
+
+    const fullData = {
+        email: loggedInUser.email,
+        id: loggedInUser.id,
+        name: loggedInUser.name,
+        avatarUrl: loggedInUser.avatarUrl,
+        organizations: fetchedProfileData?.data?.organizations || []
+    };
+
+    const dataWithVisibilitySettings = {
+        email: showEmail ? loggedInUser.email : undefined,
+        id: loggedInUser.id,
+        name: loggedInUser.name,
+        avatarUrl: showAvatar ? loggedInUser.avatarUrl : undefined,
+        organizations: showOrgas ? fetchedProfileData?.data?.organizations || [] : []
+    };
 
     const displayData = showOwnerView ?
-        loggedInUser
+        fullData
         :
-        {
-            ...loggedInUser,
-            avatarUrl: showAvatar ? loggedInUser.avatarUrl : undefined,
-            email: showEmail ? loggedInUser.email : undefined,
-        }
+        dataWithVisibilitySettings
 
     const handleGoToSettings = () => {
         if ( isEditing ) return;
@@ -75,7 +94,7 @@ export default function ProfileOwner() {
                         Go to Settings
                     </Button>
                 </div>
-                <Button variant={ "outline" } onClick={ toggleIsEdditing }>
+                <Button variant={ "outline" } onClick={ toggleIsEditing }>
                     { isEditing ? "Cancel" : "Edit Profile" }
                 </Button>
             </div>
@@ -101,7 +120,7 @@ export default function ProfileOwner() {
             }
             {
                 isEditing ?
-                    <EditProfile userData={ loggedInUser } onSubmit={ toggleIsEdditing }/>
+                    <EditProfile userData={ loggedInUser } onSubmit={ toggleIsEditing }/>
                     :
                     <ProfileView userData={ displayData }/>
             }

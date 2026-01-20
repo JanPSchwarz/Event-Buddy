@@ -1,33 +1,39 @@
 import { useGetAllEvents } from "@/api/generated/event-controller/event-controller.ts";
-import CustomLoader from "@/components/CustomLoader.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import { Plus, TicketIcon } from "lucide-react";
 import EventCard from "@/components/event/EventCard.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import MainHeading from "@/components/shared/MainHeading.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 export default function EventsPage() {
 
-    const { data: allEvents, isLoading } = useGetAllEvents();
+    const { data: allEvents, isPending } = useGetAllEvents();
 
-    const { user } = useContextUser()
+    const { user } = useContextUser();
+
+    const [ _, setSearchParams ] = useSearchParams();
 
     const navigate = useNavigate();
 
-    if ( isLoading ) {
+    if ( isPending ) {
         return (
             <CustomLoader size={ "size-6" } text={ "Loading..." }/>
         );
     }
 
     const handleCreateEvent = () => {
-        if ( !user?.id ) {
-            toast.error( "You must be logged in!" );
-        } else {
+        if ( Object.keys( user ).length > 0 ) {
             navigate( "/event/create" );
+        } else {
+            setSearchParams( ( searchParams ) => {
+                searchParams.set( "loginModal", "true" );
+                return searchParams;
+            } )
+            toast.error( "You must be logged in!" );
         }
     }
 

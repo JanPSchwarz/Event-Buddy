@@ -1,10 +1,10 @@
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import { useGetEventById } from "@/api/generated/event-controller/event-controller.ts";
-import { NavLink, useParams } from "react-router";
+import { NavLink, useParams, useSearchParams } from "react-router";
 import Text from "@/components/typography/Text.tsx";
 import PageNotFound from "@/pages/PageNotFound.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import EventCalendarSheet from "@/components/event/EventCalendarSheet.tsx";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
 import { Button } from "@/components/ui/button.tsx";
@@ -14,10 +14,15 @@ import EventImage from "@/components/event/EventImage.tsx";
 import BookingDialog from "@/components/booking/BookingDialog.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
+import { v4 as uuidv4 } from 'uuid';
+
 
 export default function EventDetailsPage() {
 
     const { eventId } = useParams();
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [ _, setSearchParams ] = useSearchParams();
 
     const { user } = useContextUser();
 
@@ -65,6 +70,13 @@ export default function EventDetailsPage() {
 
     const isOwner = user?.organizations?.includes( event.eventOrganization.id || "" );
 
+    const handleNotAuthenticatedUser = () => {
+        setSearchParams( ( searchParams ) => {
+            searchParams.set( "loginModal", `true` );
+            return searchParams;
+        } )
+    }
+
     return (
         <PageWrapper className={ "max-w-[800px] mx-auto" }>
             {
@@ -104,7 +116,13 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent className={ "space-y-8" }>
                     <EventImage imageData={ imageData?.data }/>
-                    <BookingDialog event={ eventData?.data }/>
+                    { Object.keys( user ).length > 0 ?
+                        <BookingDialog event={ eventData?.data }/>
+                        :
+                        <Button onClick={ handleNotAuthenticatedUser }>
+                            Book Now
+                        </Button>
+                    }
                     <div className={ "space-y-4" }>
                         <Text styleVariant={ "h3" } className={ "text-muted-foreground" }>
                             Description
@@ -112,8 +130,8 @@ export default function EventDetailsPage() {
                         <div className={ "space-y-4" }>
                             {
                                 event.description ?
-                                    event.description.split( ( `\n` ) ).map( ( paragraph, index ) => (
-                                            <Text key={ index } className={ "" }>
+                                    event.description.split( ( `\n` ) ).map( ( paragraph ) => (
+                                            <Text key={ uuidv4() } className={ "" }>
                                                 { paragraph }
                                             </Text>
                                         )
@@ -133,7 +151,7 @@ export default function EventDetailsPage() {
                             </Text>
                         </Text>
                         <Text>
-                            { event.price != 0 ? `${ event.price.toFixed( 2 ) } €` : "Free" }
+                            { event.price == 0 ? "Free" : `${ event.price.toFixed( 2 ) } €` }
                         </Text>
                     </div>
                     <Separator/>

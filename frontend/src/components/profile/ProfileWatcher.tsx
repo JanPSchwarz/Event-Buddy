@@ -1,6 +1,6 @@
 import { useGetUserById } from "@/api/generated/user/user.ts";
 import { Navigate, useParams } from "react-router";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import { toast } from "sonner";
 import ProfileView from "@/components/profile/ProfileView.tsx";
 import Text from "@/components/typography/Text.tsx";
@@ -10,7 +10,11 @@ export default function ProfileWatcher() {
 
     const { userId: profileUserId } = useParams();
 
-    const { data: fetchedProfileData, isLoading: isLoadingProfileData, error } = useGetUserById( profileUserId ?? "" );
+    const { data: fetchedProfileData, isLoading: isLoadingProfileData, error } = useGetUserById( profileUserId || "", {
+        query: {
+            enabled: !!profileUserId
+        }
+    } );
 
     if ( isLoadingProfileData ) {
         return <CustomLoader size={ "size-6" } text={ "Profile loading..." }/>
