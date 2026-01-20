@@ -163,6 +163,7 @@ public class BookingService {
         return BookingResponseDto.builder()
                 .hostingEvent( eventResponseDto )
                 .name( booking.getName() )
+                .bookingId( booking.getId() )
                 .numberOfTickets( booking.getNumberOfTickets() )
                 .build();
     }

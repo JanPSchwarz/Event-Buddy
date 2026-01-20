@@ -15,7 +15,7 @@ type DashboardEventProps = {
 export default function DashboardEvents( { events = [], isLoading }: Readonly<DashboardEventProps> ) {
 
     return (
-        <div className={ "space-y-12" }>
+        <div className={ "space-y-4" }>
             <div className={ "flex" }>
                 <Button size={ "sm" } className={ "ml-auto" } asChild>
                     <NavLink to={ "/event/create" }>
@@ -33,7 +33,7 @@ export default function DashboardEvents( { events = [], isLoading }: Readonly<Da
                         No Events here yet.
                     </Text>
                     :
-                    <div className={ "flex gap-8 items-center flex-wrap justify-start" }>
+                    <div className={ "flex gap-8 items-center flex-wrap justify-center md:justify-start" }>
                         { events.map( ( event ) => (
                             <div key={ event.id } className={ "border p-4 rounded-md" }>
                                 <EventCard key={ event.id } event={ event }/>

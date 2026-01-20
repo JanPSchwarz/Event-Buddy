@@ -127,12 +127,12 @@ public class EventService {
     // === Mappers & Helpers ===
 
 
-    private int getCurrentFreeTickets( EventRequestDto updateEventData, Event existingEvent ) {
+    private Integer getCurrentFreeTickets( EventRequestDto updateEventData, Event existingEvent ) {
 
         boolean withNewMaxCapacity = !updateEventData.maxTicketCapacity().equals( existingEvent.getMaxTicketCapacity() );
 
-        int bookedTickets = existingEvent.getBookedTicketsCount();
-        int currentFreeTickets = existingEvent.getFreeTicketCapacity();
+        Integer bookedTickets = existingEvent.getBookedTicketsCount();
+        Integer currentFreeTickets = existingEvent.getFreeTicketCapacity();
         if ( withNewMaxCapacity ) {
 
             if ( updateEventData.maxTicketCapacity() < bookedTickets ) {

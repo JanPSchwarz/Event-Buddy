@@ -6,19 +6,21 @@ import { User } from "lucide-react";
 import Text from "@/components/typography/Text.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { NavLink } from "react-router";
+import { twMerge } from "tailwind-merge";
 
 type OrganizationCardProps = {
-    orgData: OrganizationResponseDto
+    orgData: OrganizationResponseDto,
+    cardClassName?: string,
 }
 
-export default function OrganizationCard( { orgData }: Readonly<OrganizationCardProps> ) {
+export default function OrganizationCard( { orgData, cardClassName }: Readonly<OrganizationCardProps> ) {
 
     const { data: imageData } = useGetImageAsDataUrl( orgData.imageId || "", {
         query: { enabled: !!orgData.imageId },
     } )
 
     return (
-        <Card className={ "py-3 w-[350px]" }>
+        <Card className={ twMerge( "py-3", cardClassName ) }>
             <CardContent>
                 <div className={ "flex justify-between gap-4 items-start" }>
                     <div>

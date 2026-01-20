@@ -27,12 +27,16 @@ type OrganizationFormData = z.infer<typeof generatedFormSchema>;
 type OrganizationFormProps = {
     organizationData?: OrganizationResponseDto,
     onSubmit: ( organizationDto: OrganizationRequestDto, imageFile: File | null, deleteImage: boolean | undefined ) => void,
+    isLoading?: boolean,
+    formClassName?: string,
 }
 
 
 export default function OrganizationForm( {
                                               organizationData,
-                                              onSubmit
+                                              onSubmit,
+                                              isLoading,
+                                              formClassName
                                           }: Readonly<OrganizationFormProps> ) {
 
     const { data: imageData } = useGetImageAsDataUrl( organizationData?.imageId || "", {
@@ -113,7 +117,7 @@ export default function OrganizationForm( {
 
 
     return (
-        <form onSubmit={ form.handleSubmit( handleSubmit ) }>
+        <form onSubmit={ form.handleSubmit( handleSubmit ) } className={ formClassName }>
             <FieldGroup>
                 <FieldSeparator/>
                 <ImageFormPart setImageFile={ handleImageFile }
@@ -255,7 +259,7 @@ export default function OrganizationForm( {
                         }
                     />
                 </FieldSet>
-                <ButtonWithLoading disabled={ form.formState.isSubmitting } isLoading={ form.formState.isSubmitting }
+                <ButtonWithLoading disabled={ form.formState.isSubmitting } isLoading={ isLoading }
                                    className={ "ml-auto" } type={ "submit" }>
                     Submit
                 </ButtonWithLoading>

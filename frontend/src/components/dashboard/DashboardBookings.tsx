@@ -15,7 +15,7 @@ type DashboardBookingsProps = {
 export default function DashboardBookings( { bookings = [], isLoading }: Readonly<DashboardBookingsProps> ) {
 
     return (
-        <div className={ "space-y-12 mb-12" }>
+        <div className={ "space-y-4 mb-12" }>
             <div className={ "w-full flex" }>
                 <Button size={ "sm" } className={ "ml-auto" } asChild>
                     <NavLink to={ "/events" }>
@@ -33,7 +33,7 @@ export default function DashboardBookings( { bookings = [], isLoading }: Readonl
                         No Bookings to display.
                     </Text>
                     :
-                    <div className={ "flex gap-8 justify-start flex-wrap" }>
+                    <div className={ "flex gap-8 justify-center md:justify-start flex-wrap" }>
                         { bookings?.map( ( booking ) => (
                             <BookingCard booking={ booking } key={ booking.bookingId }/>
                         ) ) }

@@ -54,7 +54,8 @@ export default function OrganizationsPage() {
                 {
                     allOrganization?.data.map( ( organization ) => {
                             return (
-                                <OrganizationCard key={ organization.id } orgData={ organization }/>
+                                <OrganizationCard cardClassName={ "w-full max-w-[400px]" } key={ organization.id }
+                                                  orgData={ organization }/>
                             )
                         }
                     )

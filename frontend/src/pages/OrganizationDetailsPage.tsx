@@ -35,7 +35,7 @@ export default function OrganizationDetailsPage() {
     }
 
     return (
-        <PageWrapper>
+        <PageWrapper className={ "mt-0 md:mt-0" }>
             { isOwner ?
                 <OrganizationOwnerView orgData={ organizationData?.data }/>
                 :

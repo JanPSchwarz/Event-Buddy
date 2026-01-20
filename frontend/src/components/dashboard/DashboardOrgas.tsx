@@ -15,7 +15,7 @@ type DashboardOrgaProps = {
 export default function DashboardOrgas( { organizations = [], isLoading }: Readonly<DashboardOrgaProps> ) {
 
     return (
-        <div className={ "space-y-12 mb-12" }>
+        <div className={ "space-y-4 mb-12" }>
             <div className={ "flex" }>
                 <Button size={ "sm" } className={ "ml-auto" } asChild>
                     <NavLink to={ "/organization/create" }>
@@ -33,9 +33,26 @@ export default function DashboardOrgas( { organizations = [], isLoading }: Reado
                         No Organization here yet.
                     </Text>
                     :
-                    <div className={ "flex gap-6 justify-start gap-8 flex-wrap" }>
+                    <div className={ "flex justify-center md:justify-start gap-8 flex-wrap" }>
                         { organizations.map( ( orga ) => (
-                            <OrganizationCard key={ orga.id } orgData={ orga }/>
+                            <div key={ orga.id } className={ "border p-4 rounded-md space-y-4" }>
+                                <OrganizationCard orgData={ orga }/>
+                                <Text styleVariant={ "smallMuted" }>
+                                    Orga Id: { orga.id }
+                                </Text>
+                                <div className={ "flex justify-between" }>
+                                    <Button asChild>
+                                        <NavLink to={ `/organization/${ orga.slug }` }>
+                                            Manage
+                                        </NavLink>
+                                    </Button>
+                                    <Button asChild variant={ "secondary" }>
+                                        <NavLink to={ `/organization/${ orga.slug }?edit=true` }>
+                                            Edit
+                                        </NavLink>
+                                    </Button>
+                                </div>
+                            </div>
                         ) ) }
                     </div>
             }

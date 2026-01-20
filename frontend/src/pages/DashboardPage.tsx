@@ -40,11 +40,12 @@ export default function DashboardPage() {
 
     return (
         <PageWrapper className={ "mb-12" }>
-            <MainHeading heading={ "Your Dashboard" } subheading={ user.name }/>
+            <MainHeading heading={ "Dashboard" } subheading={ user.name }/>
             <div className={ "w-11/12 space-y-12" }>
-                <Accordion type={ "multiple" } className={ "w-full space-y-12" }>
+                <Accordion type={ "multiple" } defaultValue={ [ "bookings", "organizations", "events" ] }
+                           className={ "w-full space-y-12" }>
                     <AccordionItem value={ "bookings" }>
-                        <AccordionTrigger>
+                        <AccordionTrigger className={ "bg-muted px-4 mb-4" }>
                             Bookings
                         </AccordionTrigger>
                         <AccordionContent>
@@ -52,7 +53,7 @@ export default function DashboardPage() {
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value={ "organizations" }>
-                        <AccordionTrigger>
+                        <AccordionTrigger className={ "bg-muted px-4 mb-4" }>
                             Organizations
                         </AccordionTrigger>
                         <AccordionContent>
@@ -61,7 +62,7 @@ export default function DashboardPage() {
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value={ "events" }>
-                        <AccordionTrigger>
+                        <AccordionTrigger className={ "bg-muted px-4 mb-4" }>
                             Events
                         </AccordionTrigger>
                         <AccordionContent>
