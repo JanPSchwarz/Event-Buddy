@@ -3,7 +3,6 @@ package org.eventbuddy.backend.services;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.booking.Booking;
 import org.eventbuddy.backend.models.booking.BookingRequestDto;
 import org.eventbuddy.backend.models.booking.BookingResponseDto;
@@ -39,6 +38,11 @@ public class BookingService {
                 .toList();
     }
 
+    public Booking getRawBookingById( String bookingId ) {
+        return bookingRepository.findById( bookingId ).orElseThrow( () ->
+                new ResourceNotFoundException( "Booking not found with id: " + bookingId ) );
+    }
+
 
     // === POST Methods ===
     public BookingResponseDto makeBooking( BookingRequestDto bookingRequestDto ) {
@@ -67,7 +71,7 @@ public class BookingService {
                 .bookedTicketsCount( associatedEvent.getBookedTicketsCount() + bookingRequestDto.numberOfTickets() )
                 .build();
 
-        // calculate and update free ticket capacity
+        // calculate and update free ticket capacity and isSoldOut/ticketAlarm flags
         if ( !hasLimitlessTickets ) {
             int updatedFreeTicketCapacity = associatedEvent.getFreeTicketCapacity() - bookingRequestDto.numberOfTickets();
 
@@ -95,13 +99,9 @@ public class BookingService {
 
     // === DELETE Methods ===
 
-    public void deleteBookingById( String bookingId, String userId ) {
+    public void deleteBookingById( String bookingId ) {
         Booking bookingToDelete = bookingRepository.findById( bookingId ).orElseThrow( () ->
                 new ResourceNotFoundException( "Booking not found with id: " + bookingId ) );
-
-        if ( !bookingToDelete.getUserId().equals( userId ) ) {
-            throw new UnauthorizedException( "You are not authorized to perform this action." );
-        }
 
         Event associatedEvent = bookingToDelete.getEvent();
 
@@ -191,6 +191,7 @@ public class BookingService {
                 .eventDateTime( associatedEvent.getEventDateTime() )
                 .imageId( associatedEvent.getImageId() )
                 .price( associatedEvent.getPrice() )
+                .bookedTicketsCount( associatedEvent.getBookedTicketsCount() )
                 .ticketAlarm( associatedEvent.getTicketAlarm() )
                 .isSoldOut( associatedEvent.getIsSoldOut() )
                 .maxPerBooking( associatedEvent.getMaxPerBooking() )

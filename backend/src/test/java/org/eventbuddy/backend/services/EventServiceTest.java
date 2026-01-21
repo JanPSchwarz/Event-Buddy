@@ -11,9 +11,7 @@ import org.eventbuddy.backend.models.event.EventResponseDto;
 import org.eventbuddy.backend.models.organization.Location;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
-import org.eventbuddy.backend.repos.EventRepository;
-import org.eventbuddy.backend.repos.OrganizationRepository;
-import org.eventbuddy.backend.repos.UserRepository;
+import org.eventbuddy.backend.repos.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +46,12 @@ class EventServiceTest {
 
     @Mock
     OrganizationRepository orgaRepo;
+
+    @Mock
+    BookingRepository bookingRepo;
+
+    @Mock
+    ImageRepository imageRepo;
 
     @InjectMocks
     EventService eventService;
@@ -438,6 +442,7 @@ class EventServiceTest {
         Event eventWithCapacities = exampleEvent.toBuilder()
                 .maxTicketCapacity( 100 )
                 .freeTicketCapacity( 50 )
+                .bookedTicketsCount( 0 )
                 .build();
 
         EventRequestDto updateDto = exampleEventRequestDto.toBuilder()
@@ -460,6 +465,75 @@ class EventServiceTest {
         verify( eventRepo ).findById( exampleEvent.getId() );
         verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
         verify( eventRepo ).save( any( Event.class ) );
+    }
+
+    @Test
+    @DisplayName("Should throw 409 when maxBookingCapacity is lower than already booked tickets")
+    void updateEvent_throws409WhenMaxBookingCapacityIsLowerThanAlreadyBookedTickets() {
+        Event eventWithBookings = exampleEvent.toBuilder()
+                .maxTicketCapacity( 100 )
+                .freeTicketCapacity( 50 )
+                .bookedTicketsCount( 60 )
+                .build();
+
+        EventRequestDto updateDto = exampleEventRequestDto.toBuilder()
+                .maxTicketCapacity( 50 ) // lower than bookedTicketsCount
+                .build();
+
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( eventWithBookings ) );
+        when( orgaRepo.findById( exampleEventRequestDto.organizationId() ) ).thenReturn( Optional.of( exampleOrganization ) );
+
+        assertThatThrownBy( () ->
+                eventService.updateEvent( exampleEvent.getId(), updateDto ) )
+                .isInstanceOf( IllegalArgumentException.class )
+                .hasMessage( "Max ticket capacity cannot be less than already booked tickets: " + eventWithBookings.getBookedTicketsCount() );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( orgaRepo ).findById( exampleEventRequestDto.organizationId() );
+    }
+
+    @Test
+    @DisplayName("Should delete event by id")
+    void deleteEventById() {
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( exampleEvent ) );
+
+        eventService.deleteEventById( exampleEvent.getId() );
+
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( eventRepo ).delete( exampleEvent );
+        verify( bookingRepo ).deleteAllByEvent( exampleEvent );
+    }
+
+    @Test
+    @DisplayName("Should delete event by id with image")
+    void deleteEventById_withImageId() {
+
+        Event eventWithImage = exampleEvent.toBuilder()
+                .imageId( "exampleImageId" )
+                .build();
+
+        when( eventRepo.findById( exampleEvent.getId() ) ).thenReturn( Optional.of( eventWithImage ) );
+
+        eventService.deleteEventById( exampleEvent.getId() );
+
+        verify( imageRepo ).deleteById( eventWithImage.getImageId() );
+        verify( eventRepo ).findById( exampleEvent.getId() );
+        verify( eventRepo ).delete( eventWithImage );
+        verify( bookingRepo ).deleteAllByEvent( eventWithImage );
+    }
+
+    @Test
+    @DisplayName("Delete event by id throws 404 when event not found")
+    void deleteEventById_throws404WhenNotFound() {
+        String nonExistentEventId = "nonExistentEventId";
+        when( eventRepo.findById( nonExistentEventId ) ).thenReturn( Optional.empty() );
+
+        assertThatThrownBy( () ->
+                eventService.deleteEventById( nonExistentEventId ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "Event not found with id:" + nonExistentEventId );
+
+        verify( eventRepo ).findById( nonExistentEventId );
     }
 
 }

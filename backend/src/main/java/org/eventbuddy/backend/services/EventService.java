@@ -106,7 +106,7 @@ public class EventService {
                 () -> new ResourceNotFoundException( "Organization not found with id: " + updateEventData.organizationId() )
         );
 
-        Integer currentFreeTickets = updateEventData.maxTicketCapacity() != null ? getCurrentFreeTickets( updateEventData, existingEvent ) : null;
+        Integer currentFreeTickets = getCurrentFreeTickets( updateEventData, existingEvent );
 
 
         Event updatedEvent = existingEvent.toBuilder()
@@ -137,7 +137,7 @@ public class EventService {
         }
 
         bookingRepo.deleteAllByEvent( existingEvent );
-        
+
         eventRepo.delete( existingEvent );
     }
 
@@ -145,6 +145,10 @@ public class EventService {
 
 
     private Integer getCurrentFreeTickets( EventRequestDto updateEventData, Event existingEvent ) {
+
+        if ( updateEventData.maxTicketCapacity() == null ) {
+            return null;
+        }
 
         boolean withNewMaxCapacity = !updateEventData.maxTicketCapacity().equals( existingEvent.getMaxTicketCapacity() );
 

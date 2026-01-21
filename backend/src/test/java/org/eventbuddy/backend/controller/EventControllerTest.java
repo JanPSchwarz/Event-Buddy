@@ -37,8 +37,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import(TestcontainersConfiguration.class)
@@ -573,4 +572,11 @@ class EventControllerTest {
                 .andExpect( jsonPath( "$.error" ).value( "Event not found with id: " + nonexistentEventId ) );
     }
 
+    @Test
+    @DisplayName("Deletes event by id")
+    void deleteEventById() throws Exception {
+        mockMvc.perform( delete( "/api/events/" + savedExampleEvent.getId() )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isNoContent() );
+    }
 }

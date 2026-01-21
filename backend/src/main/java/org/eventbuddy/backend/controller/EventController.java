@@ -275,8 +275,6 @@ public class EventController {
         AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
         Event event = eventService.getRawEventById( eventId );
 
-        System.out.println( "Event Organization ID: " + event.toString() );
-
         String organizationId = event.getEventOrganization().getId();
 
         Set<String> organizationOwners = organizationService.getRawOrganizationById( organizationId )

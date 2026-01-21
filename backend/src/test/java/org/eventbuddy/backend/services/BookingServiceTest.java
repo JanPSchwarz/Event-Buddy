@@ -63,6 +63,7 @@ class BookingServiceTest {
                 .title( "Test Event" )
                 .maxTicketCapacity( 100 )
                 .freeTicketCapacity( 50 )
+                .bookedTicketsCount( 10 )
                 .eventOrganization( testOrganization )
                 .eventDateTime( Instant.now().plus( 12, ChronoUnit.DAYS ) )
                 .ticketAlarm( false )
@@ -158,6 +159,7 @@ class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Flags event as sold out after booking")
     void makeBooking_shouldSetSoldOutWhenNoTicketsLeft() {
 
         testEvent = testEvent.toBuilder().freeTicketCapacity( 5 ).build();
@@ -175,6 +177,49 @@ class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Returns booking correct with limitless tickets")
+    void makeBooking_shouldHandleLimitlessTicketsCorrectly() {
+
+        testEvent = testEvent.toBuilder()
+                .maxTicketCapacity( null )
+                .freeTicketCapacity( null )
+                .build();
+        when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
+        when( eventRepository.save( any( Event.class ) ) )
+                .thenReturn( testEvent );
+        when( bookingRepository.save( any( Booking.class ) ) ).thenReturn( testBooking );
+
+        BookingResponseDto result = bookingService.makeBooking( bookingRequestDto );
+
+        assertNotNull( result );
+        assertEquals( "John Doe", result.name() );
+        assertEquals( 5, result.numberOfTickets() );
+        assertEquals( "Test Event", result.hostingEvent().title() );
+
+        verify( eventRepository, times( 2 ) ).findById( "event-1" );
+        verify( eventRepository ).save( argThat( event ->
+                event.getBookedTicketsCount() == testEvent.getBookedTicketsCount() + bookingRequestDto.numberOfTickets()
+        ) );
+        verify( bookingRepository ).save( any( Booking.class ) );
+    }
+
+    @Test
+    @DisplayName("Returns 409 when numberOfTickets is higher than maxPerBooking")
+    void makeBooking_shouldThrowExceptionWhenMaxPerBookingExceeded() {
+
+        testEvent = testEvent.toBuilder().maxPerBooking( 3 ).build();
+        BookingRequestDto largeBooking = bookingRequestDto.toBuilder()
+                .numberOfTickets( 5 )
+                .build();
+        when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
+        IllegalStateException exception = assertThrows( IllegalStateException.class, () ->
+                bookingService.makeBooking( largeBooking )
+        );
+        assertTrue( exception.getMessage().contains( "You cannot book more than 3 tickets for this event." ) );
+        verify( eventRepository, never() ).save( any( Event.class ) );
+    }
+
+    @Test
     @DisplayName("Returns bookings for a specific user")
     void getBookingsByUser_shouldReturnBookingsForUser() {
         when( bookingRepository.findAll() ).thenReturn( List.of( testBooking ) );
@@ -185,6 +230,29 @@ class BookingServiceTest {
         assertEquals( 1, result.size() );
         assertEquals( "John Doe", result.get( 0 ).name() );
         verify( bookingRepository ).findAll();
+    }
+
+    @Test
+    @DisplayName("Returns raw booking by id")
+    void getRawBookingById_shouldReturnBookingById() {
+        when( bookingRepository.findById( "booking-1" ) ).thenReturn( Optional.of( testBooking ) );
+
+        Booking result = bookingService.getRawBookingById( "booking-1" );
+
+        assertNotNull( result );
+        assertEquals( "John Doe", result.getName() );
+        verify( bookingRepository ).findById( "booking-1" );
+    }
+
+    @Test
+    @DisplayName("Get raw booking returns 404 when not found")
+    void getRawBookingById_shouldThrowExceptionWhenNotFound() {
+        when( bookingRepository.findById( "booking-1" ) ).thenReturn( Optional.empty() );
+
+        assertThrows( ResourceNotFoundException.class, () ->
+                bookingService.getRawBookingById( "booking-1" )
+        );
+        verify( bookingRepository ).findById( "booking-1" );
     }
 
     @Test
@@ -212,22 +280,75 @@ class BookingServiceTest {
         verify( bookingRepository ).findAll();
     }
 
+    @Test
+    @DisplayName("Deletes booking by id")
+    void deleteBooking_shouldDeleteBookingById() {
+        when( bookingRepository.findById( "booking-1" ) ).thenReturn( Optional.of( testBooking ) );
+        when( eventRepository.save( any( Event.class ) ) ).thenReturn( testEvent );
+
+        bookingService.deleteBookingById( "booking-1" );
+
+        verify( bookingRepository ).deleteById( "booking-1" );
+        verify( eventRepository ).save( any( Event.class ) );
+    }
 
     @Test
-    @DisplayName("Does not update capacity for limitless tickets")
-    void makeBooking_shouldNotUpdateCapacityForLimitlessTickets() {
-
-        testEvent = testEvent.toBuilder()
+    @DisplayName("Deletes booking by id without updating ticketAlarm flag")
+    void deleteBooking_shouldDeleteBookingByIdWithoutUpdatingFlags() {
+        Event testEventWithMaxCapacityNull = testEvent.toBuilder()
                 .maxTicketCapacity( null )
-                .freeTicketCapacity( null )
+                .ticketAlarm( false )
                 .build();
-        when( eventRepository.findById( "event-1" ) ).thenReturn( Optional.of( testEvent ) );
-        when( bookingRepository.save( any( Booking.class ) ) ).thenReturn( testBooking );
 
+        Booking testBookingWithEventWithMaxCapacityNull = testBooking.toBuilder()
+                .event( testEventWithMaxCapacityNull )
+                .build();
 
-        bookingService.makeBooking( bookingRequestDto );
+        when( bookingRepository.findById( "booking-1" ) ).thenReturn( Optional.of( testBookingWithEventWithMaxCapacityNull ) );
+        when( eventRepository.save( any( Event.class ) ) ).thenReturn( testEventWithMaxCapacityNull );
 
+        bookingService.deleteBookingById( "booking-1" );
 
+        verify( bookingRepository ).deleteById( "booking-1" );
+        verify( eventRepository ).save( any( Event.class ) );
+    }
+
+    @Test
+    @DisplayName("Deletes booking and updates event with ticketAlarm flag true")
+    void deleteBooking_shouldUpdateEventWithTicketAlarmTrue() {
+        testEvent = testEvent.toBuilder()
+                .freeTicketCapacity( 15 )
+                .ticketAlarm( true )
+                .build();
+        Booking bookingToDelete = Booking.builder()
+                .id( "booking-1" )
+                .numberOfTickets( 10 )
+                .event( testEvent )
+                .build();
+
+        when( bookingRepository.findById( "booking-1" ) ).thenReturn( Optional.of( bookingToDelete ) );
+        when( eventRepository.save( any( Event.class ) ) ).thenReturn( testEvent );
+
+        bookingService.deleteBookingById( "booking-1" );
+
+        verify( bookingRepository ).deleteById( "booking-1" );
+        verify( eventRepository ).save( argThat( event ->
+                event.getFreeTicketCapacity() == 15 + 10 &&
+                        !event.getTicketAlarm() &&
+                        !event.getIsSoldOut()
+        ) );
+    }
+
+    @Test
+    @DisplayName("Throws 404 when booking not found")
+    void deleteBooking_shouldThrowExceptionWhenBookingNotFound() {
+        when( bookingRepository.findById( "booking-1" ) ).thenReturn( Optional.empty() );
+
+        assertThrows( ResourceNotFoundException.class, () ->
+                bookingService.deleteBookingById( "booking-1" )
+        );
+
+        verify( bookingRepository, never() ).deleteById( anyString() );
         verify( eventRepository, never() ).save( any( Event.class ) );
     }
 }

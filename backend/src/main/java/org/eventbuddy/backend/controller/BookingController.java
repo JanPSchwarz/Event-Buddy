@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
+import org.eventbuddy.backend.models.booking.Booking;
 import org.eventbuddy.backend.models.booking.BookingRequestDto;
 import org.eventbuddy.backend.models.booking.BookingResponseDto;
 import org.eventbuddy.backend.models.error.ErrorMessage;
@@ -127,7 +128,13 @@ public class BookingController {
     public ResponseEntity<Void> deleteBookingById( @PathVariable String bookingId, OAuth2AuthenticationToken authToken ) {
         AppUser user = authService.getAppUserByAuthToken( authToken );
 
-        bookingService.deleteBookingById( bookingId, user.getId() );
+        Booking bookingToDelete = bookingService.getRawBookingById( bookingId );
+
+        if ( !bookingToDelete.getUserId().equals( user.getId() ) && user.getRole() != Role.SUPER_ADMIN ) {
+            throw new UnauthorizedException( "You are not authorized to delete this booking." );
+        }
+
+        bookingService.deleteBookingById( bookingId );
 
         return ResponseEntity.noContent().build();
     }
