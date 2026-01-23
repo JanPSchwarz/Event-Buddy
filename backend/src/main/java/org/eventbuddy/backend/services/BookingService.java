@@ -38,6 +38,11 @@ public class BookingService {
                 .toList();
     }
 
+    public Booking getRawBookingById( String bookingId ) {
+        return bookingRepository.findById( bookingId ).orElseThrow( () ->
+                new ResourceNotFoundException( "Booking not found with id: " + bookingId ) );
+    }
+
 
     // === POST Methods ===
     public BookingResponseDto makeBooking( BookingRequestDto bookingRequestDto ) {
@@ -62,7 +67,11 @@ public class BookingService {
             throw new IllegalStateException( "Not enough tickets available for your booking. Tickets left: " + associatedEvent.getFreeTicketCapacity() );
         }
 
-        // calculate and update free ticket capacity
+        Event updatedEvent = associatedEvent.toBuilder()
+                .bookedTicketsCount( associatedEvent.getBookedTicketsCount() + bookingRequestDto.numberOfTickets() )
+                .build();
+
+        // calculate and update free ticket capacity and isSoldOut/ticketAlarm flags
         if ( !hasLimitlessTickets ) {
             int updatedFreeTicketCapacity = associatedEvent.getFreeTicketCapacity() - bookingRequestDto.numberOfTickets();
 
@@ -70,14 +79,15 @@ public class BookingService {
 
             boolean isTicketAlarm = ( ( double ) updatedFreeTicketCapacity / associatedEvent.getMaxTicketCapacity() ) <= 0.2;
 
-            Event updatedEvent = associatedEvent.toBuilder()
+            updatedEvent = updatedEvent.toBuilder()
                     .freeTicketCapacity( updatedFreeTicketCapacity )
                     .ticketAlarm( isTicketAlarm )
                     .isSoldOut( isSoldOut )
                     .build();
 
-            eventRepository.save( updatedEvent );
         }
+
+        eventRepository.save( updatedEvent );
 
         Booking newBooking = requestToBookingMapper( bookingRequestDto );
 
@@ -88,6 +98,37 @@ public class BookingService {
 
 
     // === DELETE Methods ===
+
+    public void deleteBookingById( String bookingId ) {
+        Booking bookingToDelete = bookingRepository.findById( bookingId ).orElseThrow( () ->
+                new ResourceNotFoundException( "Booking not found with id: " + bookingId ) );
+
+        Event associatedEvent = bookingToDelete.getEvent();
+
+        Event updatedEvent = associatedEvent.toBuilder()
+                .bookedTicketsCount( associatedEvent.getBookedTicketsCount() - bookingToDelete.getNumberOfTickets() )
+                .build();
+
+        // calculate and update free ticket capacity
+        if ( associatedEvent.getMaxTicketCapacity() != null ) {
+            int updatedFreeTicketCapacity = associatedEvent.getFreeTicketCapacity() + bookingToDelete.getNumberOfTickets();
+
+            boolean isSoldOut = updatedFreeTicketCapacity == 0;
+
+            boolean isTicketAlarm = ( ( double ) updatedFreeTicketCapacity / associatedEvent.getMaxTicketCapacity() ) <= 0.2;
+
+            updatedEvent = updatedEvent.toBuilder()
+                    .freeTicketCapacity( updatedFreeTicketCapacity )
+                    .ticketAlarm( isTicketAlarm )
+                    .isSoldOut( isSoldOut )
+                    .build();
+
+        }
+
+        eventRepository.save( updatedEvent );
+
+        bookingRepository.deleteById( bookingId );
+    }
 
     // === Helper Methods ===
 
@@ -150,6 +191,7 @@ public class BookingService {
                 .eventDateTime( associatedEvent.getEventDateTime() )
                 .imageId( associatedEvent.getImageId() )
                 .price( associatedEvent.getPrice() )
+                .bookedTicketsCount( associatedEvent.getBookedTicketsCount() )
                 .ticketAlarm( associatedEvent.getTicketAlarm() )
                 .isSoldOut( associatedEvent.getIsSoldOut() )
                 .maxPerBooking( associatedEvent.getMaxPerBooking() )
@@ -158,6 +200,7 @@ public class BookingService {
         return BookingResponseDto.builder()
                 .hostingEvent( eventResponseDto )
                 .name( booking.getName() )
+                .bookingId( booking.getId() )
                 .numberOfTickets( booking.getNumberOfTickets() )
                 .build();
     }

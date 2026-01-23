@@ -13,73 +13,35 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import type { OrganizationRequestDto, OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
 import LocationFormPart from "@/components/shared/LocationFormPart.tsx";
 import ImageFormPart from "@/components/shared/ImageFormPart.tsx";
+import { createOrganizationBody } from "@/api/generated/organization/organization.zod.ts";
+import ButtonWithLoading from "@/components/shared/ButtonWithLoading.tsx";
 
-type OrganizationFormData = {
-    name: string;
-    description?: string;
-    website?: string;
-    address: string;
-    city: string;
-    zipCode: string;
-    country: string;
-    latitude?: number;
-    longitude?: number;
-    email?: string;
-    phoneNumber?: string;
-}
+const generatedFormSchema = createOrganizationBody;
 
-const formSchema = z.object( {
-    name: z
-        .string()
-        .min( 3, "Organization name must be at least 3 characters" )
-        .max( 30, "Organization name must be at most 50 characters" )
-        .trim(),
-    description: z
-        .string()
-        .min( 4, "Description must be at least 4 characters" )
-        .max( 1500, "Description must be at most 500 characters" )
-        .optional()
-        .or( z.literal( "" ) ),
-    website: z.url().optional().or( z.literal( `` ) ),
-    locationName: z.string().optional(),
-    address: z
-        .string()
-        .min( 1, "Address is required" )
-        .max( 30, "Address must be at most 30 characters" ),
-    city: z
-        .string()
-        .min( 1, "City is required" )
-        .max( 30, "City must be at most 30 characters" ),
-    zipCode: z.string()
-        .min( 1, "Zip Code is required" ),
-    country: z.string()
-        .min( 4, "Country must be at least 4 characters" )
-        .max( 30, "Country must be at most 30 characters" ),
-    email: z.email().trim().optional().or( z.literal( `` ) ),
-    phoneNumber: z
-        .string()
-        .optional(),
-} )
+type OrganizationFormData = z.infer<typeof generatedFormSchema>;
 
 type OrganizationFormProps = {
     organizationData?: OrganizationResponseDto,
     onSubmit: ( organizationDto: OrganizationRequestDto, imageFile: File | null, deleteImage: boolean | undefined ) => void,
+    isLoading?: boolean,
+    formClassName?: string,
 }
 
 
 export default function OrganizationForm( {
                                               organizationData,
-                                              onSubmit
+                                              onSubmit,
+                                              isLoading,
+                                              formClassName
                                           }: Readonly<OrganizationFormProps> ) {
 
     const { data: imageData } = useGetImageAsDataUrl( organizationData?.imageId || "", {
         query: {
-            enabled: organizationData?.imageId !== null
+            enabled: organizationData?.imageId !== null && organizationData?.imageId !== undefined
         }
     } )
 
@@ -87,46 +49,53 @@ export default function OrganizationForm( {
     const [ isRemovingImage, setIsRemovingImage ] = useState<boolean>( false );
 
     const form = useForm<OrganizationFormData>( {
-        resolver: zodResolver( formSchema ),
+        resolver: zodResolver( generatedFormSchema ),
         defaultValues: {
-            name: organizationData?.name || "",
-            description: organizationData?.description || "",
-            website: organizationData?.website || "",
-            address: organizationData?.location?.address || "",
-            city: organizationData?.location?.city || "",
-            zipCode: organizationData?.location?.zipCode || "",
-            country: organizationData?.location?.country || "",
-            latitude: organizationData?.location?.latitude || undefined,
-            longitude: organizationData?.location?.longitude || undefined,
-            email: organizationData?.contact?.email || "",
-            phoneNumber: organizationData?.contact?.phoneNumber || "",
+            organization: {
+                name: organizationData?.name || "",
+                description: organizationData?.description || "",
+                website: organizationData?.website || undefined,
+                contact: {
+                    email: organizationData?.contact?.email || undefined,
+                    phoneNumber: organizationData?.contact?.phoneNumber || undefined,
+                },
+                location: {
+                    address: organizationData?.location?.address || "",
+                    city: organizationData?.location?.city || "",
+                    zipCode: organizationData?.location?.zipCode || "",
+                    country: organizationData?.location?.country || "",
+                    latitude: organizationData?.location?.latitude || undefined,
+                    longitude: organizationData?.location?.longitude || undefined,
+                }
+            }
         }
     } );
 
     const isImageDeletion = !!organizationData?.imageId && isRemovingImage && !imageFile;
-    const suppressSubmit = ( !form.formState.isValid && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
+    const suppressSubmit = ( ( !form.formState.isValid || !form.formState.isDirty ) && !imageFile && !isImageDeletion ) || form.formState.isSubmitting;
 
     const handleSubmit = ( data: OrganizationFormData ) => {
+
         if ( suppressSubmit ) {
             console.log( "Form is dirty or is submitting, returning early." );
             return;
         }
 
         const organizationDto: OrganizationRequestDto = {
-            name: data.name,
-            description: data.description || undefined,
-            website: data.website || undefined,
+            name: data.organization.name,
+            description: data.organization.description || undefined,
+            website: data.organization.website || undefined,
             location: {
-                address: data.address || "",
-                city: data.city || "",
-                zipCode: data.zipCode || "",
-                country: data.country || "",
-                latitude: data.latitude || 0,
-                longitude: data.longitude || 0,
+                address: data.organization.location?.address || "",
+                city: data.organization.location?.city || "",
+                zipCode: data.organization.location?.zipCode || "",
+                country: data.organization.location?.country || "",
+                latitude: data.organization.location?.latitude || 0,
+                longitude: data.organization.location?.longitude || 0,
             },
             contact: {
-                email: data.email || undefined,
-                phoneNumber: data.phoneNumber || undefined,
+                email: data.organization.contact?.email || undefined,
+                phoneNumber: data.organization.contact?.phoneNumber || undefined,
             }
         };
 
@@ -148,7 +117,7 @@ export default function OrganizationForm( {
 
 
     return (
-        <form onSubmit={ form.handleSubmit( handleSubmit ) }>
+        <form onSubmit={ form.handleSubmit( handleSubmit ) } className={ formClassName }>
             <FieldGroup>
                 <FieldSeparator/>
                 <ImageFormPart setImageFile={ handleImageFile }
@@ -162,7 +131,7 @@ export default function OrganizationForm( {
                         General
                     </FieldLabel>
                     <Controller
-                        name={ "name" }
+                        name={ "organization.name" }
                         control={ form.control }
                         render={
                             ( { field, fieldState } ) => (
@@ -170,7 +139,7 @@ export default function OrganizationForm( {
                                     <FieldLabel>
                                         Organization Name<span className={ "text-red-400" }>*</span>
                                         { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
+                                            <FieldError className={ "text-xs ml-auto" }
                                                         errors={ [ fieldState.error ] }/>
                                         ) }
                                     </FieldLabel>
@@ -187,7 +156,7 @@ export default function OrganizationForm( {
                         }
                     />
                     <Controller
-                        name={ "description" }
+                        name={ "organization.description" }
                         control={ form.control }
                         render={
                             ( { field, fieldState } ) => (
@@ -195,7 +164,7 @@ export default function OrganizationForm( {
                                     <FieldLabel>
                                         Description
                                         { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
+                                            <FieldError className={ "text-xs ml-auto" }
                                                         errors={ [ fieldState.error ] }/>
                                         ) }
                                     </FieldLabel>
@@ -213,7 +182,7 @@ export default function OrganizationForm( {
                         }
                     />
                     <Controller
-                        name={ "website" }
+                        name={ "organization.website" }
                         control={ form.control }
                         render={
                             ( { field, fieldState } ) => (
@@ -221,7 +190,7 @@ export default function OrganizationForm( {
                                     <FieldLabel>
                                         Website URL
                                         { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
+                                            <FieldError className={ "text-xs ml-auto" }
                                                         errors={ [ fieldState.error ] }/>
                                         ) }
                                     </FieldLabel>
@@ -239,14 +208,14 @@ export default function OrganizationForm( {
                     />
                 </FieldSet>
                 <FieldSeparator/>
-                <LocationFormPart form={ form }/>
+                <LocationFormPart form={ form } basePath={ "organization.location" }/>
                 <FieldSeparator/>
                 <FieldSet>
                     <FieldLabel>
                         Contact
                     </FieldLabel>
                     <Controller
-                        name={ "email" }
+                        name={ "organization.contact.email" }
                         control={ form.control }
                         render={
                             ( { field, fieldState } ) => (
@@ -254,7 +223,7 @@ export default function OrganizationForm( {
                                     <FieldLabel>
                                         Email
                                         { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
+                                            <FieldError className={ "text-xs ml-auto" }
                                                         errors={ [ fieldState.error ] }/>
                                         ) }
                                     </FieldLabel>
@@ -268,7 +237,7 @@ export default function OrganizationForm( {
                         }
                     />
                     <Controller
-                        name={ "phoneNumber" }
+                        name={ "organization.contact.phoneNumber" }
                         control={ form.control }
                         render={
                             ( { field, fieldState } ) => (
@@ -276,7 +245,7 @@ export default function OrganizationForm( {
                                     <FieldLabel>
                                         Phone Number
                                         { fieldState.invalid && (
-                                            <FieldError className={ "text-xs ml-auto leading-0" }
+                                            <FieldError className={ "text-xs ml-auto" }
                                                         errors={ [ fieldState.error ] }/>
                                         ) }
                                     </FieldLabel>
@@ -290,9 +259,10 @@ export default function OrganizationForm( {
                         }
                     />
                 </FieldSet>
-                <Button disabled={ form.formState.isSubmitting } className={ "ml-auto" } type={ "submit" }>
+                <ButtonWithLoading disabled={ form.formState.isSubmitting } isLoading={ isLoading }
+                                   className={ "ml-auto" } type={ "submit" }>
                     Submit
-                </Button>
+                </ButtonWithLoading>
             </FieldGroup>
         </form>
     )

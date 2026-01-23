@@ -1,4 +1,4 @@
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import CreateOrganizationForm from "@/components/organization/CreateOrganizationForm.tsx";
 import { CirclePlus } from 'lucide-react';
 import MainHeading from "@/components/shared/MainHeading.tsx";

@@ -19,6 +19,7 @@ public record OrganizationRequestDto(
         )
         @NotNull
         @NotEmpty
+        @Size(min = 1, max = 40, message = "Name must be between 1 and 40 characters")
         String name,
 
         @Schema(
@@ -27,7 +28,7 @@ public record OrganizationRequestDto(
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
                 nullable = true
         )
-        @Size(min = 4, max = 1500, message = "Description must be between 4 and 1500 characters")
+        @Size(max = 1500, message = "Description must be at most 1500 characters")
         String description,
 
 
@@ -35,7 +36,8 @@ public record OrganizationRequestDto(
                 description = "Website URL of the organization",
                 example = "https://www.eventbuddy.com",
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
-                nullable = true
+                nullable = true,
+                format = "uri"
         )
         @URL
         String website,

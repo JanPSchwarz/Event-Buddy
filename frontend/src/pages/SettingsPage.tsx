@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import SettingsForm from "@/components/settings/SettingsForm.tsx";
 import { Settings } from 'lucide-react';
 import Text from "@/components/typography/Text.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import { Button } from "@/components/ui/button.tsx";
 
 

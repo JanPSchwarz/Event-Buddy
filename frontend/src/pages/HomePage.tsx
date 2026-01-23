@@ -1,4 +1,4 @@
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import Text from "@/components/typography/Text.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { PlayIcon } from "lucide-react";
@@ -12,7 +12,7 @@ export default function HomePage() {
                 Welcome to Event Buddy!
             </Text>
             <Text styleVariant={ "h4" }>
-                Find or create events with ease.
+                Find or create events with ease. Book now.
             </Text>
             <div className={ "w-full flex items-center justify-center relative max-w-[800px]" }>
                 <img src={ "/hero.svg" } alt={ "Hero" } className={ "rounded-md m-auto " }/>

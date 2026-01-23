@@ -1,6 +1,7 @@
 package org.eventbuddy.backend.models.event;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
@@ -17,8 +18,8 @@ public record EventRequestDto(
                 requiredMode = Schema.RequiredMode.REQUIRED,
                 nullable = false
         )
-        @NotNull
-        @NotEmpty
+        @NotNull(message = "Organization must be provided")
+        @NotBlank(message = "Organization must be provided")
         String organizationId,
 
         @Schema(
@@ -27,7 +28,8 @@ public record EventRequestDto(
                 requiredMode = Schema.RequiredMode.REQUIRED,
                 nullable = false
         )
-        @NotNull(message = "Title must not be blank")
+        @NotNull(message = "Title must be provided")
+        @NotBlank(message = "Title must not be blank")
         @Size(min = 4, max = 50, message = "Title must be between 4 and 50 characters")
         String title,
 
@@ -66,6 +68,7 @@ public record EventRequestDto(
                 nullable = false
         )
         @NotNull
+        @Min(0)
         @PositiveOrZero
         Double price,
 
@@ -75,6 +78,8 @@ public record EventRequestDto(
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED,
                 nullable = true
         )
+        @Nullable
+        @Min(0)
         @Positive
         Integer maxTicketCapacity,
 
@@ -85,6 +90,7 @@ public record EventRequestDto(
                 nullable = true
         )
         @Positive
+        @Min(0)
         Integer maxPerBooking
 ) {
 }

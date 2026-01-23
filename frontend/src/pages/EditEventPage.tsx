@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useGetRawEventById, useUpdateEvent } from "@/api/generated/event-controller/event-controller.ts";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import EventForm from "@/components/event/EventForm.tsx";
 import { useGetUserById } from "@/api/generated/user/user.ts";
 import { useContextUser } from "@/context/UserProvider.tsx";
@@ -12,6 +12,10 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function EditEventPage() {
 
     const { eventId } = useParams();
+
+    const [ searchParams ] = useSearchParams();
+
+    const source = searchParams.get( "src" );
 
     const { user } = useContextUser();
 
@@ -45,6 +49,18 @@ export default function EditEventPage() {
         return null;
     }
 
+    const getReturnPath = () => {
+        switch ( source ) {
+            case "dashboard":
+                return `/dashboard/${ user?.id }`;
+            case "manager":
+                return `/dashboard/event/${ eventData.data.id }`;
+            default:
+                return `/event/${ eventData.data.id }`;
+        }
+    }
+
+
     const handleSubmit = ( eventFormData: EventRequestDto, imageFile: File | null, deleteImage: boolean ) => {
 
 
@@ -67,8 +83,9 @@ export default function EditEventPage() {
                     console.log( "Event updated successfully:", response );
 
                     toast.success( "Event updated successfully!" );
-                    queryClient.invalidateQueries();
-                    navigate( `/event/${ response.data.id }` );
+                    queryClient.invalidateQueries().then( () => {
+                        navigate( getReturnPath() );
+                    } );
                 },
                 onError: ( error ) => {
                     console.error( "Error updating event:", error );

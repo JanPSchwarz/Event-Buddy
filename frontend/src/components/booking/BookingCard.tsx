@@ -3,6 +3,7 @@ import type { BookingResponseDto } from "@/api/generated/openAPIDefinition.schem
 import EventImage from "@/components/event/EventImage.tsx";
 import Text from "@/components/typography/Text.tsx";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
+import DeleteBookingDialog from "@/components/booking/DeleteBookingDialog.tsx";
 
 type BookingCardProps = {
     booking: BookingResponseDto
@@ -32,9 +33,13 @@ export default function BookingCard( { booking }: Readonly<BookingCardProps> ) {
             </CardHeader>
             <CardContent className={ "w-[250px] space-y-4" }>
                 <EventImage imageData={ imageData?.data || null }/>
+                <Text styleVariant={ "smallMuted" }>
+                    booking Id: { booking.bookingId }
+                </Text>
                 <Text className={ "text-sm md:text-sm" }>
                     { booking.numberOfTickets } ticket(s) booked for { booking.name }
                 </Text>
+                <DeleteBookingDialog booking={ booking }/>
             </CardContent>
         </Card>
     )

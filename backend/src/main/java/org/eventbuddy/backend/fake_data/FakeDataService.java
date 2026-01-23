@@ -111,6 +111,7 @@ public class FakeDataService {
                     .maxTicketCapacity( maxCapacity > 0 ? maxCapacity : null )
                     .freeTicketCapacity( freeTicketCapacity > 0 ? freeTicketCapacity : null )
                     .maxPerBooking( faker.number().numberBetween( 0, 8 ) )
+                    .bookedTicketsCount( maxCapacity - freeTicketCapacity )
                     .ticketAlarm( isUnder20PercentLeft )
                     .isSoldOut( isSoldOut )
                     .imageId( savedImage.getImageId() )
@@ -128,8 +129,8 @@ public class FakeDataService {
         for ( int i = 0; i < numberOfUsers; i++ ) {
 
             UserSettings fakeSettings = UserSettings.builder()
-                    .userVisible( faker.bool().bool() )
-                    .showAvatar( faker.bool().bool() )
+                    .userVisible( true )
+                    .showAvatar( true )
                     .showOrgas( faker.bool().bool() )
                     .showEmail( faker.bool().bool() )
                     .build();

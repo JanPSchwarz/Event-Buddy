@@ -54,9 +54,10 @@ export default function CreateEventForm() {
             },
             {
                 onSuccess: ( response ) => {
-                    queryClient.invalidateQueries()
                     toast.success( "Event created successfully!" );
-                    navigate( `/event/${ response.data.id }` );
+                    queryClient.invalidateQueries().then( () => {
+                        navigate( `/event/${ response.data.id }` );
+                    } )
                 },
                 onError: ( error ) => {
                     console.error( "Error creating event:", error );

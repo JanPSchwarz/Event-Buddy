@@ -99,6 +99,14 @@ public class Event extends MongoBaseModel {
     @PositiveOrZero
     private Integer freeTicketCapacity;
     @Schema(
+            description = "Number of tickets already booked for the event",
+            example = "25",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            nullable = false
+    )
+    @NotNull
+    private Integer bookedTicketsCount;
+    @Schema(
             description = "Maximum number of tickets allowed per booking",
             example = "5",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED,

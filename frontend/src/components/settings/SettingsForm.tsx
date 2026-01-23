@@ -67,7 +67,7 @@ export default function SettingsForm() {
 
     const { user } = useContextUser();
 
-    const [ searchParams ] = useSearchParams()
+    const [ searchParams ] = useSearchParams();
 
     const navigate = useNavigate();
 
@@ -120,9 +120,9 @@ export default function SettingsForm() {
             {
                 onSuccess: () => {
                     toast.success( "User settings updated successfully." );
-                    queryClient.invalidateQueries();
-
-                    if ( fromProfilePage ) navigate( `/profile/${ user.id }` );
+                    queryClient.invalidateQueries().then( () => {
+                        if ( fromProfilePage ) navigate( `/profile/${ user.id }` );
+                    } );
                 },
                 onError: ( error ) => {
                     console.error( "Failed to update item:" );

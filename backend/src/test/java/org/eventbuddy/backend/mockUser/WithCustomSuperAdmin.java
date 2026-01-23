@@ -6,4 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @WithCustomMockUser(role = "SUPER_ADMIN")
 public @interface WithCustomSuperAdmin {
+
+    String id() default "super-admin-001";
+
 }

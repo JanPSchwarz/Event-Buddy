@@ -1,20 +1,40 @@
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import MainHeading from "@/components/shared/MainHeading.tsx";
 import { Building2, Plus } from "lucide-react";
 import { useGetAllOrganizations } from "@/api/generated/organization/organization.ts";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { NavLink } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import OrganizationCard from "@/components/organization/OrganizationCard.tsx";
+import { useContextUser } from "@/context/UserProvider.tsx";
+import { toast } from "sonner";
 
 export default function OrganizationsPage() {
 
     const { data: allOrganization, isLoading } = useGetAllOrganizations();
 
+    const { user } = useContextUser();
+
+    const navigate = useNavigate();
+
+    const [ _, setSearchParams ] = useSearchParams();
+
     if ( isLoading ) {
         return (
             <CustomLoader size={ "size-6" } text={ "Loading..." }/>
         );
+    }
+
+    const handleCreateOrganization = () => {
+        if ( Object.keys( user ).length > 0 ) {
+            navigate( "/organization/create" );
+        } else {
+            toast.error( "You must be logged in!" );
+            setSearchParams( ( searchParams ) => {
+                searchParams.set( "loginModal", "true" );
+                return searchParams;
+            } );
+        }
     }
 
     return (
@@ -24,11 +44,9 @@ export default function OrganizationsPage() {
                     <MainHeading heading={ "Organizations" } subheading={ "Find an Organization" }
                                  Icon={ Building2 }/>
                 </div>
-                <Button asChild size={ "sm" } className={ "ml-auto" }>
-                    <NavLink to={ "/organization/create" }>
-                        <Plus/>
-                        Create Organization
-                    </NavLink>
+                <Button size={ "sm" } className={ "ml-auto" } onClick={ handleCreateOrganization }>
+                    <Plus/>
+                    Create Organization
                 </Button>
             </div>
             <div
@@ -36,7 +54,8 @@ export default function OrganizationsPage() {
                 {
                     allOrganization?.data.map( ( organization ) => {
                             return (
-                                <OrganizationCard key={ organization.id } orgData={ organization }/>
+                                <OrganizationCard cardClassName={ "w-full max-w-[400px]" } key={ organization.id }
+                                                  orgData={ organization }/>
                             )
                         }
                     )

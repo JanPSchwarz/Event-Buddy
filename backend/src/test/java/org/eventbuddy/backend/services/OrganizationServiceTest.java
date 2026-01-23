@@ -7,10 +7,7 @@ import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.organization.*;
-import org.eventbuddy.backend.repos.EventRepository;
-import org.eventbuddy.backend.repos.ImageRepository;
-import org.eventbuddy.backend.repos.OrganizationRepository;
-import org.eventbuddy.backend.repos.UserRepository;
+import org.eventbuddy.backend.repos.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,6 +40,9 @@ class OrganizationServiceTest {
 
     @Mock
     ImageRepository mockImageRepo;
+
+    @Mock
+    BookingRepository mockBookingRepo;
 
     @InjectMocks
     OrganizationService organizationService;
@@ -536,6 +536,7 @@ class OrganizationServiceTest {
 
         organizationService.deleteOrganizationById( orgaIdToDelete );
 
+        verify( mockBookingRepo ).deleteAllByEvent( any( Event.class ) );
         verify( mockOrgaRepo ).findById( orgaIdToDelete );
         verify( mockOrgaRepo ).deleteById( orgaIdToDelete );
         verify( mockEventRepo ).findAll();

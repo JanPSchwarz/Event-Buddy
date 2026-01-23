@@ -9,10 +9,11 @@ import EventBadges from "@/components/event/EventBadges.tsx";
 import { NavLink } from "react-router";
 
 type EventCardProps = {
-    event: EventResponseDto
+    event: EventResponseDto,
+    cardClassName?: string,
 }
 
-export default function EventCard( { event }: Readonly<EventCardProps> ) {
+export default function EventCard( { event, cardClassName }: Readonly<EventCardProps> ) {
 
 
     const { data: imageData, isLoading } = useGetImageAsDataUrl( event?.imageId || "", {
@@ -20,7 +21,7 @@ export default function EventCard( { event }: Readonly<EventCardProps> ) {
     } )
 
     return (
-        <div className={ "max-w-min" }>
+        <div className={ cardClassName }>
             <div className={ " px-2 flex justify-between" }>
                 <Text className={ "text-muted-foreground" }>
                     { event.location?.city }
@@ -29,7 +30,7 @@ export default function EventCard( { event }: Readonly<EventCardProps> ) {
                     { new Date( event.eventDateTime ).getFullYear() }
                 </Text>
             </div>
-            <Card className={ "w-[300px] space-y-0 gap-3 pt-0 pb-2" }>
+            <Card className={ "space-y-0 gap-3 pt-0 pb-2" }>
                 <CardContent className={ "space-y-4 p-0" }>
                     <EventImage imageData={ imageData?.data }
                                 imageClassName={ "rounded-none rounded-t-md" }
@@ -40,7 +41,6 @@ export default function EventCard( { event }: Readonly<EventCardProps> ) {
                         <div className={ "px-1 space-y-2" }>
                             <CardTitle>
                                 { event.title }
-
                             </CardTitle>
                             <NavLink to={ `/organization/${ event.eventOrganization.slug }` }
                                      className={ "hover:underline underline-offset-4 hover:text-primary" }>

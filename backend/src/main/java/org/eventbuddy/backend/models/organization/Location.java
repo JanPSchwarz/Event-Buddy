@@ -1,8 +1,9 @@
 package org.eventbuddy.backend.models.organization;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder()
@@ -21,7 +22,8 @@ public record Location(
                 example = "Example Street 1A"
         )
         @NotNull
-        @NotEmpty
+        @NotBlank
+        @Size(min = 1, message = "Address must be not be empty")
         String address,
 
         @Schema(
@@ -30,7 +32,8 @@ public record Location(
                 example = "Sample City"
         )
         @NotNull
-        @NotEmpty
+        @NotBlank
+        @Size(min = 1, message = "Address must be not be empty")
         String city,
 
         @Schema(
@@ -39,7 +42,8 @@ public record Location(
                 example = "12345"
         )
         @NotNull
-        @NotEmpty
+        @NotBlank
+        @Size(min = 1, message = "Address must be not be empty")
         String zipCode,
 
         @Schema(
@@ -48,7 +52,8 @@ public record Location(
                 example = "Sample Country"
         )
         @NotNull
-        @NotEmpty
+        @NotBlank
+        @Size(min = 1, message = "Address must be not be empty")
         String country,
 
         @Schema(

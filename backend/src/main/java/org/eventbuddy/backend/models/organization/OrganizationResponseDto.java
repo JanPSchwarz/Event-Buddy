@@ -16,7 +16,6 @@ public record OrganizationResponseDto(
                 accessMode = Schema.AccessMode.READ_ONLY
         )
         @NotBlank
-
         String name,
 
         @Schema(
@@ -24,7 +23,6 @@ public record OrganizationResponseDto(
                 accessMode = Schema.AccessMode.READ_ONLY
         )
         @NotBlank
-
         String id,
 
         @Schema(
@@ -32,7 +30,6 @@ public record OrganizationResponseDto(
                 accessMode = Schema.AccessMode.READ_ONLY
         )
         @NotBlank
-
         String slug,
 
         @Schema(

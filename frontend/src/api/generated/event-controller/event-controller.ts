@@ -31,8 +31,6 @@ import type {
 } from 'axios';
 
 import type {
-  BookingRequestDto,
-  BookingResponseDto,
   CreateEventBody,
   ErrorMessage,
   Event,
@@ -207,6 +205,67 @@ export const useUpdateEvent = <TError = AxiosError<ErrorMessage>,
       return useMutation(mutationOptions, queryClient);
     }
     /**
+ * Deletes the event with the specified ID.
+ * @summary Delete an event (Organization Owners / Super Admin only)
+ */
+export const deleteEventById = (
+    eventId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.default.delete(
+      `http://localhost:8080/api/events/${eventId}`,options
+    );
+  }
+
+
+
+export const getDeleteEventByIdMutationOptions = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEventById>>, TError,{eventId: string}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteEventById>>, TError,{eventId: string}, TContext> => {
+
+const mutationKey = ['deleteEventById'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteEventById>>, {eventId: string}> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  deleteEventById(eventId,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteEventByIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEventById>>>
+    
+    export type DeleteEventByIdMutationError = AxiosError<ErrorMessage>
+
+    /**
+ * @summary Delete an event (Organization Owners / Super Admin only)
+ */
+export const useDeleteEventById = <TError = AxiosError<ErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEventById>>, TError,{eventId: string}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteEventById>>,
+        TError,
+        {eventId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteEventByIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * Create a new event with the provided details
  * @summary Create a new Event
  */
@@ -270,67 +329,6 @@ export const useCreateEvent = <TError = AxiosError<ErrorMessage>,
       > => {
 
       const mutationOptions = getCreateEventMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
- * @summary Make a booking for an event
- */
-export const makeBooking = (
-    bookingRequestDto: BookingRequestDto, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<BookingResponseDto>> => {
-    
-    
-    return axios.default.post(
-      `http://localhost:8080/api/booking/makeBooking`,
-      bookingRequestDto,options
-    );
-  }
-
-
-
-export const getMakeBookingMutationOptions = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof makeBooking>>, TError,{data: BookingRequestDto}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof makeBooking>>, TError,{data: BookingRequestDto}, TContext> => {
-
-const mutationKey = ['makeBooking'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof makeBooking>>, {data: BookingRequestDto}> = (props) => {
-          const {data} = props ?? {};
-
-          return  makeBooking(data,axiosOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type MakeBookingMutationResult = NonNullable<Awaited<ReturnType<typeof makeBooking>>>
-    export type MakeBookingMutationBody = BookingRequestDto
-    export type MakeBookingMutationError = AxiosError<ErrorMessage>
-
-    /**
- * @summary Make a booking for an event
- */
-export const useMakeBooking = <TError = AxiosError<ErrorMessage>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof makeBooking>>, TError,{data: BookingRequestDto}, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof makeBooking>>,
-        TError,
-        {data: BookingRequestDto},
-        TContext
-      > => {
-
-      const mutationOptions = getMakeBookingMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }
@@ -687,90 +685,6 @@ export function useGetAllEvents<TData = Awaited<ReturnType<typeof getAllEvents>>
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAllEventsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-export const getBookingsByUser = (
-    userId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<BookingResponseDto[]>> => {
-    
-    
-    return axios.default.get(
-      `http://localhost:8080/api/booking/byUser/${userId}`,options
-    );
-  }
-
-
-
-
-export const getGetBookingsByUserQueryKey = (userId?: string,) => {
-    return [
-    `http://localhost:8080/api/booking/byUser/${userId}`
-    ] as const;
-    }
-
-    
-export const getGetBookingsByUserQueryOptions = <TData = Awaited<ReturnType<typeof getBookingsByUser>>, TError = AxiosError<ErrorMessage>>(userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookingsByUser>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetBookingsByUserQueryKey(userId);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBookingsByUser>>> = ({ signal }) => getBookingsByUser(userId, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBookingsByUser>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetBookingsByUserQueryResult = NonNullable<Awaited<ReturnType<typeof getBookingsByUser>>>
-export type GetBookingsByUserQueryError = AxiosError<ErrorMessage>
-
-
-export function useGetBookingsByUser<TData = Awaited<ReturnType<typeof getBookingsByUser>>, TError = AxiosError<ErrorMessage>>(
- userId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookingsByUser>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getBookingsByUser>>,
-          TError,
-          Awaited<ReturnType<typeof getBookingsByUser>>
-        > , 'initialData'
-      >, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetBookingsByUser<TData = Awaited<ReturnType<typeof getBookingsByUser>>, TError = AxiosError<ErrorMessage>>(
- userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookingsByUser>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getBookingsByUser>>,
-          TError,
-          Awaited<ReturnType<typeof getBookingsByUser>>
-        > , 'initialData'
-      >, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetBookingsByUser<TData = Awaited<ReturnType<typeof getBookingsByUser>>, TError = AxiosError<ErrorMessage>>(
- userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookingsByUser>>, TError, TData>>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-
-export function useGetBookingsByUser<TData = Awaited<ReturnType<typeof getBookingsByUser>>, TError = AxiosError<ErrorMessage>>(
- userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookingsByUser>>, TError, TData>>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetBookingsByUserQueryOptions(userId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

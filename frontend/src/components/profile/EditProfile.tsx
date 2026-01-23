@@ -76,8 +76,9 @@ export default function EditProfile( { userData, onSubmit }: Readonly<EditProfil
                 onSuccess: () => {
                     console.log( "Profile updated successfully." );
                     toast.success( "Profile updated successfully." );
-                    queryClient.invalidateQueries();
-                    onSubmit();
+                    queryClient.invalidateQueries().then( () => {
+                        onSubmit();
+                    } );
                 },
                 onError: ( error ) => {
                     console.error( "Failed to update profile" );

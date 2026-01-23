@@ -7,19 +7,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import org.eventbuddy.backend.configs.CustomOAuth2User;
+import org.eventbuddy.backend.configs.annotations.IsAuthenticated;
+import org.eventbuddy.backend.configs.annotations.IsSuperAdmin;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.models.organization.Organization;
 import org.eventbuddy.backend.models.organization.OrganizationRequestDto;
 import org.eventbuddy.backend.models.organization.OrganizationResponseDto;
-import org.eventbuddy.backend.services.AuthService;
 import org.eventbuddy.backend.services.ImageService;
 import org.eventbuddy.backend.services.OrganizationService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,12 +38,10 @@ import java.util.Set;
 public class OrganizationController {
 
     private final OrganizationService organizationService;
-    private final AuthService authService;
     private final ImageService imageService;
 
-    public OrganizationController( OrganizationService organizationService, AuthService authService, ImageService imageService ) {
+    public OrganizationController( OrganizationService organizationService, ImageService imageService ) {
         this.organizationService = organizationService;
-        this.authService = authService;
         this.imageService = imageService;
     }
 
@@ -63,19 +63,22 @@ public class OrganizationController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "User not authenticated or not authorized",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    public ResponseEntity<List<Organization>> getAllRawOrganizations( OAuth2AuthenticationToken authToken ) {
-        boolean isSuperAdmin = authService.isSuperAdmin( authToken );
-
-        if ( !isSuperAdmin ) {
-            throw new UnauthorizedException( "You are not allowed to perform this action." );
-        }
-
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @IsSuperAdmin
+    public ResponseEntity<List<Organization>> getAllRawOrganizations() {
         return ResponseEntity.ok( organizationService.getAllRawOrganizations() );
     }
 
@@ -146,13 +149,14 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @IsAuthenticated
     public ResponseEntity<Organization> createOrganization(
             @Nullable @RequestPart(value = "image", required = false) MultipartFile file,
             @Valid @RequestPart("organization")
             OrganizationRequestDto organization,
-            OAuth2AuthenticationToken authToken
+            @AuthenticationPrincipal CustomOAuth2User user
     ) throws IOException {
-        AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
+        AppUser loggedInUser = user.getUser();
 
         String imageId = file != null ? imageService.storeImage( file ) : null;
 
@@ -170,16 +174,24 @@ public class OrganizationController {
             description = "Updates the organization with the specified ID and returns the updated organization."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "Organization not found",
+            responseCode = "401",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Organization not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -193,14 +205,15 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @IsAuthenticated
     public ResponseEntity<Organization> updateOrganization(
-            OAuth2AuthenticationToken authToken,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Nullable @RequestPart(value = "image", required = false) MultipartFile file,
             Optional<Boolean> deleteImage,
             @PathVariable String organizationId,
             @Valid @RequestPart("updateOrganization") OrganizationRequestDto updatedOrganization
     ) throws IOException {
-        isOrgaOwnerOrSuperAdmin( authToken, organizationId );
+        isOrgaOwnerOrSuperAdminOrThrow( user.getUser(), organizationId );
 
         if ( file != null ) {
             imageService.updateOrganizationImage( organizationId, file );
@@ -219,6 +232,22 @@ public class OrganizationController {
             description = "Adds a new owner to the organization with the specified ID and returns the updated organization."
     )
     @ApiResponse(
+            responseCode = "401",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
             responseCode = "404",
             description = "Organization not found",
             content = @Content(
@@ -226,19 +255,12 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ErrorMessage.class)
-            )
-    )
+    @IsAuthenticated
     public ResponseEntity<Organization> addOwnerToOrganization(
-            OAuth2AuthenticationToken authToken,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @PathVariable String organizationId,
             @PathVariable String userId ) {
-        isOrgaOwnerOrSuperAdmin( authToken, organizationId );
+        isOrgaOwnerOrSuperAdminOrThrow( user.getUser(), organizationId );
 
         Organization organization = organizationService.addOwnerToOrganization( organizationId, userId );
         return ResponseEntity.ok( organization );
@@ -259,7 +281,15 @@ public class OrganizationController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "User not authenticated",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -273,12 +303,13 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @IsAuthenticated
     public ResponseEntity<Organization> removeOwnerFromOrganization(
-            OAuth2AuthenticationToken authToken,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @PathVariable String organizationId,
             @PathVariable String userId ) {
 
-        isOrgaOwnerOrSuperAdmin( authToken, organizationId );
+        isOrgaOwnerOrSuperAdminOrThrow( user.getUser(), organizationId );
 
         Organization organization = organizationService.deleteOwnerFromOrganization( organizationId, userId );
         return ResponseEntity.ok( organization );
@@ -292,6 +323,22 @@ public class OrganizationController {
             description = "Deletes the organization with the specified ID."
     )
     @ApiResponse(
+            responseCode = "401",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
             responseCode = "404",
             description = "Organization not found",
             content = @Content(
@@ -299,31 +346,23 @@ public class OrganizationController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = ErrorMessage.class)
-            )
-    )
+    @IsAuthenticated
     public ResponseEntity<Void> deleteOrganization(
-            OAuth2AuthenticationToken authToken,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @PathVariable String organizationId
     ) {
-        isOrgaOwnerOrSuperAdmin( authToken, organizationId );
+        isOrgaOwnerOrSuperAdminOrThrow( user.getUser(), organizationId );
         organizationService.deleteOrganizationById( organizationId );
         return ResponseEntity.noContent().build();
     }
 
     // == Helper Methods ==
 
-    private void isOrgaOwnerOrSuperAdmin( OAuth2AuthenticationToken authToken, String organizationId ) {
-        AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
+    private void isOrgaOwnerOrSuperAdminOrThrow( AppUser user, String organizationId ) {
         Set<String> organizationOwners = organizationService.getRawOrganizationById( organizationId ).getOwners();
 
-        if ( !organizationOwners.contains( loggedInUser.getId() ) && loggedInUser.getRole() != Role.SUPER_ADMIN ) {
-            throw new UnauthorizedException( "You are not allowed to perform this action." );
+        if ( !organizationOwners.contains( user.getId() ) && user.getRole() != Role.SUPER_ADMIN ) {
+            throw new AccessDeniedException( "You are not allowed to perform this action." );
         }
     }
 }

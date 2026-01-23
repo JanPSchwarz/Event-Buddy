@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 import { useContextUser } from "@/context/UserProvider.tsx";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import { toast } from "sonner";
 
 export default function ProtectedRoute() {

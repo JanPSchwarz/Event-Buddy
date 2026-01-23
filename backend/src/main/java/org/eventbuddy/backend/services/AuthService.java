@@ -2,14 +2,14 @@ package org.eventbuddy.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.eventbuddy.backend.configs.AdminConfig;
+import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.repos.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -35,38 +35,21 @@ public class AuthService extends DefaultOAuth2UserService {
                 createAndSaveUser( oAuthUser, userRequest )
         );
 
-        return new DefaultOAuth2User( List.of( new SimpleGrantedAuthority( user.getRole().toString() ) ), oAuthUser.getAttributes(), "id" );
+        DefaultOAuth2User defaultOAuth2User = new DefaultOAuth2User( List.of( new SimpleGrantedAuthority( user.getRole().toString() ) ), oAuthUser.getAttributes(), "id" );
+
+        return new CustomOAuth2User( defaultOAuth2User, user );
     }
 
-    public AppUser getAppUserByAuthToken( OAuth2AuthenticationToken authToken ) {
-        String providerId = getProviderIdByAuthToken( authToken );
+    public boolean isRequestUserOrSuperAdminOrThrow( String userId ) {
+        CustomOAuth2User principal = ( CustomOAuth2User ) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return userRepo.findByProviderId( providerId )
-                .orElseThrow( () -> new ResourceNotFoundException( "User not found with providerId: " + providerId ) );
-    }
+        AppUser user = principal.getUser();
 
-    public boolean isNotAuthenticated( OAuth2AuthenticationToken authToken ) {
-        return authToken == null || !authToken.isAuthenticated();
-    }
-
-    public boolean isRequestUserOrSuperAdmin( OAuth2AuthenticationToken authToken, String userId ) {
-        if ( isNotAuthenticated( authToken ) ) {
-            throw new UnauthorizedException( "You are not logged in." );
+        if ( user.getId().equals( userId ) || user.getRole() == Role.SUPER_ADMIN ) {
+            return true;
+        } else {
+            throw new AccessDeniedException( "You do not have permission to perform this action." );
         }
-
-        AppUser user = getAppUserByAuthToken( authToken );
-
-        return user.getId().equals( userId ) || user.getRole() == Role.SUPER_ADMIN;
-    }
-
-    public boolean isSuperAdmin( OAuth2AuthenticationToken authToken ) {
-        if ( isNotAuthenticated( authToken ) ) {
-            throw new UnauthorizedException( "You are not logged in." );
-        }
-
-        AppUser user = getAppUserByAuthToken( authToken );
-
-        return user.getRole() == Role.SUPER_ADMIN;
     }
 
     private AppUser createAndSaveUser( OAuth2User oAuthUser, OAuth2UserRequest userRequest ) {
@@ -100,18 +83,4 @@ public class AuthService extends DefaultOAuth2UserService {
         String providerId = oAuthUser.getName();
         return provider + "_" + providerId;
     }
-
-    private String getProviderIdByAuthToken( OAuth2AuthenticationToken authToken ) {
-
-        if ( authToken == null ) {
-            throw new UnauthorizedException( "User is not logged in." );
-        }
-
-        OAuth2User user = authToken.getPrincipal();
-        String providerId = user.getName();
-        String provider = authToken.getAuthorizedClientRegistrationId();
-        return provider + "_" + providerId;
-    }
-
-
 }

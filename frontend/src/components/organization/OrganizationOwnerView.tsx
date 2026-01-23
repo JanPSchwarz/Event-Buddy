@@ -1,15 +1,14 @@
 import type { OrganizationResponseDto } from "@/api/generated/openAPIDefinition.schemas.ts";
 import OrganizationView from "@/components/organization/OrganizationView.tsx";
-import PageWrapper from "@/components/PageWrapper.tsx";
+import PageWrapper from "@/components/shared/PageWrapper.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
-import { useState } from "react";
 import EditOrganizationForm from "@/components/organization/EditOrganizationForm.tsx";
 import UpdateOwnerDialog from "@/components/organization/UpdateOwnerDialog.tsx";
-import { useDeleteOrganization } from "@/api/generated/organization/organization.ts";
-import { toast } from "sonner";
-import { useNavigate } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import DeleteOrganizationDialog from "@/components/organization/DeleteOrganizationDialog.tsx";
+import { NavLink, useSearchParams } from "react-router";
+import { ArrowLeftIcon } from "lucide-react";
+import { useContextUser } from "@/context/UserProvider.tsx";
 
 type OrganizationOwnerViewProps = {
     orgData: OrganizationResponseDto,
@@ -17,56 +16,52 @@ type OrganizationOwnerViewProps = {
 
 export default function OrganizationOwnerView( { orgData }: Readonly<OrganizationOwnerViewProps> ) {
 
-    const [ isEditing, setIsEditing ] = useState( false );
+    const [ searchParams, setSearchParams ] = useSearchParams();
 
-    const navigate = useNavigate();
+    const isEditing = searchParams.get( "edit" ) === "true";
 
-    const queryClient = useQueryClient();
+    const { user } = useContextUser();
 
-    const deleteOrga = useDeleteOrganization( {
-        axios: { withCredentials: true }
-    } );
 
     const toggleEdit = () => {
-        setIsEditing( !isEditing );
+        if ( isEditing ) {
+            setSearchParams( ( searchParams ) => {
+                searchParams.delete( "edit" );
+                return searchParams;
+            } )
+        } else {
+            setSearchParams( ( searchParams ) => {
+                searchParams.set( "edit", "true" );
+                return searchParams;
+            } )
+        }
     }
 
-    const handleDeleteOrganization = () => {
-        if ( isEditing ) return;
-
-
-        deleteOrga.mutate(
-            { organizationId: orgData.id },
-            {
-                onSuccess: () => {
-                    toast.success( "Organization deleted successfully." );
-                    queryClient.invalidateQueries();
-                    navigate( "/" );
-
-                },
-                onError: ( error ) => {
-                    console.error( "Error deleting organization:", error );
-                }
-            }
-        )
-    }
 
     return (
-        <PageWrapper>
-            <div className={ "max-w-[800px] w-full flex gap-6 justify-between items-center" }>
+        <PageWrapper className={ "mt-0 md:mt-0" }>
+            <Button variant={ "outline" } className={ "mr-auto" } asChild>
+                <NavLink to={ `/dashboard/${ user.id }` }>
+                    <ArrowLeftIcon/> Dashboard
+                </NavLink>
+            </Button>
+            <div className={ "max-w-[800px] w-full flex-col md:flex-row flex gap-6 justify-between items-center" }>
                 <Alert className={ "max-w-max max-h-max" }>
                     <AlertDescription>
                         You are owner of this organization.
                     </AlertDescription>
                 </Alert>
-                <div className={ "flex gap-2 flex-col items-end md:flex-row md:items-center justify-center" }>
-                    <UpdateOwnerDialog disabled={ isEditing } orgaData={ orgData }/>
-                    <Button variant={ "outline" } onClick={ toggleEdit }>
-                        { isEditing ? "Cancel Editing" : "Edit Organization" }
-                    </Button>
-                    <Button variant={ "destructive" } disabled={ isEditing } onClick={ handleDeleteOrganization }>
-                        Delete Organization
-                    </Button>
+                <div
+                    className={ "flex gap-4 flex-col items-start w-full md:flex-row md:items-center justify-center" }>
+                    <div className={ "flex gap-4" }>
+                        <UpdateOwnerDialog disabled={ isEditing } orgaData={ orgData }/>
+                        <Button variant={ "outline" } onClick={ toggleEdit }>
+                            { isEditing ? "Cancel Editing" : "Edit Organization" }
+                        </Button>
+                    </div>
+                    <DeleteOrganizationDialog organizationId={ orgData.id }
+                                              orgaName={ orgData.name }
+                                              isEditing={ isEditing }/>
                 </div>
             </div>
             { isEditing ?

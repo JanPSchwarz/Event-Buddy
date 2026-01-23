@@ -70,6 +70,13 @@ public record EventResponseDto(
         Boolean isSoldOut,
 
         @Schema(
+                description = "Number of Tickets booked for the event",
+                example = "100"
+        )
+        @NotNull
+        Integer bookedTicketsCount,
+
+        @Schema(
                 description = "Maximum tickets allowed per booking",
                 example = "5"
         )

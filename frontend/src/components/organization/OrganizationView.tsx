@@ -192,10 +192,11 @@ export default function OrganizationView( { orgaData }: Readonly<OrganizationVie
                 }
                 {
                     event && event.data.length > 0 &&
-                    <div className={ "flex items-start justify-center flex-wrap gap-12" }>
+                    <div
+                        className={ "grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] place-items-center md:place-items-start items-start justify-center flex-wrap gap-12 w-full" }>
                         { event.data.map( ( event ) => {
                             return (
-                                <EventCard key={ event.id } event={ event }/>
+                                <EventCard cardClassName={ "max-w-[300px] w-full" } key={ event.id } event={ event }/>
                             )
                         } ) }
                     </div>

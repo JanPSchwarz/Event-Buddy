@@ -7,6 +7,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -127,6 +129,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleIllegalStateException( IllegalStateException ex ) {
         return ResponseEntity.status( HttpStatus.CONFLICT ).body(
                 createErrorMessage( ex.getMessage(), HttpStatus.CONFLICT.value() )
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorMessage> handleAccessDeniedException( AccessDeniedException ex ) {
+        return ResponseEntity.status( HttpStatus.FORBIDDEN ).body(
+                createErrorMessage( "You do not have permission to perform this action.", HttpStatus.FORBIDDEN.value() )
+        );
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorMessage> handleAccessDeniedException( AuthorizationDeniedException ex ) {
+        return ResponseEntity.status( HttpStatus.FORBIDDEN ).body(
+                createErrorMessage( "You are not logged in or not allowed to perform this Action.", HttpStatus.FORBIDDEN.value() )
         );
     }
 

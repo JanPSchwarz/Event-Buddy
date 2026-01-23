@@ -5,9 +5,9 @@ import type { AppUser } from "@/api/generated/openAPIDefinition.schemas.ts";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { useMakeBooking } from "@/api/generated/event-controller/event-controller.ts";
+import { useMakeBooking } from "@/api/generated/booking-controller/booking-controller.ts";
 import { toast } from "sonner";
-import CustomLoader from "@/components/CustomLoader.tsx";
+import CustomLoader from "@/components/shared/CustomLoader.tsx";
 import Text from "@/components/typography/Text.tsx";
 import { InfoIcon } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -77,14 +77,13 @@ export default function BookingForm( {
                 }
             },
             {
-                onSuccess: ( response ) => {
-                    console.log( "Booking successful", response );
-                    queryClient.invalidateQueries();
+                onSuccess: () => {
                     toast.success( "Event booked successfully!" );
-                    bookingCompleted();
+                    queryClient.invalidateQueries().then( () => {
+                        bookingCompleted();
+                    } );
                 },
                 onError: ( error ) => {
-                    console.error( "Booking failed", error );
                     toast.error( error.response?.data.error || "Error booking tickets" );
                 }
             }

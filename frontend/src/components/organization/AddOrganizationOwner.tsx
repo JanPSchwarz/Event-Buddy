@@ -72,9 +72,11 @@ export default function AddOrganizationOwner( { orgData }: Readonly<AddOrganizat
                 {
                     onSuccess: () => {
                         toast.success( "Owner added successfully." );
-                        setSearchQuery( "" );
-                        setFoundUsers( [] );
-                        queryClient.invalidateQueries( { queryKey: getGetOrganizationBySlugQueryKey( orgData.slug ) } );
+                        queryClient.invalidateQueries( { queryKey: getGetOrganizationBySlugQueryKey( orgData.slug ) } ).then( () => {
+                            setSearchQuery( "" );
+                            setFoundUsers( [] );
+                        
+                        } );
                     },
                     onError: ( error ) => {
                         toast.error( error.response?.data.error || error.message || "Failed to add user." );
