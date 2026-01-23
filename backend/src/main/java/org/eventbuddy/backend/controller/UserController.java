@@ -6,8 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.eventbuddy.backend.exceptions.ResourceNotFoundException;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
+import org.eventbuddy.backend.configs.annotations.IsAuthenticated;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
 import org.eventbuddy.backend.models.app_user.AppUserUpdateDto;
@@ -16,7 +15,6 @@ import org.eventbuddy.backend.services.AuthService;
 import org.eventbuddy.backend.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,8 +89,9 @@ public class UserController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    public ResponseEntity<AppUser> updateUser( OAuth2AuthenticationToken authToken, @PathVariable String userId, @Valid @RequestBody AppUserUpdateDto updateUserDto ) {
-        validateRequest( authToken, userId );
+    @IsAuthenticated
+    public ResponseEntity<AppUser> updateUser( @PathVariable String userId, @Valid @RequestBody AppUserUpdateDto updateUserDto ) {
+        validateRequest( userId );
 
         return ResponseEntity.ok( userService.updateUser( updateUserDto, userId ) );
     }
@@ -118,22 +117,21 @@ public class UserController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    public ResponseEntity<Void> deleteUser( OAuth2AuthenticationToken authToken, @PathVariable String userId ) {
-        validateRequest( authToken, userId );
+    @IsAuthenticated
+    public ResponseEntity<Void> deleteUser( @PathVariable String userId ) {
+
+        validateRequest( userId );
 
         userService.deleteUserById( userId );
 
         return ResponseEntity.noContent().build();
     }
 
-    private void validateRequest( OAuth2AuthenticationToken authToken, String userId ) {
+    private void validateRequest( String userId ) {
 
-        if ( !userService.userExistsById( userId ) ) {
-            throw new ResourceNotFoundException( "User does not exist." );
-        }
+        userService.userExistsByIdOrThrow( userId );
 
-        if ( !authService.isRequestUserOrSuperAdmin( authToken, userId ) ) {
-            throw new UnauthorizedException( "You are not allowed to perform this action." );
-        }
+        authService.isRequestUserOrSuperAdminOrThrow( userId );
+
     }
 }

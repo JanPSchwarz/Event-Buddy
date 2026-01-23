@@ -2,12 +2,11 @@ package org.eventbuddy.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eventbuddy.backend.TestcontainersConfiguration;
-import org.eventbuddy.backend.enums.Role;
+import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.mockUser.WithCustomMockUser;
 import org.eventbuddy.backend.mockUser.WithCustomSuperAdmin;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.AppUserDto;
-import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.event.EventRequestDto;
 import org.eventbuddy.backend.models.event.EventResponseDto;
@@ -26,9 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockPart;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -47,7 +44,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class EventControllerTest {
 
-    OAuth2AuthenticationToken oAuth2Token;
     String savedAuthenticatedUserId;
     OrganizationResponseDto savedOrganizationDto;
     Organization savedOrganization;
@@ -75,39 +71,18 @@ class EventControllerTest {
         eventRepo.deleteAll();
 
         // Save annotated test user to userRepo
-        SecurityContext authContext = SecurityContextHolder.getContext();
-        oAuth2Token = ( OAuth2AuthenticationToken ) authContext.getAuthentication();
+        CustomOAuth2User customOAuth2User = ( CustomOAuth2User ) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        String provider = oAuth2Token.getAuthorizedClientRegistrationId();
-
-        String authenticatedUserRole = oAuth2Token.getAuthorities().iterator().next().getAuthority();
-        String providerId = provider + "_" + oAuth2Token.getName();
-        Role role = Role.valueOf( authenticatedUserRole.replace( "ROLE_", "" ) );
-
-        UserSettings userSettings = UserSettings.builder()
-                .userVisible( true )
-                .showAvatar( true )
-                .showOrgas( true )
-                .showEmail( true )
-                .build();
-
-        AppUser testUser = AppUser.builder()
-                .role( role )
-                .name( "testName" )
-                .providerId( providerId )
-                .userSettings( userSettings )
-                .build();
+        AppUser savedUser = userRepo.save( customOAuth2User.getUser() );
 
         AppUserDto testUserDto = AppUserDto.builder()
-                .name( testUser.getName() )
-                .email( testUser.getUserSettings().showEmail() ? testUser.getEmail() : null )
-                .avatarUrl( testUser.getUserSettings().showAvatar() ? testUser.getAvatarUrl() : null )
-                .build();
-
-        AppUser savedUser = userRepo.save( testUser );
-
-        testUserDto = testUserDto.toBuilder()
+                .name( savedUser.getName() )
                 .id( savedUser.getId() )
+                .email( savedUser.getUserSettings().showEmail() ? savedUser.getEmail() : null )
+                .avatarUrl( savedUser.getUserSettings().showAvatar() ? savedUser.getAvatarUrl() : null )
                 .build();
 
         savedAuthenticatedUserId = savedUser.getId();
@@ -125,7 +100,7 @@ class EventControllerTest {
                 .name( "Test Organization" )
                 .id( "testId" )
                 .slug( "test-organization" )
-                .owners( Set.of( testUser.getId() ) )
+                .owners( Set.of( savedUser.getId() ) )
                 .location( testLocation )
                 .build();
 
@@ -282,12 +257,12 @@ class EventControllerTest {
     @Test
     @DisplayName("Get raw event by id throws 401 when not authenticated")
     void getRawEventById_throws401WhenNotAuthenticated() throws Exception {
-        oAuth2Token.setAuthenticated( false );
+        SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         mockMvc.perform( get( "/api/events/raw/" + savedExampleEvent.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "User is not logged in." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
     @Test

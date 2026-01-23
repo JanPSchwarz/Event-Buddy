@@ -2,7 +2,7 @@ package org.eventbuddy.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eventbuddy.backend.TestcontainersConfiguration;
-import org.eventbuddy.backend.enums.Role;
+import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.mockUser.WithCustomMockUser;
 import org.eventbuddy.backend.mockUser.WithCustomSuperAdmin;
 import org.eventbuddy.backend.models.app_user.AppUser;
@@ -18,9 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,8 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class UserControllerTest {
 
-    OAuth2AuthenticationToken oAuth2Token;
-
     String savedUserId;
 
     @Autowired
@@ -51,31 +47,12 @@ class UserControllerTest {
     void setUp() {
         userRepo.deleteAll();
 
-        SecurityContext authContext = SecurityContextHolder.getContext();
-        oAuth2Token = ( OAuth2AuthenticationToken ) authContext.getAuthentication();
+        CustomOAuth2User customOAuth2User = ( CustomOAuth2User ) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        String provider = oAuth2Token.getAuthorizedClientRegistrationId();
-
-        String authenticatedUserRole = oAuth2Token.getAuthorities().iterator().next().getAuthority();
-        String providerId = provider + "_" + oAuth2Token.getName();
-        Role role = Role.valueOf( authenticatedUserRole.replace( "ROLE_", "" ) );
-
-        UserSettings userSettings = UserSettings.builder()
-                .userVisible( true )
-                .showAvatar( true )
-                .showOrgas( true )
-                .showEmail( true )
-                .build();
-
-        AppUser testUser = AppUser.builder()
-                .role( role )
-                .name( "testName" )
-                .providerId( providerId )
-                .userSettings( userSettings )
-                .build();
-
-        AppUser savedUser = userRepo.save( testUser );
-
+        AppUser savedUser = userRepo.save( customOAuth2User.getUser() );
         savedUserId = savedUser.getId();
     }
 
@@ -200,14 +177,14 @@ class UserControllerTest {
                         .content( requestBody )
                 )
                 .andExpect( status().isNotFound() )
-                .andExpect( jsonPath( "$.error" ).value( "User does not exist." ) );
+                .andExpect( jsonPath( "$.error" ).value( "User not found with id: nonExistingId" ) );
     }
 
     @Test
-    @DisplayName("Should throw 401 when user is not authenticated")
+    @DisplayName("Update User should throw 401 when user is not authenticated")
     void updateUser_throws401WhenNotAuthenticated() throws Exception {
 
-        oAuth2Token.setAuthenticated( false );
+        SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         AppUserUpdateDto updateData = AppUserUpdateDto.builder()
                 .name( "Updated Name" )
@@ -220,11 +197,11 @@ class UserControllerTest {
                         .content( requestBody )
                 )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not logged in." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
     @Test
-    @DisplayName("Should throw 401 when user is not authorized")
+    @DisplayName("Update User should throw 401 when user is not authorized")
     void updateUser_throws401WhenNotAuthorized() throws Exception {
         AppUser otherUser = AppUser.builder()
                 .name( "Other User" )
@@ -245,7 +222,7 @@ class UserControllerTest {
                         .content( requestBody )
                 )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not allowed to perform this action." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test
@@ -284,7 +261,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Should throw 401 when not authorized")
-    void deleteUser_returns404WhenNotAuthorized() throws Exception {
+    void deleteUser_returns401WhenNotAuthorized() throws Exception {
         AppUser otherUser = AppUser.builder()
                 .name( "Other User" )
                 .email( "example@example.com" )
@@ -295,7 +272,7 @@ class UserControllerTest {
 
         mockMvc.perform( delete( "/api/users/" + savedOtherUser.getId() ) )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not allowed to perform this action." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test

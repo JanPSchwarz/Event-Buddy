@@ -58,8 +58,14 @@ public class UserService {
                 .toList();
     }
 
-    public boolean userExistsById( String userId ) {
-        return userRepo.existsById( userId );
+    public boolean userExistsByIdOrThrow( String userId ) {
+        boolean exists = userRepo.existsById( userId );
+
+        if ( !exists ) {
+            throw new ResourceNotFoundException( "User not found with id: " + userId );
+        }
+
+        return true;
     }
 
     // === Raw User Methods (Admins only) ===

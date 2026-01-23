@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
-import org.eventbuddy.backend.models.app_user.AppUser;
+import org.eventbuddy.backend.configs.annotations.IsAuthenticated;
 import org.eventbuddy.backend.models.booking.Booking;
 import org.eventbuddy.backend.models.booking.BookingRequestDto;
 import org.eventbuddy.backend.models.booking.BookingResponseDto;
@@ -17,7 +15,6 @@ import org.eventbuddy.backend.services.AuthService;
 import org.eventbuddy.backend.services.BookingService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,12 +38,10 @@ public class BookingController {
     // === GET Endpoints ===
 
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<List<BookingResponseDto>> getBookingsByUser( @PathVariable String userId, OAuth2AuthenticationToken authToken ) {
-        AppUser user = authService.getAppUserByAuthToken( authToken );
+    @IsAuthenticated
+    public ResponseEntity<List<BookingResponseDto>> getBookingsByUser( @PathVariable String userId ) {
 
-        if ( !user.getId().equals( userId ) && user.getRole() != Role.SUPER_ADMIN ) {
-            throw new UnauthorizedException( "User not authorized to view bookings of other users." );
-        }
+        authService.isRequestUserOrSuperAdminOrThrow( userId );
 
         List<BookingResponseDto> bookingResponseDto = bookingService.getBookingsByUser( userId );
 
@@ -90,13 +85,8 @@ public class BookingController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    public ResponseEntity<BookingResponseDto> makeBooking( @RequestBody @Valid BookingRequestDto bookingRequestDto, OAuth2AuthenticationToken authToken ) {
-        boolean notLoggedIn = authService.isNotAuthenticated( authToken );
-
-        if ( notLoggedIn ) {
-            throw new UnauthorizedException( "User must be logged in to make a booking." );
-        }
-
+    @IsAuthenticated
+    public ResponseEntity<BookingResponseDto> makeBooking( @RequestBody @Valid BookingRequestDto bookingRequestDto ) {
         BookingResponseDto bookingResponseDto = bookingService.makeBooking( bookingRequestDto );
 
         return ResponseEntity.ok( bookingResponseDto );
@@ -125,14 +115,11 @@ public class BookingController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    public ResponseEntity<Void> deleteBookingById( @PathVariable String bookingId, OAuth2AuthenticationToken authToken ) {
-        AppUser user = authService.getAppUserByAuthToken( authToken );
-
+    @IsAuthenticated
+    public ResponseEntity<Void> deleteBookingById( @PathVariable String bookingId ) {
         Booking bookingToDelete = bookingService.getRawBookingById( bookingId );
 
-        if ( !bookingToDelete.getUserId().equals( user.getId() ) && user.getRole() != Role.SUPER_ADMIN ) {
-            throw new UnauthorizedException( "You are not authorized to delete this booking." );
-        }
+        authService.isRequestUserOrSuperAdminOrThrow( bookingToDelete.getUserId() );
 
         bookingService.deleteBookingById( bookingId );
 

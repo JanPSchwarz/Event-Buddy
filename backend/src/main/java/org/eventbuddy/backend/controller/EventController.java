@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import org.eventbuddy.backend.configs.CustomOAuth2User;
+import org.eventbuddy.backend.configs.annotations.IsAuthenticated;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
@@ -14,13 +16,12 @@ import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.models.event.Event;
 import org.eventbuddy.backend.models.event.EventRequestDto;
 import org.eventbuddy.backend.models.event.EventResponseDto;
-import org.eventbuddy.backend.services.AuthService;
 import org.eventbuddy.backend.services.EventService;
 import org.eventbuddy.backend.services.ImageService;
 import org.eventbuddy.backend.services.OrganizationService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,13 +40,11 @@ public class EventController {
 
     private final EventService eventService;
     private final OrganizationService organizationService;
-    private final AuthService authService;
     private final ImageService imageService;
 
-    public EventController( EventService eventService, ImageService imageService, OrganizationService organizationService, AuthService authService ) {
+    public EventController( EventService eventService, ImageService imageService, OrganizationService organizationService ) {
         this.eventService = eventService;
         this.organizationService = organizationService;
-        this.authService = authService;
         this.imageService = imageService;
     }
 
@@ -112,8 +111,9 @@ public class EventController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
-    public ResponseEntity<Event> getRawEventById( @PathVariable String eventId, OAuth2AuthenticationToken authToken ) {
-        checkIsOrganizationOwnerOrSuperAdmin( eventId, authToken );
+    @IsAuthenticated
+    public ResponseEntity<Event> getRawEventById( @PathVariable String eventId, @AuthenticationPrincipal CustomOAuth2User user ) {
+        checkIsOrganizationOwnerOrSuperAdmin( eventId, user.getUser() );
         return ResponseEntity.ok( eventService.getRawEventById( eventId ) );
     }
 
@@ -158,12 +158,13 @@ public class EventController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @IsAuthenticated
     public ResponseEntity<Event> createEvent(
             @Nullable @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             @Valid @RequestPart("event") EventRequestDto eventRequestDto,
-            OAuth2AuthenticationToken authToken
+            @AuthenticationPrincipal CustomOAuth2User user
     ) throws IOException {
-        checkIsOrganizationOwner( eventRequestDto.organizationId(), authToken );
+        checkIsOrganizationOwner( eventRequestDto.organizationId(), user.getUser() );
 
         String imageId = null;
 
@@ -208,14 +209,15 @@ public class EventController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @IsAuthenticated
     public ResponseEntity<Event> updateEvent(
-            OAuth2AuthenticationToken authToken,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Nullable @RequestPart(value = "imageFile", required = false) MultipartFile file,
             Optional<Boolean> deleteImage,
             @PathVariable String eventId,
             @Valid @RequestPart("updateEvent") EventRequestDto updateEventData
     ) throws IOException {
-        checkIsOrganizationOwnerOrSuperAdmin( eventId, authToken );
+        checkIsOrganizationOwnerOrSuperAdmin( eventId, user.getUser() );
 
         if ( file != null ) {
             imageService.updateEventImage( eventId, file );
@@ -250,29 +252,28 @@ public class EventController {
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
+    @IsAuthenticated
     public ResponseEntity<Void> deleteEventById(
-            OAuth2AuthenticationToken authToken,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @PathVariable String eventId
     ) {
-        checkIsOrganizationOwnerOrSuperAdmin( eventId, authToken );
+        checkIsOrganizationOwnerOrSuperAdmin( eventId, user.getUser() );
         eventService.deleteEventById( eventId );
         return ResponseEntity.noContent().build();
     }
 
     // == Helper methods ==
 
-    private void checkIsOrganizationOwner( String organizationId, OAuth2AuthenticationToken authToken ) {
-        AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
+    private void checkIsOrganizationOwner( String organizationId, AppUser user ) {
         Set<String> organizationOwners = organizationService.getRawOrganizationById( organizationId )
                 .getOwners();
 
-        if ( !organizationOwners.contains( loggedInUser.getId() ) ) {
+        if ( !organizationOwners.contains( user.getId() ) ) {
             throw new UnauthorizedException( "Your are not an owner of the organization with id: " + organizationId );
         }
     }
 
-    private void checkIsOrganizationOwnerOrSuperAdmin( String eventId, OAuth2AuthenticationToken authToken ) {
-        AppUser loggedInUser = authService.getAppUserByAuthToken( authToken );
+    private void checkIsOrganizationOwnerOrSuperAdmin( String eventId, AppUser user ) {
         Event event = eventService.getRawEventById( eventId );
 
         String organizationId = event.getEventOrganization().getId();
@@ -280,7 +281,7 @@ public class EventController {
         Set<String> organizationOwners = organizationService.getRawOrganizationById( organizationId )
                 .getOwners();
 
-        if ( !organizationOwners.contains( loggedInUser.getId() ) && loggedInUser.getRole() != Role.SUPER_ADMIN ) {
+        if ( !organizationOwners.contains( user.getId() ) && user.getRole() != Role.SUPER_ADMIN ) {
             throw new UnauthorizedException( "Your are not allowed to perform this action." );
         }
     }

@@ -365,21 +365,22 @@ class UserServiceTest {
     void userExistsById_shouldReturnTrueWhenExists() {
         when( mockUserRepo.existsById( exampleUser.getId() ) ).thenReturn( true );
 
-        boolean exists = userService.userExistsById( exampleUser.getId() );
+        boolean exists = userService.userExistsByIdOrThrow( exampleUser.getId() );
 
         assertTrue( exists );
         verify( mockUserRepo ).existsById( exampleUser.getId() );
     }
 
     @Test
-    @DisplayName("Should return true when user does not exists")
-    void userExistsById_shouldReturnTrueWhenNotExists() {
+    @DisplayName("Should throw 404 when user does not exists")
+    void userExistsById_shouldThrow401WhenNotExists() {
         String notExistingId = "notExistingId";
         when( mockUserRepo.existsById( notExistingId ) ).thenReturn( false );
 
-        boolean exists = userService.userExistsById( notExistingId );
-
-        assertFalse( exists );
+        assertThatThrownBy( () -> userService.userExistsByIdOrThrow( notExistingId ) )
+                .isInstanceOf( ResourceNotFoundException.class )
+                .hasMessage( "User not found with id: notExistingId" );
+        
         verify( mockUserRepo ).existsById( notExistingId );
     }
 

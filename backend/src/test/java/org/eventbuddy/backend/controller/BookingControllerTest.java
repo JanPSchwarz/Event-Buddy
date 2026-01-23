@@ -2,11 +2,10 @@ package org.eventbuddy.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eventbuddy.backend.TestcontainersConfiguration;
-import org.eventbuddy.backend.enums.Role;
+import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.mockUser.WithCustomMockUser;
 import org.eventbuddy.backend.mockUser.WithCustomSuperAdmin;
 import org.eventbuddy.backend.models.app_user.AppUser;
-import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.models.booking.Booking;
 import org.eventbuddy.backend.models.booking.BookingRequestDto;
 import org.eventbuddy.backend.models.booking.BookingResponseDto;
@@ -27,7 +26,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.test.annotation.DirtiesContext;
@@ -49,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookingControllerTest {
 
     OAuth2AuthenticationToken oAuth2Token;
-    String savedAuthenticatedUserId = "test-user";
+    String savedAuthenticatedUserId;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -82,29 +80,14 @@ class BookingControllerTest {
         bookingRepo.deleteAll();
 
         // Save annotated test user to userRepo
-        SecurityContext authContext = SecurityContextHolder.getContext();
-        oAuth2Token = ( OAuth2AuthenticationToken ) authContext.getAuthentication();
+        CustomOAuth2User customOAuth2User = ( CustomOAuth2User ) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        String provider = oAuth2Token.getAuthorizedClientRegistrationId();
+        AppUser testUser = userRepo.save( customOAuth2User.getUser() );
 
-        String authenticatedUserRole = oAuth2Token.getAuthorities().iterator().next().getAuthority();
-        String providerId = provider + "_" + oAuth2Token.getName();
-        Role role = Role.valueOf( authenticatedUserRole.replace( "ROLE_", "" ) );
-
-        UserSettings userSettings = UserSettings.builder()
-                .userVisible( true )
-                .showAvatar( true )
-                .showOrgas( true )
-                .showEmail( true )
-                .build();
-
-        AppUser testUser = AppUser.builder()
-                .role( role )
-                .id( savedAuthenticatedUserId )
-                .name( "testName" )
-                .providerId( providerId )
-                .userSettings( userSettings )
-                .build();
+        savedAuthenticatedUserId = testUser.getId();
 
         Location testLocation = Location.builder()
                 .locationName( "Test Location" )
@@ -222,7 +205,7 @@ class BookingControllerTest {
         mockMvc.perform( get( "/api/booking/byUser/" + otherUserId )
                         .contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "User not authorized to view bookings of other users." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test
@@ -250,7 +233,7 @@ class BookingControllerTest {
     @DisplayName("Returns 401 when not logged in")
     void makeBooking_unauthenticated() throws Exception {
 
-        oAuth2Token.setAuthenticated( false );
+        SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         bookingRepo.deleteAll();
 
@@ -260,7 +243,7 @@ class BookingControllerTest {
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( requestBody ) )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "User must be logged in to make a booking." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
     @Test
@@ -284,7 +267,7 @@ class BookingControllerTest {
         mockMvc.perform( delete( "/api/booking/" + testBooking.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not authorized to delete this booking." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test
