@@ -11,7 +11,6 @@ import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.configs.annotations.IsAuthenticated;
 import org.eventbuddy.backend.configs.annotations.IsSuperAdmin;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.models.organization.Organization;
@@ -21,6 +20,7 @@ import org.eventbuddy.backend.services.ImageService;
 import org.eventbuddy.backend.services.OrganizationService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +63,15 @@ public class OrganizationController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "User not authenticated or not authorized",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -166,16 +174,24 @@ public class OrganizationController {
             description = "Updates the organization with the specified ID and returns the updated organization."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "Organization not found",
+            responseCode = "401",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Organization not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -216,16 +232,24 @@ public class OrganizationController {
             description = "Adds a new owner to the organization with the specified ID and returns the updated organization."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "Organization not found",
+            responseCode = "401",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Organization not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -257,7 +281,15 @@ public class OrganizationController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "User not authenticated",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -291,16 +323,24 @@ public class OrganizationController {
             description = "Deletes the organization with the specified ID."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "Organization not found",
+            responseCode = "401",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Organization not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -322,7 +362,7 @@ public class OrganizationController {
         Set<String> organizationOwners = organizationService.getRawOrganizationById( organizationId ).getOwners();
 
         if ( !organizationOwners.contains( user.getId() ) && user.getRole() != Role.SUPER_ADMIN ) {
-            throw new UnauthorizedException( "You are not allowed to perform this action." );
+            throw new AccessDeniedException( "You are not allowed to perform this action." );
         }
     }
 }

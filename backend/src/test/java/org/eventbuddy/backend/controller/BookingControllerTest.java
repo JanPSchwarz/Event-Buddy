@@ -197,14 +197,14 @@ class BookingControllerTest {
 
 
     @Test
-    @DisplayName("Returns 401 when not authorized")
+    @DisplayName("Returns 403 when not authorized")
     void getBookingsByUser_unauthorized() throws Exception {
 
         String otherUserId = "other-user";
 
         mockMvc.perform( get( "/api/booking/byUser/" + otherUserId )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
@@ -230,7 +230,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @DisplayName("Returns 401 when not logged in")
+    @DisplayName("Returns 403 when not logged in")
     void makeBooking_unauthenticated() throws Exception {
 
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
@@ -242,7 +242,7 @@ class BookingControllerTest {
         mockMvc.perform( post( "/api/booking/makeBooking" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( requestBody ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
@@ -255,7 +255,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @DisplayName("Delete booking returns 401 when not authorized")
+    @DisplayName("Delete booking returns 403 when not authorized")
     void deleteBookingById_unauthorized() throws Exception {
         // change booking user id to a different one
         testBooking = testBooking.toBuilder()
@@ -266,7 +266,7 @@ class BookingControllerTest {
 
         mockMvc.perform( delete( "/api/booking/" + testBooking.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 

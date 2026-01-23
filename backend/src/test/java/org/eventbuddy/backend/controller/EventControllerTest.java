@@ -208,8 +208,8 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("Get raw event by id throws 401 when called by non-owner")
-    void getRawEventById_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Get raw event by id throws 403 when called by non-owner")
+    void getRawEventById_throws403WhenNotAuthorized() throws Exception {
         Organization orgaWithForeignOwner = savedOrganization.toBuilder()
                 .owners( Set.of( "foreignOwnerId" ) )
                 .build();
@@ -218,8 +218,8 @@ class EventControllerTest {
 
         mockMvc.perform( get( "/api/events/raw/" + savedExampleEvent.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "Your are not allowed to perform this action." ) );
+                .andExpect( status().isForbidden() )
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test
@@ -255,13 +255,13 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("Get raw event by id throws 401 when not authenticated")
-    void getRawEventById_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Get raw event by id throws 403 when not authenticated")
+    void getRawEventById_throws403WhenNotAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         mockMvc.perform( get( "/api/events/raw/" + savedExampleEvent.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
@@ -342,8 +342,8 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("Create event throws 401 when not authorized")
-    void createEvent_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Create event throws 403 when not authorized")
+    void createEvent_throws403WhenNotAuthorized() throws Exception {
         Organization orgaWithForeignOwner = savedOrganization.toBuilder()
                 .owners( Set.of( "foreignOwnerId" ) )
                 .build();
@@ -359,8 +359,8 @@ class EventControllerTest {
         mockMvc.perform( multipart( "/api/events/create" )
                         .part( eventPart )
                         .contentType( MediaType.MULTIPART_FORM_DATA ) )
-                .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "Your are not an owner of the organization with id: " + exampleEventRequestDto.organizationId() ) );
+                .andExpect( status().isForbidden() )
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test
@@ -470,8 +470,8 @@ class EventControllerTest {
     }
 
     @Test
-    @DisplayName("Update event throws 401 when not authorized")
-    void updateEvent_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Update event throws 403 when not authorized")
+    void updateEvent_throws403WhenNotAuthorized() throws Exception {
         Organization orgaWithForeignOwner = savedOrganization.toBuilder()
                 .owners( Set.of( "foreignOwnerId" ) )
                 .build();
@@ -491,8 +491,8 @@ class EventControllerTest {
                             return request;
                         } )
                         .contentType( MediaType.MULTIPART_FORM_DATA ) )
-                .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "Your are not allowed to perform this action." ) );
+                .andExpect( status().isForbidden() )
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test

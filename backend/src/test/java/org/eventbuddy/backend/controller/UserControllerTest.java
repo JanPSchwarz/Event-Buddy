@@ -181,8 +181,8 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Update User should throw 401 when user is not authenticated")
-    void updateUser_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Update User should throw 403 when user is not authenticated")
+    void updateUser_throws403WhenNotAuthenticated() throws Exception {
 
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
@@ -196,13 +196,13 @@ class UserControllerTest {
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( requestBody )
                 )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
     @Test
-    @DisplayName("Update User should throw 401 when user is not authorized")
-    void updateUser_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Update User should throw 403 when user is not authorized")
+    void updateUser_throws403WhenNotAuthorized() throws Exception {
         AppUser otherUser = AppUser.builder()
                 .name( "Other User" )
                 .email( "example@example.com" )
@@ -221,7 +221,7 @@ class UserControllerTest {
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( requestBody )
                 )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
@@ -260,8 +260,8 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authorized")
-    void deleteUser_returns401WhenNotAuthorized() throws Exception {
+    @DisplayName("Should throw 403 when not authorized")
+    void deleteUser_returns403WhenNotAuthorized() throws Exception {
         AppUser otherUser = AppUser.builder()
                 .name( "Other User" )
                 .email( "example@example.com" )
@@ -271,7 +271,7 @@ class UserControllerTest {
         AppUser savedOtherUser = userRepo.save( otherUser );
 
         mockMvc.perform( delete( "/api/users/" + savedOtherUser.getId() ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 

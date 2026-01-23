@@ -66,16 +66,24 @@ public class UserController {
             description = "Returns the updated user account after applying the changes."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "User not found",
+            responseCode = "401",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -102,16 +110,24 @@ public class UserController {
             description = "Deletes the user account."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "User not found",
+            responseCode = "401",
+            description = "Not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)

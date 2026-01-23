@@ -169,22 +169,22 @@ class OrganizationControllerTest {
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authorized as super admin")
-    void getAllRawOrganizations_throws401WhenNotSuperAdmin() throws Exception {
+    @DisplayName("Should throw 403 when not authorized as super admin")
+    void getAllRawOrganizations_throws403WhenNotSuperAdmin() throws Exception {
         mockMvc.perform( get( "/api/organization/allRaw" )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authenticated")
-    void getAllRawOrganizations_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Should throw 403 when not authenticated")
+    void getAllRawOrganizations_throws403WhenNotAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         mockMvc.perform( get( "/api/organization/allRaw" )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
@@ -271,8 +271,8 @@ class OrganizationControllerTest {
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authenticated")
-    void createOrganization_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Should throw 403 when not authenticated")
+    void createOrganization_throws403WhenNotAuthenticated() throws Exception {
 
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
@@ -295,7 +295,7 @@ class OrganizationControllerTest {
         mockMvc.perform( multipart( "/api/organization" )
                         .part( organizationPart )
                         .contentType( MediaType.MULTIPART_FORM_DATA ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
@@ -505,8 +505,8 @@ class OrganizationControllerTest {
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authenticated")
-    void updateOrganization_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Should throw 403 when not authenticated")
+    void updateOrganization_throws403WhenNotAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
         Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
@@ -527,14 +527,14 @@ class OrganizationControllerTest {
                             return request;
                         } )
                         .contentType( MediaType.MULTIPART_FORM_DATA ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }
 
     @Test
-    @DisplayName("Should throw 401 when called by non owner (only USER role)")
-    void updateOrganization_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Should throw 403 when called by non owner (only USER role)")
+    void updateOrganization_throws403WhenNotAuthorized() throws Exception {
         Organization orgaToUpdate = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
         Organization orgaToUpdateWithForeignOwner = orgaToUpdate.toBuilder()
@@ -560,9 +560,9 @@ class OrganizationControllerTest {
                             return request;
                         } )
                         .contentType( MediaType.MULTIPART_FORM_DATA ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not allowed to perform this action." ) );
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) );
     }
 
     @Test
@@ -644,7 +644,7 @@ class OrganizationControllerTest {
 
     @Test
     @DisplayName("Should throw 404 when new orga not found")
-    void addOwnerToOrganization_throws401WhenNotLoggedIn() throws Exception {
+    void addOwnerToOrganization_throws403WhenNotLoggedIn() throws Exception {
         String nonExistingOrgaId = "nonExistingOrgaId";
         String nonExistingUserId = "nonExistingUserId";
 
@@ -656,8 +656,8 @@ class OrganizationControllerTest {
     }
 
     @Test
-    @DisplayName("Should throw 401 when request user not authenticated")
-    void addOwnerToOrganization_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Should throw 403 when request user not authenticated")
+    void addOwnerToOrganization_throws403WhenNotAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         String nonExistingOrgaId = "nonExistingOrgaId";
@@ -665,14 +665,14 @@ class OrganizationControllerTest {
 
         mockMvc.perform( put( "/api/organization/addOwner/" + nonExistingOrgaId + "/" + nonExistingUserId )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
 
     @Test
-    @DisplayName("Should throw 401 when request user not authorized")
-    void addOwnerToOrganization_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Should throw 403 when request user not authorized")
+    void addOwnerToOrganization_throws403WhenNotAuthorized() throws Exception {
         Organization savedOrga = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
         Organization savedOrgaWithForeignOwner = savedOrga.toBuilder()
@@ -683,8 +683,8 @@ class OrganizationControllerTest {
 
         mockMvc.perform( put( "/api/organization/addOwner/" + savedOrga.getId() + "/" + "otherUserId" )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not allowed to perform this action." ) )
+                .andExpect( status().isForbidden() )
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
 
@@ -811,8 +811,8 @@ class OrganizationControllerTest {
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authorized")
-    void removeOwnerFromOrganization_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Should throw 403 when not authorized")
+    void removeOwnerFromOrganization_throws403WhenNotAuthorized() throws Exception {
         Organization savedOrga = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
         AppUser ownerToRemove = AppUser.builder()
@@ -854,20 +854,20 @@ class OrganizationControllerTest {
 
         mockMvc.perform( put( "/api/organization/removeOwner/" + savedOrgaWithMultipleOwners.getId() + "/" + savedOwnerToRemove.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not allowed to perform this action." ) )
+                .andExpect( status().isForbidden() )
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
 
     @Test
-    @DisplayName("Should throw 401 when not authenticated")
-    void removeOwnerFromOrganization_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Should throw 403 when not authenticated")
+    void removeOwnerFromOrganization_throws403WhenNotAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
         Organization savedOrga = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
         mockMvc.perform( put( "/api/organization/removeOwner/" + savedOrga.getId() + "/" + savedAuthenticatedUserId )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
@@ -915,22 +915,22 @@ class OrganizationControllerTest {
     }
 
     @Test
-    @DisplayName("Should return empty 401 when not authenticated")
-    void deleteOrganization_throws401WhenNotAuthenticated() throws Exception {
+    @DisplayName("Should return empty 403 when not authenticated")
+    void deleteOrganization_throws403WhenNotAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         Organization orgaToDelete = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
         mockMvc.perform( delete( "/api/organization/" + orgaToDelete.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
 
     @Test
-    @DisplayName("Should return empty 401 when not authorized")
-    void deleteOrganization_throws401WhenNotAuthorized() throws Exception {
+    @DisplayName("Should return empty 403 when not authorized")
+    void deleteOrganization_throws403WhenNotAuthorized() throws Exception {
         Organization orgaToDelete = organizationRepo.findByName( savedOrganizationName ).orElseThrow();
 
         Organization orgaToDeleteWithForeignOwner = orgaToDelete.toBuilder()
@@ -941,8 +941,8 @@ class OrganizationControllerTest {
 
         mockMvc.perform( delete( "/api/organization/" + orgaToDelete.getId() )
                         .contentType( MediaType.APPLICATION_JSON ) )
-                .andExpect( status().isUnauthorized() )
-                .andExpect( jsonPath( "$.error" ).value( "You are not allowed to perform this action." ) )
+                .andExpect( status().isForbidden() )
+                .andExpect( jsonPath( "$.error" ).value( "You do not have permission to perform this action." ) )
                 .andExpect( jsonPath( "$.id" ).isNotEmpty() );
     }
 

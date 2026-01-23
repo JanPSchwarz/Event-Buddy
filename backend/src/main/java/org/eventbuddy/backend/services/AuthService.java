@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.eventbuddy.backend.configs.AdminConfig;
 import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.app_user.UserSettings;
 import org.eventbuddy.backend.repos.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -48,7 +48,7 @@ public class AuthService extends DefaultOAuth2UserService {
         if ( user.getId().equals( userId ) || user.getRole() == Role.SUPER_ADMIN ) {
             return true;
         } else {
-            throw new UnauthorizedException( "You do not have permission to perform this action." );
+            throw new AccessDeniedException( "You do not have permission to perform this action." );
         }
     }
 

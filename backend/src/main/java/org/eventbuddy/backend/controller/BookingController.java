@@ -38,6 +38,22 @@ public class BookingController {
     // === GET Endpoints ===
 
     @GetMapping("/byUser/{userId}")
+    @ApiResponse(
+            responseCode = "401",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
     @IsAuthenticated
     public ResponseEntity<List<BookingResponseDto>> getBookingsByUser( @PathVariable String userId ) {
 
@@ -101,7 +117,15 @@ public class BookingController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "Not authorized to delete this booking",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -125,7 +149,4 @@ public class BookingController {
 
         return ResponseEntity.noContent().build();
     }
-
-    // === Helper Methods ===
-
 }

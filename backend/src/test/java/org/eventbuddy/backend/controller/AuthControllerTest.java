@@ -62,12 +62,12 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("Should return 401 when user is not authenticated")
+    @DisplayName("Should return 403 when user is not authenticated")
     void getMe_notAuthenticated() throws Exception {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated( false );
 
         mockMvc.perform( get( "/api/auth/getMe" ) )
-                .andExpect( status().isUnauthorized() )
+                .andExpect( status().isForbidden() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( jsonPath( "$.error" ).value( "You are not logged in or not allowed to perform this Action." ) );
     }

@@ -2,7 +2,6 @@ package org.eventbuddy.backend.services;
 
 import org.eventbuddy.backend.configs.AdminConfig;
 import org.eventbuddy.backend.configs.CustomOAuth2User;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.mockUser.WithCustomMockUser;
 import org.eventbuddy.backend.mockUser.WithCustomSuperAdmin;
 import org.eventbuddy.backend.repos.UserRepository;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -64,7 +64,7 @@ class AuthServiceTest {
 
         assertThatThrownBy( () ->
                 mockAuthService.isRequestUserOrSuperAdminOrThrow( nonExistingUserId )
-        ).isInstanceOf( UnauthorizedException.class )
+        ).isInstanceOf( AccessDeniedException.class )
                 .hasMessage( "You do not have permission to perform this action." );
     }
 

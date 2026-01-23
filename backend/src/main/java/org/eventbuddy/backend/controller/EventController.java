@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import org.eventbuddy.backend.configs.CustomOAuth2User;
 import org.eventbuddy.backend.configs.annotations.IsAuthenticated;
 import org.eventbuddy.backend.enums.Role;
-import org.eventbuddy.backend.exceptions.UnauthorizedException;
 import org.eventbuddy.backend.models.app_user.AppUser;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.models.event.Event;
@@ -21,6 +20,7 @@ import org.eventbuddy.backend.services.ImageService;
 import org.eventbuddy.backend.services.OrganizationService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -104,6 +104,22 @@ public class EventController {
             description = "Retrieve an event by its unique ID"
     )
     @ApiResponse(
+            responseCode = "401",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
             responseCode = "404",
             description = "Event not found",
             content = @Content(
@@ -136,7 +152,15 @@ public class EventController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "Not authorized to create event for this organization",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -187,7 +211,15 @@ public class EventController {
     )
     @ApiResponse(
             responseCode = "401",
-            description = "User not authenticated",
+            description = "Not authenticated",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
@@ -245,6 +277,14 @@ public class EventController {
             )
     )
     @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorMessage.class)
+            )
+    )
+    @ApiResponse(
             responseCode = "404",
             description = "Event not found",
             content = @Content(
@@ -269,7 +309,7 @@ public class EventController {
                 .getOwners();
 
         if ( !organizationOwners.contains( user.getId() ) ) {
-            throw new UnauthorizedException( "Your are not an owner of the organization with id: " + organizationId );
+            throw new AccessDeniedException( "Your are not an owner of the organization with id: " + organizationId );
         }
     }
 
@@ -282,7 +322,7 @@ public class EventController {
                 .getOwners();
 
         if ( !organizationOwners.contains( user.getId() ) && user.getRole() != Role.SUPER_ADMIN ) {
-            throw new UnauthorizedException( "Your are not allowed to perform this action." );
+            throw new AccessDeniedException( "Your are not allowed to perform this action." );
         }
     }
 }

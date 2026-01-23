@@ -40,16 +40,16 @@ public class AuthController {
             description = "Returns the currently authenticated user's information."
     )
     @ApiResponse(
-            responseCode = "404",
-            description = "User not found",
+            responseCode = "401",
+            description = "User not authenticated",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
             )
     )
     @ApiResponse(
-            responseCode = "401",
-            description = "User not authenticated",
+            responseCode = "404",
+            description = "User not found",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ErrorMessage.class)
