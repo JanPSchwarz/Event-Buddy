@@ -20,7 +20,7 @@
 
 ### Frontend build on
 
-![Static Badge](https://img.shields.io/badge/React-3.5.8-%230081A3?logo=react)
+![Static Badge](https://img.shields.io/badge/React-19.2-%230081A3?logo=react)
 ![Static Badge](https://img.shields.io/badge/TypeScript-gray?logo=typescript)
 ![Static Badge](https://img.shields.io/badge/Vite-7.2.4-pink?logo=vite)
 ![Static Badge](https://img.shields.io/badge/Orval_Client-darkviolet?logo=TanStack)
