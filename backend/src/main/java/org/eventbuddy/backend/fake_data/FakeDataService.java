@@ -78,8 +78,10 @@ public class FakeDataService {
 
         for ( int i = 0; i < numberOfEvents; i++ ) {
 
+            int randomInt = faker.number().numberBetween( 0, currentOrgaIds.size() );
+
             Organization randomOrga = organizationRepo.findById(
-                    currentOrgaIds.get( faker.number().numberBetween( 0, currentOrgaIds.size() ) )
+                    currentOrgaIds.get( randomInt )
             ).orElseThrow( () ->
                     new ResourceNotFoundException( "orga not found while creating fake events" )
             );
