@@ -1,15 +1,20 @@
 package org.eventbuddy.backend.controller;
 
+import org.eventbuddy.backend.TestcontainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(SpaController.class)
+@Import(TestcontainersConfiguration.class)
+@AutoConfigureMockMvc
+@SpringBootTest
 @WithMockUser
 class SpaControllerTest {
 
@@ -59,5 +64,5 @@ class SpaControllerTest {
                 .andExpect( status().isOk() )
                 .andExpect( view().name( "forward:/index.html" ) );
     }
-    
+
 }
