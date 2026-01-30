@@ -49,7 +49,7 @@ export const makeBooking = (
     
     
     return axios.default.post(
-      `http://localhost:8080/api/booking/makeBooking`,
+      `/api/booking/makeBooking`,
       bookingRequestDto,options
     );
   }
@@ -107,7 +107,7 @@ export const useMakeBooking = <TError = AxiosError<ErrorMessage>,
     
     
     return axios.default.get(
-      `http://localhost:8080/api/booking/byUser/${userId}`,options
+      `/api/booking/byUser/${userId}`,options
     );
   }
 
@@ -116,7 +116,7 @@ export const useMakeBooking = <TError = AxiosError<ErrorMessage>,
 
 export const getGetBookingsByUserQueryKey = (userId?: string,) => {
     return [
-    `http://localhost:8080/api/booking/byUser/${userId}`
+    `/api/booking/byUser/${userId}`
     ] as const;
     }
 
@@ -194,7 +194,7 @@ export const deleteBookingById = (
     
     
     return axios.default.delete(
-      `http://localhost:8080/api/booking/${bookingId}`,options
+      `/api/booking/${bookingId}`,options
     );
   }
 

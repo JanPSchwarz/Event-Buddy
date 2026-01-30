@@ -45,11 +45,11 @@ import type {
  */
 export const makeUserSuperAdmin = (
     userId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<unknown>> => {
+ ): Promise<AxiosResponse<AppUser>> => {
     
     
     return axios.default.put(
-      `http://localhost:8080/api/admin/super/make-super-admin/${userId}`,undefined,options
+      `/api/admin/super/make-super-admin/${userId}`,undefined,options
     );
   }
 
@@ -106,11 +106,11 @@ export const useMakeUserSuperAdmin = <TError = AxiosError<ErrorMessage>,
  */
 export const makeUserAdmin = (
     userId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<unknown>> => {
+ ): Promise<AxiosResponse<AppUser>> => {
     
     
     return axios.default.put(
-      `http://localhost:8080/api/admin/make-admin/${userId}`,undefined,options
+      `/api/admin/make-admin/${userId}`,undefined,options
     );
   }
 
@@ -171,7 +171,7 @@ export const getRawUserById = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/admin/super/${userId}`,options
+      `/api/admin/super/${userId}`,options
     );
   }
 
@@ -180,7 +180,7 @@ export const getRawUserById = (
 
 export const getGetRawUserByIdQueryKey = (userId?: string,) => {
     return [
-    `http://localhost:8080/api/admin/super/${userId}`
+    `/api/admin/super/${userId}`
     ] as const;
     }
 
@@ -258,11 +258,11 @@ export function useGetRawUserById<TData = Awaited<ReturnType<typeof getRawUserBy
  */
 export const getAllRawUsers = (
      options?: AxiosRequestConfig
- ): Promise<AxiosResponse<unknown>> => {
+ ): Promise<AxiosResponse<AppUser[]>> => {
     
     
     return axios.default.get(
-      `http://localhost:8080/api/admin/super/get-all-users`,options
+      `/api/admin/super/get-all-users`,options
     );
   }
 
@@ -271,7 +271,7 @@ export const getAllRawUsers = (
 
 export const getGetAllRawUsersQueryKey = () => {
     return [
-    `http://localhost:8080/api/admin/super/get-all-users`
+    `/api/admin/super/get-all-users`
     ] as const;
     }
 

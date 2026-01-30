@@ -52,7 +52,7 @@ export const getOrganizationById = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/organization/${organizationId}`,options
+      `/api/organization/${organizationId}`,options
     );
   }
 
@@ -61,7 +61,7 @@ export const getOrganizationById = (
 
 export const getGetOrganizationByIdQueryKey = (organizationId?: string,) => {
     return [
-    `http://localhost:8080/api/organization/${organizationId}`
+    `/api/organization/${organizationId}`
     ] as const;
     }
 
@@ -152,7 +152,7 @@ if(updateOrganizationBody.deleteImage !== undefined) {
 formData.append(`updateOrganization`, JSON.stringify(updateOrganizationBody.updateOrganization));
 
     return axios.default.put(
-      `http://localhost:8080/api/organization/${organizationId}`,
+      `/api/organization/${organizationId}`,
       formData,options
     );
   }
@@ -214,7 +214,7 @@ export const deleteOrganization = (
     
     
     return axios.default.delete(
-      `http://localhost:8080/api/organization/${organizationId}`,options
+      `/api/organization/${organizationId}`,options
     );
   }
 
@@ -276,7 +276,7 @@ export const removeOwnerFromOrganization = (
     
     
     return axios.default.put(
-      `http://localhost:8080/api/organization/removeOwner/${organizationId}/${userId}`,undefined,options
+      `/api/organization/removeOwner/${organizationId}/${userId}`,undefined,options
     );
   }
 
@@ -338,7 +338,7 @@ export const addOwnerToOrganization = (
     
     
     return axios.default.put(
-      `http://localhost:8080/api/organization/addOwner/${organizationId}/${userId}`,undefined,options
+      `/api/organization/addOwner/${organizationId}/${userId}`,undefined,options
     );
   }
 
@@ -404,7 +404,7 @@ if(createOrganizationBody.image !== undefined) {
 formData.append(`organization`, JSON.stringify(createOrganizationBody.organization));
 
     return axios.default.post(
-      `http://localhost:8080/api/organization`,
+      `/api/organization`,
       formData,options
     );
   }
@@ -466,7 +466,7 @@ export const getOrganizationBySlug = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/organization/slug/${organizationSlug}`,options
+      `/api/organization/slug/${organizationSlug}`,options
     );
   }
 
@@ -475,7 +475,7 @@ export const getOrganizationBySlug = (
 
 export const getGetOrganizationBySlugQueryKey = (organizationSlug?: string,) => {
     return [
-    `http://localhost:8080/api/organization/slug/${organizationSlug}`
+    `/api/organization/slug/${organizationSlug}`
     ] as const;
     }
 
@@ -557,7 +557,7 @@ export const getAllOrganizations = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/organization/all`,options
+      `/api/organization/all`,options
     );
   }
 
@@ -566,7 +566,7 @@ export const getAllOrganizations = (
 
 export const getGetAllOrganizationsQueryKey = () => {
     return [
-    `http://localhost:8080/api/organization/all`
+    `/api/organization/all`
     ] as const;
     }
 
@@ -648,7 +648,7 @@ export const getAllRawOrganizations = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/organization/allRaw`,options
+      `/api/organization/allRaw`,options
     );
   }
 
@@ -657,7 +657,7 @@ export const getAllRawOrganizations = (
 
 export const getGetAllRawOrganizationsQueryKey = () => {
     return [
-    `http://localhost:8080/api/organization/allRaw`
+    `/api/organization/allRaw`
     ] as const;
     }
 

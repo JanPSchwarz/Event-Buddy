@@ -44,7 +44,7 @@ export const getImage = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/images/${imageId}`,{
+      `/api/images/${imageId}`,{
     ...options,}
     );
   }
@@ -54,7 +54,7 @@ export const getImage = (
 
 export const getGetImageQueryKey = (imageId?: string,) => {
     return [
-    `http://localhost:8080/api/images/${imageId}`
+    `/api/images/${imageId}`
     ] as const;
     }
 
@@ -136,7 +136,7 @@ export const getImageAsDataUrl = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/images/data-url/${imageId}`,{
+      `/api/images/data-url/${imageId}`,{
     ...options,}
     );
   }
@@ -146,7 +146,7 @@ export const getImageAsDataUrl = (
 
 export const getGetImageAsDataUrlQueryKey = (imageId?: string,) => {
     return [
-    `http://localhost:8080/api/images/data-url/${imageId}`
+    `/api/images/data-url/${imageId}`
     ] as const;
     }
 
