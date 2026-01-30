@@ -51,7 +51,7 @@ export const getUserById = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/users/${userId}`,options
+      `/api/users/${userId}`,options
     );
   }
 
@@ -60,7 +60,7 @@ export const getUserById = (
 
 export const getGetUserByIdQueryKey = (userId?: string,) => {
     return [
-    `http://localhost:8080/api/users/${userId}`
+    `/api/users/${userId}`
     ] as const;
     }
 
@@ -143,7 +143,7 @@ export const updateUser = (
     
     
     return axios.default.put(
-      `http://localhost:8080/api/users/${userId}`,
+      `/api/users/${userId}`,
       appUserUpdateDto,options
     );
   }
@@ -205,7 +205,7 @@ export const deleteUser = (
     
     
     return axios.default.delete(
-      `http://localhost:8080/api/users/${userId}`,options
+      `/api/users/${userId}`,options
     );
   }
 
@@ -266,7 +266,7 @@ export const getAllUsers = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/users/all`,options
+      `/api/users/all`,options
     );
   }
 
@@ -275,7 +275,7 @@ export const getAllUsers = (
 
 export const getGetAllUsersQueryKey = () => {
     return [
-    `http://localhost:8080/api/users/all`
+    `/api/users/all`
     ] as const;
     }
 

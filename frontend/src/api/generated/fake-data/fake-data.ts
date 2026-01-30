@@ -39,7 +39,7 @@ export const createFakeData = (
     
     
     return axios.default.post(
-      `http://localhost:8080/api/fake-data/create-fake-data`,undefined,options
+      `/api/fake-data/create-fake-data`,undefined,options
     );
   }
 
@@ -100,7 +100,7 @@ export const deleteAllFakeData = (
     
     
     return axios.default.delete(
-      `http://localhost:8080/api/fake-data/delete-all-data`,options
+      `/api/fake-data/delete-all-data`,options
     );
   }
 

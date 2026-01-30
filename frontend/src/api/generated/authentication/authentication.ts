@@ -45,7 +45,7 @@ export const getMe = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/auth/getMe`,options
+      `/api/auth/getMe`,options
     );
   }
 
@@ -54,7 +54,7 @@ export const getMe = (
 
 export const getGetMeQueryKey = () => {
     return [
-    `http://localhost:8080/api/auth/getMe`
+    `/api/auth/getMe`
     ] as const;
     }
 

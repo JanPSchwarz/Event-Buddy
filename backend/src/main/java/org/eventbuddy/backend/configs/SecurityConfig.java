@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.eventbuddy.backend.enums.Role;
 import org.eventbuddy.backend.models.error.ErrorMessage;
 import org.eventbuddy.backend.utils.IdService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,6 +26,8 @@ import java.util.List;
 public class SecurityConfig {
 
     IdService idService;
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     public SecurityConfig( IdService idService ) {
         this.idService = idService;
@@ -50,16 +53,17 @@ public class SecurityConfig {
                             response.getWriter().write( objectMapper.writeValueAsString( errorMessage ) );
                         } )
                 )
-                .logout( logout -> logout.logoutSuccessUrl( "http://localhost:5173" ) )
+                .logout( logout -> logout.logoutSuccessUrl( frontendUrl ) )
                 .oauth2Login( o -> o
-                        .defaultSuccessUrl( "http://localhost:5173", true ) );
+                        .defaultSuccessUrl( frontendUrl )
+                );
 
         return http.build();
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsCustomizer = new CorsConfiguration();
-        corsCustomizer.addAllowedOrigin( "http://localhost:5173" );
+        corsCustomizer.addAllowedOrigin( frontendUrl );
         corsCustomizer.addAllowedHeader( "*" );
         corsCustomizer.setAllowedMethods( List.of( "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE" ) );
         corsCustomizer.setAllowCredentials( true );

@@ -52,7 +52,7 @@ export const getEventById = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/events/${eventId}`,options
+      `/api/events/${eventId}`,options
     );
   }
 
@@ -61,7 +61,7 @@ export const getEventById = (
 
 export const getGetEventByIdQueryKey = (eventId?: string,) => {
     return [
-    `http://localhost:8080/api/events/${eventId}`
+    `/api/events/${eventId}`
     ] as const;
     }
 
@@ -152,7 +152,7 @@ if(updateEventBody.deleteImage !== undefined) {
 formData.append(`updateEvent`, JSON.stringify(updateEventBody.updateEvent));
 
     return axios.default.put(
-      `http://localhost:8080/api/events/${eventId}`,
+      `/api/events/${eventId}`,
       formData,options
     );
   }
@@ -214,7 +214,7 @@ export const deleteEventById = (
     
     
     return axios.default.delete(
-      `http://localhost:8080/api/events/${eventId}`,options
+      `/api/events/${eventId}`,options
     );
   }
 
@@ -280,7 +280,7 @@ if(createEventBody.imageFile !== undefined) {
 formData.append(`event`, JSON.stringify(createEventBody.event));
 
     return axios.default.post(
-      `http://localhost:8080/api/events/create`,
+      `/api/events/create`,
       formData,options
     );
   }
@@ -342,7 +342,7 @@ export const getRawEventById = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/events/raw/${eventId}`,options
+      `/api/events/raw/${eventId}`,options
     );
   }
 
@@ -351,7 +351,7 @@ export const getRawEventById = (
 
 export const getGetRawEventByIdQueryKey = (eventId?: string,) => {
     return [
-    `http://localhost:8080/api/events/raw/${eventId}`
+    `/api/events/raw/${eventId}`
     ] as const;
     }
 
@@ -433,7 +433,7 @@ export const getEventsByUserId = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/events/byUser/${userId}`,options
+      `/api/events/byUser/${userId}`,options
     );
   }
 
@@ -442,7 +442,7 @@ export const getEventsByUserId = (
 
 export const getGetEventsByUserIdQueryKey = (userId?: string,) => {
     return [
-    `http://localhost:8080/api/events/byUser/${userId}`
+    `/api/events/byUser/${userId}`
     ] as const;
     }
 
@@ -524,7 +524,7 @@ export const getEventsByOrgaId = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/events/byOrga/${organizationId}`,options
+      `/api/events/byOrga/${organizationId}`,options
     );
   }
 
@@ -533,7 +533,7 @@ export const getEventsByOrgaId = (
 
 export const getGetEventsByOrgaIdQueryKey = (organizationId?: string,) => {
     return [
-    `http://localhost:8080/api/events/byOrga/${organizationId}`
+    `/api/events/byOrga/${organizationId}`
     ] as const;
     }
 
@@ -615,7 +615,7 @@ export const getAllEvents = (
     
     
     return axios.default.get(
-      `http://localhost:8080/api/events/all`,options
+      `/api/events/all`,options
     );
   }
 
@@ -624,7 +624,7 @@ export const getAllEvents = (
 
 export const getGetAllEventsQueryKey = () => {
     return [
-    `http://localhost:8080/api/events/all`
+    `/api/events/all`
     ] as const;
     }
 
