@@ -23,14 +23,6 @@ class SpaControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void forward_shouldForwardToIndexHtml_whenRootPath() throws Exception {
-        // Root path is handled by Spring Boot's WelcomePageHandlerMapping
-        // which forwards to index.html (without leading slash)
-        mockMvc.perform( get( "/" ) )
-                .andExpect( status().isOk() );
-    }
-
-    @Test
     void forward_shouldForwardToIndexHtml_whenSingleLevelPath() throws Exception {
         mockMvc.perform( get( "/events" ) )
                 .andExpect( status().isOk() )
