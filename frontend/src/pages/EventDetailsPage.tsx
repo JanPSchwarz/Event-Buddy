@@ -14,7 +14,7 @@ import EventImage from "@/components/event/EventImage.tsx";
 import BookingDialog from "@/components/booking/BookingDialog.tsx";
 import { useContextUser } from "@/context/UserProvider.tsx";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
-import { v4 as uuidv4 } from 'uuid';
+import RichText from "@/components/RichText/RichText.tsx";
 
 
 export default function EventDetailsPage() {
@@ -127,20 +127,21 @@ export default function EventDetailsPage() {
                         <Text styleVariant={ "h3" } className={ "text-muted-foreground" }>
                             Description
                         </Text>
-                        <div className={ "space-y-4" }>
-                            {
-                                event.description ?
-                                    event.description.split( ( `\n` ) ).map( ( paragraph ) => (
-                                            <Text key={ uuidv4() } className={ "" }>
-                                                { paragraph }
-                                            </Text>
-                                        )
-                                    ) :
-                                    <Text styleVariant={ "smallMuted" }>
-                                        "No description provided."
-                                    </Text>
-                            }
-                        </div>
+                        <RichText content={ event.description }/>
+                        {/*<div className={ "space-y-4" }>*/ }
+                        {/*    {*/ }
+                        {/*        event.description ?*/ }
+                        {/*            event.description.split( ( `\n` ) ).map( ( paragraph ) => (*/ }
+                        {/*                    <Text key={ uuidv4() } className={ "" }>*/ }
+                        {/*                        { paragraph }*/ }
+                        {/*                    </Text>*/ }
+                        {/*                )*/ }
+                        {/*            ) :*/ }
+                        {/*            <Text styleVariant={ "smallMuted" }>*/ }
+                        {/*                "No description provided."*/ }
+                        {/*            </Text>*/ }
+                        {/*    }*/ }
+                        {/*</div>*/ }
                     </div>
                     <Separator/>
                     <div className={ "grid grid-cols-2 items-center gap-4" }>

@@ -15,37 +15,37 @@ export default function DashboardEventData( { event }: DashboardEventManagerProp
 
     return (
         <div className={ "w-full grid grid-cols-2 space-y-12 break-words" }>
-            <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+            <Text className={ "text-muted-foreground" }>
                 Id:
             </Text>
             <Text>
                 { event.id }
             </Text>
-            <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+            <Text className={ "text-muted-foreground" }>
                 Title:
             </Text>
             <Text className={ "" }>
                 { event.title }
             </Text>
-            <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+            <Text className={ "text-muted-foreground" }>
                 Event Start:
             </Text>
             <Text className={ "text-primary" }>
                 { new Date( event.eventDateTime ).toLocaleString() }
             </Text>
-            <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+            <Text className={ "text-muted-foreground" }>
                 Tickets booked:
             </Text>
             <Text>
                 { event.bookedTicketsCount ?? "Limitless Tickets" }
             </Text>
-            <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+            <Text className={ "text-muted-foreground" }>
                 Max Tickets:
             </Text>
             <Text>
                 { event.maxTicketCapacity ?? "Limitless Tickets" }
             </Text>
-            <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+            <Text className={ "text-muted-foreground" }>
                 Tickets available:
             </Text>
             <Text>
@@ -54,7 +54,7 @@ export default function DashboardEventData( { event }: DashboardEventManagerProp
             {
                 maxTickets && freeTickets &&
                 <>
-                    <Text styleVariant={ "h4" } className={ "text-muted-foreground" }>
+                    <Text className={ "text-muted-foreground" }>
                         Progress:
                     </Text>
                     <div className={ "col-span-2 space-y-2" }>

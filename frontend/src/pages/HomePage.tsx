@@ -6,6 +6,7 @@ import { NavLink } from "react-router";
 
 export default function HomePage() {
 
+
     return (
         <PageWrapper>
             <Text styleVariant={ "h1" } asTag={ "h1" } className={ "border-b border-primary" }>
