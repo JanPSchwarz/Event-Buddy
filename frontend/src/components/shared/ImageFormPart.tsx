@@ -104,8 +104,8 @@ export default function ImageFormPart( {
                     </AvatarFallback>
                 </Avatar>
                 :
-                <div
-                    role={ "button" }
+                <input
+                    type={ "button" }
                     className={ "cursor-pointer relative max-w-[600px] w-full mx-auto" }
                     aria-label={ "click to select image for upload" }
                     tabIndex={ 0 }
@@ -130,7 +130,7 @@ export default function ImageFormPart( {
                             { !imageSource && "Default Image is used when no image is selected." }
                         </Text>
                     </div>
-                </div>
+                </input>
             }
             <div className={ "space-x-4" }>
                 <Button variant={ "outline" } className={ "mt-4" } type={ "button" } onClick={ handleImageClick }>

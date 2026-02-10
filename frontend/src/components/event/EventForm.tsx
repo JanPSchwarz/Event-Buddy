@@ -5,18 +5,17 @@ import type { AppUserDto, Event, EventRequestDto } from "@/api/generated/openAPI
 import LocationFormPart from "@/components/shared/LocationFormPart.tsx";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Textarea } from "@/components/ui/textarea.tsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { useGetImageAsDataUrl } from "@/api/generated/image-controller/image-controller.ts";
 import { useState } from "react";
 import ImageFormPart from "@/components/shared/ImageFormPart.tsx";
 import { createEventBody } from "@/api/generated/event-controller/event-controller.zod.ts";
 import ButtonWithLoading from "@/components/shared/ButtonWithLoading.tsx";
+import { SimpleEditor } from "@/components/ui/tiptap-templates/simple/simple-editor.tsx";
 
 const extendedEventBody = createEventBody.extend( {
     event: createEventBody.shape.event.extend( {
             eventDateTime: z.preprocess( ( dateTime: string ) => {
-                console.log( dateTime );
                 if ( dateTime.length == 0 ) return "";
                 return new Date( dateTime ).toISOString();
             }, z.iso.datetime( "Date and time are required" ) )
@@ -202,29 +201,32 @@ export default function EventForm( { eventData, user, onSubmit }: Readonly<Event
                 <Controller
                     name={ "event.description" }
                     control={ form.control }
-                    render={
-                        ( { field, fieldState } ) => (
-                            <Field data-invalid={ fieldState.invalid }>
-                                <FieldLabel>
-                                    Description
-                                    { fieldState.invalid && (
-                                        <FieldError className={ "text-xs ml-auto" }
-                                                    errors={ [ fieldState.error ] }/>
-                                    ) }
-                                </FieldLabel>
-                                <Textarea
-                                    { ...field }
-                                    rows={ 4 }
-                                    aria-invalid={ fieldState.invalid }
-                                    placeholder={ "Describe the event..." }
-                                />
-                                <FieldDescription>
-                                    Max. 1500 characters
-                                </FieldDescription>
-                            </Field>
-                        )
-                    }
+                    render={ ( { field, fieldState } ) => (
+                        <Field data-invalid={ fieldState.invalid }>
+                            <FieldLabel>
+                                Description
+                                { fieldState.invalid && (
+                                    <FieldError className={ "text-xs ml-auto" }
+                                                errors={ [ fieldState.error ] }/>
+                                ) }
+                            </FieldLabel>
+                            <SimpleEditor
+                                field={ field }
+                                initialContent={ field?.value }
+                            />
+                            <FieldDescription>
+                                Describe the event and give details.
+                                <br/>
+                                <br/>
+                                Tips:<br/>
+                                - Type --- to a new line to create a horizontal rule.
+                                <br/>
+                                - Mark text to use a floating toolbar.
+                            </FieldDescription>
+                        </Field>
+                    ) }
                 />
+
                 <Controller
                     name={ "event.eventDateTime" }
                     control={ form.control }

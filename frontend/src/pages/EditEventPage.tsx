@@ -99,7 +99,7 @@ export default function EditEventPage() {
     return (
         <PageWrapper>
             <MainHeading heading={ "Edit Event" } subheading={ eventData?.data.title }/>
-            <div className={ "w-full max-w-[1000px] px-12 mb-12" }>
+            <div className={ "w-full max-w-[1000px] px-2 md:px-8 lg:px-12 mb-12" }>
                 <EventForm user={ userData?.data } eventData={ eventData?.data } onSubmit={ handleSubmit }/>
             </div>
         </PageWrapper>

@@ -46,15 +46,22 @@ export default function EventDashBoardPage() {
                     <Button disabled>
                         Download Guest List
                     </Button>
+                    <Button asChild variant={ "secondary" }>
+                        <NavLink to={ `/event/${ eventId }` }>
+                            Event Page
+                        </NavLink>
+                    </Button>
                     <Button asChild variant={ "outline" }>
                         <NavLink to={ `/event/edit/${ eventData.data.id }?src=manager` }>
                             Edit Event
                         </NavLink>
                     </Button>
-                    <DeleteEventDialog/>
                 </div>
             </div>
             <DashboardEventData event={ eventData.data }/>
+            <div className={ "w-full flex justify-end" }>
+                <DeleteEventDialog/>
+            </div>
         </PageWrapper>
     )
 }

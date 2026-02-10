@@ -54,10 +54,11 @@ export default function EventsPage() {
                 </Button>
             </div>
             <div
-                className={ "grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] place-items-center items-start justify-center flex-wrap gap-12 w-full" }>
+                className={ "grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] place-items-center items-start justify-center flex-wrap gap-12 w-full" }>
                 {
                     allEvents?.data.map( ( event ) => {
-                        return <EventCard cardClassName={ "w-full max-w-[350px]" } key={ event.id } event={ event }/>
+                        return <EventCard cardClassName={ "w-full" } key={ event.id }
+                                          event={ event }/>
                     } )
                 }
                 {

@@ -10,7 +10,7 @@ export default function PageWrapper( { children, className }: Readonly<PageWrapp
 
     return (
         <div
-            className={ cn( "flex flex-col w-full gap-8 mt-4 md:mt-8 px-2 md:px-4 justify-start items-center", className ) }>
+            className={ cn( "flex flex-col w-full gap-8 mt-4 md:mt-8 px-6 md:px-4 justify-start items-center", className ) }>
             { children }
         </div>
     )
