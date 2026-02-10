@@ -32,10 +32,10 @@ export interface ListButtonProps
 export function ListShortcutBadge( {
                                        type,
                                        shortcutKeys = LIST_SHORTCUT_KEYS[ type ],
-                                   }: {
+                                   }: Readonly<{
     type: ListType
     shortcutKeys?: string
-} ) {
+}> ) {
     return <Badge>{ parseShortcutKeys( { shortcutKeys } ) }</Badge>
 }
 
