@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { NavLink } from "react-router";
 import { useGetEventsByOrgaId } from "@/api/generated/event-controller/event-controller.ts";
 import EventCard from "@/components/event/EventCard.tsx";
+import { v4 as uuidv4 } from 'uuid';
+
 
 type OrganizationViewProps = {
     orgaData: OrganizationResponseDto,
@@ -59,8 +61,8 @@ export default function OrganizationView( { orgaData }: Readonly<OrganizationVie
                         <Text asTag={ "h3" } styleVariant={ "h6" }
                               className={ "text-muted-foreground" }>Description</Text>
                         { orgaData.description
-                            ? orgaData.description.split( '\n' ).map( ( paragraph, index ) => (
-                                <Text key={ index } className={ "" }>
+                            ? orgaData.description.split( '\n' ).map( ( paragraph ) => (
+                                <Text key={ uuidv4() } className={ "" }>
                                     { paragraph }
                                 </Text>
                             ) )

@@ -2,10 +2,7 @@ import { forwardRef, useCallback } from "react"
 
 // --- Tiptap UI ---
 import type { UseBlockquoteConfig } from "@/components/ui/tiptap-ui/blockquote-button/index.tsx"
-import {
-    BLOCKQUOTE_SHORTCUT_KEY,
-    useBlockquote,
-} from "@/components/ui/tiptap-ui/blockquote-button/index.tsx"
+import { BLOCKQUOTE_SHORTCUT_KEY, useBlockquote, } from "@/components/ui/tiptap-ui/blockquote-button/index.tsx"
 
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor.ts"
@@ -34,9 +31,9 @@ export interface BlockquoteButtonProps
 
 export function BlockquoteShortcutBadge( {
                                              shortcutKeys = BLOCKQUOTE_SHORTCUT_KEY,
-                                         }: {
+                                         }: Readonly<{
     shortcutKeys?: string
-} ) {
+}> ) {
     return <Badge>{ parseShortcutKeys( { shortcutKeys } ) }</Badge>
 }
 

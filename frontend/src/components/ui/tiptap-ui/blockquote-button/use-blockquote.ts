@@ -82,7 +82,7 @@ export function canToggleBlockquote(
  * Toggles blockquote formatting for a specific node or the current selection
  */
 export function toggleBlockquote( editor: Editor | null ): boolean {
-    if ( !editor || !editor.isEditable ) return false
+    if ( !editor?.isEditable ) return false
     if ( !canToggleBlockquote( editor ) ) return false
 
     try {
@@ -170,7 +170,7 @@ export function shouldShowButton( props: {
 } ): boolean {
     const { editor, hideWhenUnavailable } = props
 
-    if ( !editor || !editor.isEditable ) return false
+    if ( !editor?.isEditable ) return false
     if ( !isNodeInSchema( "blockquote", editor ) ) return false
 
     if ( hideWhenUnavailable && !editor.isActive( "code" ) ) {

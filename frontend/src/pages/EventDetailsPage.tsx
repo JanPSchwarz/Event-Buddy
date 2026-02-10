@@ -128,20 +128,6 @@ export default function EventDetailsPage() {
                             Description
                         </Text>
                         <RichText content={ event.description }/>
-                        {/*<div className={ "space-y-4" }>*/ }
-                        {/*    {*/ }
-                        {/*        event.description ?*/ }
-                        {/*            event.description.split( ( `\n` ) ).map( ( paragraph ) => (*/ }
-                        {/*                    <Text key={ uuidv4() } className={ "" }>*/ }
-                        {/*                        { paragraph }*/ }
-                        {/*                    </Text>*/ }
-                        {/*                )*/ }
-                        {/*            ) :*/ }
-                        {/*            <Text styleVariant={ "smallMuted" }>*/ }
-                        {/*                "No description provided."*/ }
-                        {/*            </Text>*/ }
-                        {/*    }*/ }
-                        {/*</div>*/ }
                     </div>
                     <Separator/>
                     <div className={ "grid grid-cols-2 items-center gap-4" }>
