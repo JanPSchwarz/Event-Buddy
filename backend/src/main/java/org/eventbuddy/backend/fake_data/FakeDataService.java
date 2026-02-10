@@ -13,13 +13,10 @@ import org.eventbuddy.backend.models.image.Image;
 import org.eventbuddy.backend.models.organization.Contact;
 import org.eventbuddy.backend.models.organization.Location;
 import org.eventbuddy.backend.models.organization.Organization;
-import org.eventbuddy.backend.repos.EventRepository;
-import org.eventbuddy.backend.repos.ImageRepository;
-import org.eventbuddy.backend.repos.OrganizationRepository;
-import org.eventbuddy.backend.repos.UserRepository;
-import org.springframework.context.annotation.Profile;
+import org.eventbuddy.backend.repos.*;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -28,17 +25,18 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-@Profile("dev")
 public class FakeDataService {
 
     private final UserRepository userRepo;
     private final OrganizationRepository organizationRepo;
     private final ImageRepository imageRepo;
     private final EventRepository eventRepo;
+    private final BookingRepository bookingRepo;
     private final Faker faker = new Faker();
 
     private final List<String> currentUserIds = new ArrayList<>();
     private final List<String> currentOrgaIds = new ArrayList<>();
+
 
     public void createFakeData( int numberOfUsers ) {
         List<AppUser> createdFakeUsers = createFakeUser( numberOfUsers );
@@ -73,9 +71,11 @@ public class FakeDataService {
         organizationRepo.deleteAll();
         imageRepo.deleteAll();
         eventRepo.deleteAll();
+        bookingRepo.deleteAll();
     }
 
-    private void createFakeEvents( int numberOfEvents ) {
+
+    public void createFakeEvents( int numberOfEvents ) {
 
         for ( int i = 0; i < numberOfEvents; i++ ) {
 
@@ -113,11 +113,17 @@ public class FakeDataService {
 
             long maxYearsInFuture = TimeUnit.DAYS.toMillis( 365L * 2 );
 
+            Instant randomDate = faker.timeAndDate().future( maxYearsInFuture, TimeUnit.MILLISECONDS );
+
+            if ( i == 1 ) {
+                randomDate = Instant.now();
+            }
+
             Event newEvent = Event.builder()
                     .eventOrganization( randomOrga )
                     .title( faker.funnyName().name() )
                     .description( richTextDescription )
-                    .eventDateTime( faker.timeAndDate().future( maxYearsInFuture, TimeUnit.MILLISECONDS ) )
+                    .eventDateTime( randomDate )
                     .price( faker.bool().bool() ? faker.number().randomDouble( 2, 5, 100 ) : 0.0 )
                     .maxTicketCapacity( maxCapacity > 0 ? maxCapacity : null )
                     .freeTicketCapacity( freeTicketCapacity > 0 ? freeTicketCapacity : null )
@@ -134,8 +140,7 @@ public class FakeDataService {
 
     }
 
-
-    private List<AppUser> createFakeUser( int numberOfUsers ) {
+    public List<AppUser> createFakeUser( int numberOfUsers ) {
         List<AppUser> appUsersList = new ArrayList<>();
         for ( int i = 0; i < numberOfUsers; i++ ) {
 
@@ -164,7 +169,8 @@ public class FakeDataService {
         return appUsersList;
     }
 
-    private void createFakeOrganizations( int numberOfOrgas ) {
+
+    public void createFakeOrganizations( int numberOfOrgas ) {
         for ( int i = 0; i < numberOfOrgas; i++ ) {
 
             Image randomImage = Image.builder()
@@ -197,7 +203,7 @@ public class FakeDataService {
         }
     }
 
-    private Binary provideFakeImageBase64Binary() {
+    public Binary provideFakeImageBase64Binary() {
         String base64Image = faker.image().base64JPG();
         String cleanBase64 = base64Image.replaceFirst( "^data:image/[^;]+;base64,", "" );
         byte[] imageBytes = Base64.getDecoder().decode( cleanBase64 );
@@ -205,7 +211,7 @@ public class FakeDataService {
         return new Binary( BsonBinarySubType.BINARY, imageBytes );
     }
 
-    private Location provideFakeLocation() {
+    public Location provideFakeLocation() {
         return Location.builder()
                 .locationName( faker.bool().bool() ? faker.name().fullName() + " Hall" : null )
                 .address( faker.address().streetAddress() )
