@@ -8,10 +8,7 @@ import { parseShortcutKeys } from "@/lib/tiptap-utils.ts"
 
 // --- Tiptap UI ---
 import type { UseCodeBlockConfig } from "@/components/ui/tiptap-ui/code-block-button/index.tsx"
-import {
-    CODE_BLOCK_SHORTCUT_KEY,
-    useCodeBlock,
-} from "@/components/ui/tiptap-ui/code-block-button/index.tsx"
+import { CODE_BLOCK_SHORTCUT_KEY, useCodeBlock, } from "@/components/ui/tiptap-ui/code-block-button/index.tsx"
 
 // --- UI Primitives ---
 import type { ButtonProps } from "@/components/ui/tiptap-ui-primitive/button"
@@ -34,9 +31,9 @@ export interface CodeBlockButtonProps
 
 export function CodeBlockShortcutBadge( {
                                             shortcutKeys = CODE_BLOCK_SHORTCUT_KEY,
-                                        }: {
+                                        }: Readonly<{
     shortcutKeys?: string
-} ) {
+}> ) {
     return <Badge>{ parseShortcutKeys( { shortcutKeys } ) }</Badge>
 }
 
