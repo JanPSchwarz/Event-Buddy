@@ -2,12 +2,10 @@ import {
     NavigationMenu,
     NavigationMenuItem,
     NavigationMenuLink,
-    NavigationMenuList,
-    navigationMenuTriggerStyle
+    NavigationMenuList
 } from "@/components/ui/navigation-menu.tsx";
 import { NavLink, useLocation } from "react-router";
 import { type NavigationItem, navigations } from "@/lib/navigations.tsx";
-import { cn } from "@/lib/utils.ts";
 
 export default function Navigation() {
 
@@ -21,7 +19,7 @@ export default function Navigation() {
                         >
                             <NavigationMenuLink asChild
                                                 data-active={ pathname === href }
-                                                className={ cn( navigationMenuTriggerStyle(), "data-[active=true]:underline data-[active=true]:underline-offset-4 data-[active=true]:decoration-primary  bg-accent hover:underline hover:underline-offset-4 hover:bg-none hover:decoration-primary  max-h-min py-1" ) }>
+                                                className={ "max-h-min py-1" }>
                                 <NavLink to={ href }>{ title }</NavLink>
                             </NavigationMenuLink>
                         </NavigationMenuItem>

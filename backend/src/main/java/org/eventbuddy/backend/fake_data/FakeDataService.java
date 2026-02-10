@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -104,11 +105,19 @@ public class FakeDataService {
 
             boolean isSoldOut = hasValidCapacity && ( freeTicketCapacity == 0 );
 
+            List<String> title = faker.lorem().words( faker.number().numberBetween( 1, 3 ) );
+            String[] randomBulletPoints = faker.lorem().words( 6 ).toArray( String[]::new );
+            String description = faker.lorem().paragraph( 5 );
+
+            String richTextDescription = "<h1 style=\"text-align: center;\">\uD83C\uDF89" + String.join( " ", title ) + "\uD83C\uDF89</h1><p style=\"text-align: left;\"><strong>Quick infos:</strong></p><ul><li><p>" + randomBulletPoints[0] + " " + randomBulletPoints[1] + "</p></li><li><p>" + randomBulletPoints[2] + " " + "<mark data-color=\"var(--tt-color-highlight-red)\" style=\"background-color: var(--tt-color-highlight-red); color: inherit;\">" + randomBulletPoints[3] + "</mark></p></li><li><p><s>" + randomBulletPoints[4] + " " + "</s>" + randomBulletPoints[5] + "</p></li></ul><div data-type=\"horizontalRule\"><hr></div><h1>Heading</h1><p>" + description + "</p><p><em>Looking forward to see you there,</em></p><p><strong>Cheers! </strong></p><p></p>";
+
+            long maxYearsInFuture = TimeUnit.DAYS.toMillis( 365L * 2 );
+
             Event newEvent = Event.builder()
                     .eventOrganization( randomOrga )
                     .title( faker.funnyName().name() )
-                    .description( faker.lorem().sentence( 100 ) )
-                    .eventDateTime( faker.timeAndDate().future() )
+                    .description( richTextDescription )
+                    .eventDateTime( faker.timeAndDate().future( maxYearsInFuture, TimeUnit.MILLISECONDS ) )
                     .price( faker.bool().bool() ? faker.number().randomDouble( 2, 5, 100 ) : 0.0 )
                     .maxTicketCapacity( maxCapacity > 0 ? maxCapacity : null )
                     .freeTicketCapacity( freeTicketCapacity > 0 ? freeTicketCapacity : null )
